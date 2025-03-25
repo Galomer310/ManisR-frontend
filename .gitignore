@@ -1,0 +1,26 @@
+# .gitignore
+
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+
+# Environment files (if they contain sensitive info)
+.env
+.env.local
+.env.*.local
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor folders
+.vscode/
+.idea/
+
+# Other
+*.cache
