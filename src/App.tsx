@@ -2,7 +2,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LaunchScreen from "./screens/LaunchScreen";
-import LoginRegister from "./screens/LoginRegister"; // A landing page with options to log in or register
+import LoginRegister from "./screens/LoginRegister";
 import Register from "./screens/Register";
 import Login from "./screens/Login";
 import VerifyEmail from "./screens/VerifyEmail";
@@ -10,7 +10,8 @@ import PreferencesLocation from "./screens/PreferencesLocation";
 import PreferencesFood from "./screens/PreferencesFood";
 import FoodUpload from "./screens/FoodUpload";
 import GiverMealCardApproval from "./screens/GiverMealCardApproval";
-import HomePage from "./screens/HomePage";
+import Menu from "./screens/Menu"; // New Menu component
+import CollectFood from "./screens/CollectFood"; // Added route for collecting food
 import Profile from "./screens/Profile";
 import Messages from "./screens/Messages";
 import Settings from "./screens/Settings";
@@ -18,8 +19,6 @@ import TalkToUs from "./screens/TalkToUs";
 import UnderConstruction from "./screens/UnderConstruction";
 import GiverMealMapScreen from "./screens/GiverMealMapScreen";
 import ChatRoom from "./components/ChatRoom";
-
-// Remove outdated routes like RegisterCode, LoginCode, etc.
 
 const App: React.FC = () => {
   return (
@@ -37,7 +36,10 @@ const App: React.FC = () => {
           path="/giver-meal-approval"
           element={<GiverMealCardApproval />}
         />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/menu" element={<Menu />} />
+        {/* If you want the menu as the landing screen after login */}
+        <Route path="/home" element={<Menu />} />
+        <Route path="/collect-food" element={<CollectFood />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/settings" element={<Settings />} />

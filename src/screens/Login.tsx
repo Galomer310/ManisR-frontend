@@ -33,7 +33,7 @@ const Login: React.FC = () => {
         dispatch(setUser(data.user));
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id.toString());
-        navigate("/home");
+        navigate("/menu");
       }
     } catch (err) {
       console.error(err);
