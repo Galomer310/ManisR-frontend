@@ -1,15 +1,43 @@
 // src/screens/PreferencesLocation.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-/**
- * PreferencesLocation screen:
- * Collects location preferences (city and search radius) and navigates to the food preferences screen.
- */
 const PreferencesLocation: React.FC = () => {
   const navigate = useNavigate();
   const [city, setCity] = useState("");
   const [radius, setRadius] = useState(5);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
+            );
+            const data = await response.json();
+            if (data && data.address) {
+              const suggestedCity =
+                data.address.city ||
+                data.address.town ||
+                data.address.village ||
+                data.address.county ||
+                "";
+              if (suggestedCity) {
+                setCity(suggestedCity);
+              }
+            }
+          } catch (error) {
+            console.error("Reverse geocoding error:", error);
+          }
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+        }
+      );
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

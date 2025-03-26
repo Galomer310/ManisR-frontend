@@ -1,22 +1,68 @@
-// src/screens/FoodUpload.tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-/**
- * FoodUpload screen:
- * Allows a giver to upload food details (and optionally an image).
- * The request includes an Authorization header with the JWT token.
- */
+interface MealData {
+  id?: string; // Optional when editing
+  item_description: string;
+  pickup_address: string;
+  box_option: "need" | "noNeed";
+  food_types: string;
+  ingredients: string;
+  special_notes: string;
+}
+
 const FoodUpload: React.FC = () => {
   const navigate = useNavigate();
-  const [itemDescription, setItemDescription] = useState("");
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [boxOption, setBoxOption] = useState<"need" | "noNeed">("need");
-  const [foodTypes, setFoodTypes] = useState<string[]>([]);
-  const [ingredients] = useState<string[]>([]);
-  const [specialNotes] = useState("");
+  const { state } = useLocation();
+  const editMeal: MealData | null = state?.meal || null;
+
+  // Form fields with default values if editing
+  const [itemDescription, setItemDescription] = useState(
+    editMeal?.item_description || ""
+  );
+  const [pickupAddress, setPickupAddress] = useState(
+    editMeal?.pickup_address || ""
+  );
+  const [boxOption, setBoxOption] = useState<"need" | "noNeed">(
+    editMeal?.box_option || "need"
+  );
+  const [foodTypes, setFoodTypes] = useState<string[]>(
+    editMeal ? editMeal.food_types.split(",") : []
+  );
+  const [ingredients] = useState<string[]>(
+    editMeal ? editMeal.ingredients.split(",") : []
+  );
+  const [specialNotes] = useState(editMeal?.special_notes || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
+
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+  // Use device geolocation to suggest an address if not editing.
+  useEffect(() => {
+    if (!editMeal && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            const data = await response.json();
+            if (data && data.display_name) {
+              setPickupAddress(data.display_name);
+            }
+          } catch (err) {
+            console.error("Reverse geocoding error:", err);
+          }
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+        }
+      );
+    }
+  }, [editMeal]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -24,10 +70,32 @@ const FoodUpload: React.FC = () => {
     }
   };
 
+  // Cancel handler: if editing, attempt to delete the meal from backend; otherwise, just navigate back.
+  const handleCancel = async () => {
+    if (editMeal?.id) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE_URL}/food/myMeal`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || "Error deleting meal");
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Server error deleting meal");
+        return;
+      }
+    }
+    navigate("/menu");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     const userId = localStorage.getItem("userId");
     if (!userId) {
       setError("No userId found. Please log in first.");
@@ -47,24 +115,32 @@ const FoodUpload: React.FC = () => {
     }
 
     try {
-      const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-      // Retrieve JWT token from localStorage
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/food/give`, {
-        method: "POST",
-        headers: {
-          // Include Authorization header for protected endpoint
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      let response;
+      if (editMeal) {
+        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/food/give`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+      }
       const data = await response.json();
       if (!response.ok) {
         setError(data.error || "Error uploading food item");
       } else {
-        // Navigate to home after a successful upload.
-        navigate("/home");
+        // Optionally warn if no foodItemId is returned.
+        if (!data.foodItemId && !editMeal) {
+          console.warn(
+            "No food item ID provided by backend, but meal should be saved."
+          );
+        }
+        navigate("/giver-meal-screen");
       }
     } catch (err) {
       console.error(err);
@@ -74,7 +150,7 @@ const FoodUpload: React.FC = () => {
 
   return (
     <div className="screen-container">
-      <h2>Upload Food Item</h2>
+      <h2>{editMeal ? "Edit Your Meal" : "Upload Food Item"}</h2>
       <form onSubmit={handleSubmit} autoComplete="off">
         <input
           type="text"
@@ -119,9 +195,16 @@ const FoodUpload: React.FC = () => {
             <input
               type="checkbox"
               value="Kosher vegetarian"
-              onChange={() =>
-                setFoodTypes((prev) => [...prev, "Kosher vegetarian"])
-              }
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setFoodTypes((prev) => [...prev, "Kosher vegetarian"]);
+                } else {
+                  setFoodTypes((prev) =>
+                    prev.filter((ft) => ft !== "Kosher vegetarian")
+                  );
+                }
+              }}
+              checked={foodTypes.includes("Kosher vegetarian")}
             />
             Kosher vegetarian
           </label>
@@ -130,7 +213,14 @@ const FoodUpload: React.FC = () => {
             <input
               type="checkbox"
               value="Vegan"
-              onChange={() => setFoodTypes((prev) => [...prev, "Vegan"])}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setFoodTypes((prev) => [...prev, "Vegan"]);
+                } else {
+                  setFoodTypes((prev) => prev.filter((ft) => ft !== "Vegan"));
+                }
+              }}
+              checked={foodTypes.includes("Vegan")}
             />
             Vegan
           </label>
@@ -144,9 +234,14 @@ const FoodUpload: React.FC = () => {
             onChange={handleFileChange}
           />
         </div>
-        <button type="submit">Upload Food</button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <button type="submit" onClick={handleSubmit}>
+        {editMeal ? "Update Meal" : "Upload Food"}
+      </button>
+      <button type="button" onClick={handleCancel}>
+        Cancel
+      </button>
+      {error && <p className="error">{error}</p>}
     </div>
   );
 };

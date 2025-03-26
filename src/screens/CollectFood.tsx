@@ -1,14 +1,9 @@
-// src/screens/CollectFood.tsx
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
-import L from "leaflet";
+import Map, { Marker, Popup } from "react-map-gl";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "mapbox-gl/dist/mapbox-gl.css";
 
-/* 
-  Interface for the meal object returned from the backend.
-*/
 interface Meal {
   id: number;
   item_description: string;
@@ -17,47 +12,22 @@ interface Meal {
   food_types: string;
   ingredients: string;
   special_notes: string;
-  image_url?: string | null;
-  lat: number | null;
-  lng: number | null;
-  approved?: boolean;
+  lat: number;
+  lng: number;
+  avatar_url: string;
 }
 
-/**
- * Calculates the distance (in km) between two points using the Haversine formula.
- */
-const getDistance = (
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-): number => {
-  const toRad = (value: number): number => (value * Math.PI) / 180;
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-/**
- * CollectFood screen:
- * Fetches available meals, updates the map center based on user location preferences,
- * and filters meals according to the current search radius and food preference.
- */
 const CollectFood: React.FC = () => {
-  const locationPref = useSelector(
-    (state: RootState) => state.preferences.location
-  );
-  const foodPref = useSelector((state: RootState) => state.preferences.food);
-
-  const [center, setCenter] = useState<[number, number]>([32.0853, 34.7818]);
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [filteredMeals, setFilteredMeals] = useState<Meal[]>([]);
+  const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const [viewport, setViewport] = useState({
+    latitude: 32.0853,
+    longitude: 34.7818,
+    zoom: 13,
+  });
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -75,58 +45,58 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // Update center based on location preference (geocoding not shown here for brevity)
-  useEffect(() => {
-    if (locationPref && locationPref.city) {
-      // For simplicity, assume the city geocoding returns these coordinates:
-      setCenter([32.0853, 34.7818]);
-    }
-  }, [locationPref]);
-
-  useEffect(() => {
-    if (!locationPref) return;
-    const filtered = meals.filter((meal) => {
-      if (meal.lat === null || meal.lng === null) return false;
-      const distance = getDistance(center[0], center[1], meal.lat, meal.lng);
-      if (distance > locationPref.radius) return false;
-      if (foodPref && foodPref.foodPreference !== "No preferences") {
-        if (!meal.food_types.includes(foodPref.foodPreference)) return false;
-      }
-      return true;
-    });
-    setFilteredMeals(filtered);
-  }, [meals, locationPref, foodPref, center]);
-
   return (
-    <div className="full-screen">
-      <MapContainer center={center} zoom={14} className="map-container">
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {filteredMeals.map((meal) =>
-          meal.lat && meal.lng ? (
-            <Marker
-              key={meal.id}
-              position={[meal.lat, meal.lng]}
-              icon={new L.Icon.Default()}
-            >
-              <Popup>
-                <div>
-                  <strong>{meal.item_description}</strong>
-                  <p>{meal.pickup_address}</p>
-                  <p>
-                    Box Option:{" "}
-                    {meal.box_option === "need" ? "Bring box" : "No box needed"}
-                  </p>
-                  <p>Food Types: {meal.food_types}</p>
-                </div>
-              </Popup>
+    <div className="screen-container collect-food-container">
+      <div className="map-container">
+        <Map
+          initialViewState={viewport}
+          style={{ width: "100%", height: "100%" }}
+          onMove={(evt) => setViewport(evt.viewState)}
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
+        >
+          {meals.map((meal) => (
+            <Marker key={meal.id} latitude={meal.lat} longitude={meal.lng}>
+              <div
+                style={{ cursor: "pointer" }}
+                onClick={() => setSelectedMeal(meal)}
+              >
+                📍
+              </div>
             </Marker>
-          ) : null
+          ))}
+
+          {selectedMeal && (
+            <Popup
+              latitude={selectedMeal.lat}
+              longitude={selectedMeal.lng}
+              closeOnClick={false}
+              onClose={() => setSelectedMeal(null)}
+            >
+              <div>
+                <strong>{selectedMeal.item_description}</strong>
+                <p>{selectedMeal.pickup_address}</p>
+              </div>
+            </Popup>
+          )}
+        </Map>
+      </div>
+
+      <div className="meal-list-container">
+        <h2>Available Meals</h2>
+        {error && <p className="error">{error}</p>}
+        {meals.length === 0 ? (
+          <p>No meals available.</p>
+        ) : (
+          meals.map((meal) => (
+            <div className="meal-card" key={meal.id}>
+              <strong>{meal.item_description}</strong>
+              <p>{meal.pickup_address}</p>
+            </div>
+          ))
         )}
-      </MapContainer>
-      {error && <p className="error">{error}</p>}
+        <button onClick={() => navigate("/menu")}>Cancel Request</button>
+      </div>
     </div>
   );
 };

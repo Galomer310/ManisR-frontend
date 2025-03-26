@@ -4,10 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
 
-/**
- * Login screen:
- * User enters email and password; on success, token and user info are stored.
- */
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -33,11 +29,31 @@ const Login: React.FC = () => {
         dispatch(setUser(data.user));
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id.toString());
-        navigate("/menu");
+        // Check if the user has a meal
+        const token = data.token;
+        const resMyMeal = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/food/myMeal`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (resMyMeal.ok) {
+          navigate("/giver-meal-screen");
+        } else if (resMyMeal.status === 404) {
+          navigate("/menu");
+        } else {
+          console.error(
+            "Unexpected error fetching meal:",
+            await resMyMeal.text()
+          );
+          navigate("/menu");
+        }
       }
     } catch (err) {
       console.error(err);
       setError("Server error during login.");
+      navigate("/menu");
     }
   };
 

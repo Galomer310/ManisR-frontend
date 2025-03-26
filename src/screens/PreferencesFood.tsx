@@ -2,16 +2,11 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-/**
- * PreferencesFood screen:
- * Collects food preference and allergy selections and navigates to the food upload screen.
- */
 const PreferencesFood: React.FC = () => {
   const navigate = useNavigate();
   const locationState = useLocation().state as { city: string; radius: number };
   const [foodPreference, setFoodPreference] = useState("No preferences");
   const [allergies, setAllergies] = useState<string[]>([]);
-  const [error] = useState("");
 
   const toggleSelection = (value: string) => {
     if (allergies.includes(value)) {
@@ -23,7 +18,7 @@ const PreferencesFood: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/food/upload", {
+    navigate("/collect-food", {
       state: { ...locationState, foodPreference, allergies },
     });
   };
@@ -112,7 +107,6 @@ const PreferencesFood: React.FC = () => {
         </div>
         <button type="submit">Next</button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 };

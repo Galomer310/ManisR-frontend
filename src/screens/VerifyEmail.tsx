@@ -31,7 +31,7 @@ const VerifyEmail: React.FC = () => {
   }, [token, navigate]);
 
   return (
-    <div className="screen-container">
+    <div className="screen-container centered">
       <h2>Verifying your email...</h2>
       <p>Please wait while we verify your email address.</p>
     </div>
