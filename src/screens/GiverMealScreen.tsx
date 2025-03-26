@@ -1,3 +1,4 @@
+// src/screens/GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker, Popup } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -15,28 +16,27 @@ interface Meal {
   lat: number;
   lng: number;
   avatar_url: string;
-  user_id: number;
 }
 
 const GiverMealScreen: React.FC = () => {
   const [meal, setMeal] = useState<Meal | null>(null);
+  const [convCount, setConvCount] = useState<number>(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [messageCount, setMessageCount] = useState(0);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Fetch the giver's meal.
+  // Fetch the current user's meal.
   useEffect(() => {
     const fetchMyMeal = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_BASE_URL}/food/myMeal`, {
+        const res = await axios.get(`${API_BASE_URL}/food/myMeal`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setMeal(response.data.meal);
-      } catch (err) {
+        setMeal(res.data.meal);
+      } catch (err: any) {
         setError("Server error fetching meal.");
         console.error(err);
       } finally {
@@ -46,63 +46,68 @@ const GiverMealScreen: React.FC = () => {
     fetchMyMeal();
   }, [API_BASE_URL]);
 
-  // Fetch the conversation message count for this meal.
+  // Once the meal is fetched, fetch the conversation count.
   useEffect(() => {
     const fetchConversationCount = async () => {
-      try {
-        if (meal) {
+      if (meal) {
+        try {
           const token = localStorage.getItem("token");
           const res = await axios.get(
-            `${API_BASE_URL}/meal_conversation/count/${meal.id}`,
+            `${API_BASE_URL}/meal-conversation/count/${meal.id}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          setMessageCount(res.data.count);
+          // If the endpoint returns 404, we treat it as zero messages.
+          setConvCount(res.data.count);
+        } catch (err: any) {
+          if (err.response && err.response.status === 404) {
+            setConvCount(0);
+          } else {
+            console.error("Error fetching conversation count:", err);
+          }
         }
-      } catch (err) {
-        console.error("Error fetching conversation count:", err);
       }
     };
     fetchConversationCount();
-  }, [meal, API_BASE_URL]);
+  }, [API_BASE_URL, meal]);
 
-  // Handler for editing the meal.
   const handleEdit = () => {
     if (meal) {
       navigate("/food/upload", { state: { meal } });
     }
   };
 
-  // Handler for cancelling the meal.
   const handleCancel = async () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Also delete the conversation for this meal.
-      await axios.delete(`${API_BASE_URL}/meal_conversation/${meal?.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Also, when canceling, you might want to delete the associated conversation.
+      if (meal) {
+        await axios.delete(`${API_BASE_URL}/meal-conversation/${meal.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
       navigate("/menu");
     } catch (err) {
+      console.error("Error cancelling meal:", err);
       setError("Server error cancelling meal.");
-      console.error(err);
     }
   };
 
-  // Handler for opening the chat room.
+  // Navigate to the chat room; only enable if convCount > 0 (or you want to allow sending the first message)
   const handleMessages = () => {
     if (meal) {
-      // Navigate to the ChatRoom component, passing the meal's id as conversationId.
-      navigate("/chat", { state: { conversationId: String(meal.id) } });
+      navigate("/chat", { state: { mealId: meal.id } });
     }
   };
 
   if (loading) {
     return <div className="screen-container">Loading your meal...</div>;
   }
+
   if (error || !meal) {
     return (
       <div className="screen-container">
@@ -114,8 +119,7 @@ const GiverMealScreen: React.FC = () => {
 
   return (
     <div className="screen-container">
-      {/* Upper half: Map showing the meal location */}
-      <div className="map-container" style={{ height: "50vh" }}>
+      <div className="map-container" style={{ height: "60vh" }}>
         <Map
           initialViewState={{
             latitude: meal.lat,
@@ -130,11 +134,10 @@ const GiverMealScreen: React.FC = () => {
             <div>📍</div>
           </Marker>
           <Popup latitude={meal.lat} longitude={meal.lng} closeOnClick={false}>
-            <div>Pickup Location</div>
+            Pickup Location
           </Popup>
         </Map>
       </div>
-      {/* Lower half: Meal details and action buttons */}
       <div className="meal-summary">
         <h2>Your Meal</h2>
         <p>
@@ -143,11 +146,12 @@ const GiverMealScreen: React.FC = () => {
         <p>
           <strong>Address:</strong> {meal.pickup_address}
         </p>
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
           <button onClick={handleEdit}>Edit Meal</button>
           <button onClick={handleCancel}>Cancel Meal</button>
-          <button onClick={handleMessages} disabled={messageCount === 0}>
-            Messages {messageCount > 0 ? `(${messageCount})` : ""}
+          {/* Messages button becomes enabled if there are any messages */}
+          <button onClick={handleMessages}>
+            Messages {convCount > 0 ? `(${convCount})` : ""}
           </button>
         </div>
       </div>
