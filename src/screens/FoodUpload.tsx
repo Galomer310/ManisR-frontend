@@ -1,10 +1,8 @@
-// src/screens/FoodUpload.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 
 interface MealData {
-  id?: number;
+  id?: number; // Optional ID for editing
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";
@@ -36,21 +34,23 @@ const FoodUpload: React.FC = () => {
   const [specialNotes] = useState(editMeal?.special_notes || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
+
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // If not editing, use device geolocation to suggest an address.
+  // Use device geolocation to suggest an address if not editing.
   useEffect(() => {
     if (!editMeal && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await axios.get(
+            const response = await fetch(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
             );
-            if (response.data && response.data.display_name) {
-              setPickupAddress(response.data.display_name);
+            const data = await response.json();
+            if (data && data.display_name) {
+              setPickupAddress(data.display_name);
             }
           } catch (err) {
             console.error("Reverse geocoding error:", err);
@@ -69,16 +69,37 @@ const FoodUpload: React.FC = () => {
     }
   };
 
+  const handleCancel = async () => {
+    // If editing and meal has an ID, try deleting it.
+    if (editMeal?.id) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE_URL}/food/myMeal`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || "Error deleting meal");
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Server error deleting meal");
+        return;
+      }
+    }
+    navigate("/menu");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     const userId = localStorage.getItem("userId");
     if (!userId) {
       setError("No userId found. Please log in first.");
       return;
     }
-
     const formData = new FormData();
     formData.append("itemDescription", itemDescription);
     formData.append("pickupAddress", pickupAddress);
@@ -90,28 +111,32 @@ const FoodUpload: React.FC = () => {
     if (imageFile) {
       formData.append("image", imageFile);
     }
-
     try {
       const token = localStorage.getItem("token");
       let response;
       if (editMeal) {
-        response = await axios.put(`${API_BASE_URL}/food/myMeal`, formData, {
+        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
+          method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
+          body: formData,
         });
       } else {
-        response = await axios.post(`${API_BASE_URL}/food/give`, formData, {
+        response = await fetch(`${API_BASE_URL}/food/give`, {
+          method: "POST",
           headers: { Authorization: `Bearer ${token}` },
+          body: formData,
         });
       }
-      navigate("/giver-meal-screen");
-    } catch (err: any) {
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Error uploading food item");
+      } else {
+        navigate("/giver-meal-screen");
+      }
+    } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || "Server error during food upload");
+      setError("Server error during food upload");
     }
-  };
-
-  const handleCancel = () => {
-    navigate("/menu");
   };
 
   return (

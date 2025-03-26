@@ -1,23 +1,33 @@
-// src/screens/GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker, Popup } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { FoodItem } from "../types";
+
+interface Meal {
+  id: number;
+  item_description: string;
+  pickup_address: string;
+  box_option: "need" | "noNeed";
+  food_types: string;
+  ingredients: string;
+  special_notes: string;
+  lat: number;
+  lng: number;
+  avatar_url: string;
+  user_id: number;
+}
 
 const GiverMealScreen: React.FC = () => {
-  const [meal, setMeal] = useState<FoodItem | null>(null);
+  const [meal, setMeal] = useState<Meal | null>(null);
   const [error, setError] = useState("");
-  const [viewport, setViewport] = useState({
-    latitude: 32.0853,
-    longitude: 34.7818,
-    zoom: 14,
-  });
+  const [loading, setLoading] = useState(true);
+  const [messageCount, setMessageCount] = useState(0);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
+  // Fetch the giver's meal.
   useEffect(() => {
     const fetchMyMeal = async () => {
       try {
@@ -26,46 +36,73 @@ const GiverMealScreen: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMeal(response.data.meal);
-        if (
-          response.data.meal &&
-          response.data.meal.lat &&
-          response.data.meal.lng
-        ) {
-          setViewport((prev) => ({
-            ...prev,
-            latitude: response.data.meal.lat,
-            longitude: response.data.meal.lng,
-          }));
-        }
-      } catch (err: any) {
-        if (err.response && err.response.status === 404) {
-          setError("No meal found for this user.");
-        } else {
-          setError("Server error fetching meal.");
-        }
+      } catch (err) {
+        setError("Server error fetching meal.");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMyMeal();
   }, [API_BASE_URL]);
 
+  // Fetch the conversation message count for this meal.
+  useEffect(() => {
+    const fetchConversationCount = async () => {
+      try {
+        if (meal) {
+          const token = localStorage.getItem("token");
+          const res = await axios.get(
+            `${API_BASE_URL}/meal_conversation/count/${meal.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          setMessageCount(res.data.count);
+        }
+      } catch (err) {
+        console.error("Error fetching conversation count:", err);
+      }
+    };
+    fetchConversationCount();
+  }, [meal, API_BASE_URL]);
+
+  // Handler for editing the meal.
   const handleEdit = () => {
     if (meal) {
       navigate("/food/upload", { state: { meal } });
     }
   };
 
+  // Handler for cancelling the meal.
   const handleCancel = async () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Also delete the conversation for this meal.
+      await axios.delete(`${API_BASE_URL}/meal_conversation/${meal?.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       navigate("/menu");
     } catch (err) {
       setError("Server error cancelling meal.");
+      console.error(err);
     }
   };
 
+  // Handler for opening the chat room.
+  const handleMessages = () => {
+    if (meal) {
+      // Navigate to the ChatRoom component, passing the meal's id as conversationId.
+      navigate("/chat", { state: { conversationId: String(meal.id) } });
+    }
+  };
+
+  if (loading) {
+    return <div className="screen-container">Loading your meal...</div>;
+  }
   if (error || !meal) {
     return (
       <div className="screen-container">
@@ -77,30 +114,27 @@ const GiverMealScreen: React.FC = () => {
 
   return (
     <div className="screen-container">
+      {/* Upper half: Map showing the meal location */}
       <div className="map-container" style={{ height: "50vh" }}>
         <Map
           initialViewState={{
-            latitude: meal.lat || 32.0853,
-            longitude: meal.lng || 34.7818,
+            latitude: meal.lat,
+            longitude: meal.lng,
             zoom: 14,
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-          onMove={(evt) => setViewport(evt.viewState)}
         >
-          <Marker latitude={meal.lat!} longitude={meal.lng!}>
+          <Marker latitude={meal.lat} longitude={meal.lng}>
             <div>📍</div>
           </Marker>
-          <Popup
-            latitude={meal.lat!}
-            longitude={meal.lng!}
-            closeOnClick={false}
-          >
+          <Popup latitude={meal.lat} longitude={meal.lng} closeOnClick={false}>
             <div>Pickup Location</div>
           </Popup>
         </Map>
       </div>
+      {/* Lower half: Meal details and action buttons */}
       <div className="meal-summary">
         <h2>Your Meal</h2>
         <p>
@@ -109,35 +143,12 @@ const GiverMealScreen: React.FC = () => {
         <p>
           <strong>Address:</strong> {meal.pickup_address}
         </p>
-        <p>
-          <strong>Box Option:</strong>{" "}
-          {meal.box_option === "need" ? "Bring box" : "No box needed"}
-        </p>
-        <p>
-          <strong>Food Types:</strong> {meal.food_types}
-        </p>
-        <p>
-          <strong>Ingredients:</strong> {meal.ingredients}
-        </p>
-        <p>
-          <strong>Special Notes:</strong> {meal.special_notes}
-        </p>
-        {meal.avatar_url && (
-          <div>
-            <img
-              src={
-                meal.avatar_url.startsWith("http")
-                  ? meal.avatar_url
-                  : `${API_BASE_URL}/uploads/${meal.avatar_url}`
-              }
-              alt="Meal"
-              style={{ width: "100%", maxWidth: "300px" }}
-            />
-          </div>
-        )}
-        <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem" }}>
           <button onClick={handleEdit}>Edit Meal</button>
           <button onClick={handleCancel}>Cancel Meal</button>
+          <button onClick={handleMessages} disabled={messageCount === 0}>
+            Messages {messageCount > 0 ? `(${messageCount})` : ""}
+          </button>
         </div>
       </div>
     </div>

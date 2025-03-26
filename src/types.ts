@@ -6,7 +6,7 @@ export interface User {
 
 export interface FoodItem {
   id: number;
-  user_id: number; // Added: the giver's user id
+  user_id?: number; // optional if needed
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";

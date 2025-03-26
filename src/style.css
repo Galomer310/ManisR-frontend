@@ -67,3 +67,11 @@ button:hover {
   height: 300px;
   overflow-y: scroll;
 }
+
+/* Additional classes for chat window */
+.chat-window {
+  border: 1px solid #ccc;
+  padding: 8px;
+  height: 300px;
+  overflow-y: scroll;
+}
