@@ -1,8 +1,10 @@
+// src/screens/FoodUpload.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 interface MealData {
-  id?: string; // Optional when editing
+  id?: number;
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";
@@ -13,10 +15,9 @@ interface MealData {
 
 const FoodUpload: React.FC = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const editMeal: MealData | null = state?.meal || null;
+  const location = useLocation();
+  const editMeal: MealData | null = location.state?.meal || null;
 
-  // Form fields with default values if editing
   const [itemDescription, setItemDescription] = useState(
     editMeal?.item_description || ""
   );
@@ -35,23 +36,21 @@ const FoodUpload: React.FC = () => {
   const [specialNotes] = useState(editMeal?.special_notes || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
-
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Use device geolocation to suggest an address if not editing.
+  // If not editing, use device geolocation to suggest an address.
   useEffect(() => {
     if (!editMeal && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await fetch(
+            const response = await axios.get(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
             );
-            const data = await response.json();
-            if (data && data.display_name) {
-              setPickupAddress(data.display_name);
+            if (response.data && response.data.display_name) {
+              setPickupAddress(response.data.display_name);
             }
           } catch (err) {
             console.error("Reverse geocoding error:", err);
@@ -70,32 +69,10 @@ const FoodUpload: React.FC = () => {
     }
   };
 
-  // Cancel handler: if editing, attempt to delete the meal from backend; otherwise, just navigate back.
-  const handleCancel = async () => {
-    if (editMeal?.id) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/food/myMeal`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setError(data.error || "Error deleting meal");
-          return;
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Server error deleting meal");
-        return;
-      }
-    }
-    navigate("/menu");
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     const userId = localStorage.getItem("userId");
     if (!userId) {
       setError("No userId found. Please log in first.");
@@ -118,34 +95,23 @@ const FoodUpload: React.FC = () => {
       const token = localStorage.getItem("token");
       let response;
       if (editMeal) {
-        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
-          method: "PUT",
+        response = await axios.put(`${API_BASE_URL}/food/myMeal`, formData, {
           headers: { Authorization: `Bearer ${token}` },
-          body: formData,
         });
       } else {
-        response = await fetch(`${API_BASE_URL}/food/give`, {
-          method: "POST",
+        response = await axios.post(`${API_BASE_URL}/food/give`, formData, {
           headers: { Authorization: `Bearer ${token}` },
-          body: formData,
         });
       }
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Error uploading food item");
-      } else {
-        // Optionally warn if no foodItemId is returned.
-        if (!data.foodItemId && !editMeal) {
-          console.warn(
-            "No food item ID provided by backend, but meal should be saved."
-          );
-        }
-        navigate("/giver-meal-screen");
-      }
-    } catch (err) {
+      navigate("/giver-meal-screen");
+    } catch (err: any) {
       console.error(err);
-      setError("Server error during food upload");
+      setError(err.response?.data?.error || "Server error during food upload");
     }
+  };
+
+  const handleCancel = () => {
+    navigate("/menu");
   };
 
   return (
@@ -234,10 +200,10 @@ const FoodUpload: React.FC = () => {
             onChange={handleFileChange}
           />
         </div>
+        <button type="submit">
+          {editMeal ? "Update Meal" : "Upload Food"}
+        </button>
       </form>
-      <button type="submit" onClick={handleSubmit}>
-        {editMeal ? "Update Meal" : "Upload Food"}
-      </button>
       <button type="button" onClick={handleCancel}>
         Cancel
       </button>
