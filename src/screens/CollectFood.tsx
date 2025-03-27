@@ -51,25 +51,42 @@ const CollectFood: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const userId = Number(localStorage.getItem("userId"));
-      // Here we send a default message (for example: "I would like to pick up this meal")
-      const defaultMessage = "I would like to pick up this meal.";
-      // For receiverId, we assume the giver is the one who posted the meal.
-      const receiverId = meal.user_id;
-      await axios.post(
-        `${API_BASE_URL}/meal_conversation`,
-        {
-          mealId: meal.id,
-          senderId: userId,
-          receiverId,
-          message: defaultMessage,
-        },
+
+      // Check if a conversation for this meal already exists.
+      const convRes = await axios.get(
+        `${API_BASE_URL}/meal-conversation/${meal.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // After sending the message, navigate the taker to the ChatRoom.
-      navigate("/chat", { state: { conversationId: String(meal.id) } });
+
+      if (
+        !convRes.data.conversation ||
+        convRes.data.conversation.length === 0
+      ) {
+        // If no conversation exists, send the default message once.
+        const defaultMessage = "I would like to pick up this meal.";
+        await axios.post(
+          `${API_BASE_URL}/meal-conversation`,
+          {
+            mealId: meal.id,
+            senderId: userId,
+            receiverId: meal.user_id, // giver's id
+            message: defaultMessage,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+
+      // Navigate to the Messages screen and pass the conversation id, receiver, and role.
+      navigate("/messages", {
+        state: {
+          conversationId: meal.id.toString(),
+          receiverId: meal.user_id,
+          role: "taker",
+        },
+      });
     } catch (err) {
-      console.error("Error sending message:", err);
-      setError("Error sending message.");
+      console.error("Error handling accept meal:", err);
+      // Handle error as needed.
     }
   };
 

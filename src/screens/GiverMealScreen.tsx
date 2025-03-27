@@ -1,9 +1,8 @@
-// src/screens/GiverMealScreen.tsx
+// GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker, Popup } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "mapbox-gl/dist/mapbox-gl.css";
 
 interface Meal {
   id: number;
@@ -16,6 +15,7 @@ interface Meal {
   lat: number;
   lng: number;
   avatar_url: string;
+  user_id: number; // giver's id
 }
 
 const GiverMealScreen: React.FC = () => {
@@ -27,7 +27,7 @@ const GiverMealScreen: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Fetch the current user's meal.
+  // Fetch the current user's (giver's) meal.
   useEffect(() => {
     const fetchMyMeal = async () => {
       try {
@@ -46,7 +46,7 @@ const GiverMealScreen: React.FC = () => {
     fetchMyMeal();
   }, [API_BASE_URL]);
 
-  // Once the meal is fetched, fetch the conversation count.
+  // Fetch conversation count for the meal.
   useEffect(() => {
     const fetchConversationCount = async () => {
       if (meal) {
@@ -58,7 +58,6 @@ const GiverMealScreen: React.FC = () => {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          // If the endpoint returns 404, we treat it as zero messages.
           setConvCount(res.data.count);
         } catch (err: any) {
           if (err.response && err.response.status === 404) {
@@ -84,11 +83,19 @@ const GiverMealScreen: React.FC = () => {
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Also, when canceling, you might want to delete the associated conversation.
+      // Delete the associated conversation if it exists.
       if (meal) {
-        await axios.delete(`${API_BASE_URL}/meal-conversation/${meal.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        try {
+          await axios.delete(`${API_BASE_URL}/meal-conversation/${meal.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err: any) {
+          if (err.response && err.response.status === 404) {
+            console.log("No conversation to delete.");
+          } else {
+            console.error("Error deleting conversation:", err);
+          }
+        }
       }
       navigate("/menu");
     } catch (err) {
@@ -97,10 +104,39 @@ const GiverMealScreen: React.FC = () => {
     }
   };
 
-  // Navigate to the chat room; only enable if convCount > 0 (or you want to allow sending the first message)
-  const handleMessages = () => {
+  // When the giver clicks "Messages", try to determine the taker's id.
+  const handleMessages = async () => {
     if (meal) {
-      navigate("/chat", { state: { mealId: meal.id } });
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${API_BASE_URL}/meal-conversation/${meal.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const conv = res.data.conversation;
+        let takerId = 0;
+        if (conv && conv.length > 0) {
+          // Find the first message not sent by the giver.
+          const takerMessage = conv.find(
+            (msg: any) =>
+              msg.senderId !== Number(localStorage.getItem("userId"))
+          );
+          takerId = takerMessage ? takerMessage.senderId : 0;
+        }
+        if (takerId === 0) {
+          alert("No taker has responded yet.");
+          return;
+        }
+        navigate("/messages", {
+          state: {
+            conversationId: meal.id.toString(),
+            receiverId: takerId,
+            role: "giver",
+          },
+        });
+      } catch (err) {
+        console.error("Error fetching conversation for messages:", err);
+      }
     }
   };
 
@@ -149,7 +185,6 @@ const GiverMealScreen: React.FC = () => {
         <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
           <button onClick={handleEdit}>Edit Meal</button>
           <button onClick={handleCancel}>Cancel Meal</button>
-          {/* Messages button becomes enabled if there are any messages */}
           <button onClick={handleMessages}>
             Messages {convCount > 0 ? `(${convCount})` : ""}
           </button>
