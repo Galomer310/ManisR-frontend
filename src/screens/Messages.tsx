@@ -17,7 +17,7 @@ interface LocationState {
 
 const Messages: React.FC = () => {
   const locationState = (useLocation().state || {}) as LocationState;
-  const { conversationId, role = "" } = locationState;
+  const { conversationId } = locationState;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const Messages: React.FC = () => {
         {
           mealId: Number(conversationId),
           senderId: localUserId,
-          receiverId: 0, // You can update this if needed
+          receiverId: 0, // Update this if needed; using 0 as placeholder.
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
