@@ -44,7 +44,6 @@ align-items: center;
   font-weight: bold; 
   font-size: 1.3rem;
   box-shadow: 1px 1px 5px 1px #888888;
-  color: white;
 }
 
 
@@ -448,4 +447,31 @@ align-items: center;
   overflow-y: scroll;
 }
 
-/* Giver Meal Screen */
+/* drop-dwon-menu */
+.menu-overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(111, 207, 111);
+  z-index: 1100;
+  
+}
+.menu-overlay button {
+  margin: 1rem;
+  padding: 0.5rem 2rem;
+  /* border-radius: 25px; */
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background-color: rgb(111, 207, 111);
+
+}
