@@ -1,9 +1,9 @@
 // src/screens/Menu.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "/src/assets/MNSR_logo.svg";
-import giver from "/src/assets/giver.svg";
-import taker from "/src/assets/taker.svg";
+import logo from "../assets/MNSR_logo.svg";
+import giver from "../assets/giver.svg";
+import taker from "../assets/taker.svg";
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
