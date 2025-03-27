@@ -52,7 +52,6 @@ const Messages: React.FC = () => {
           if (takerMessage) {
             setResolvedReceiverId(takerMessage.senderId);
           } else {
-            // If no taker message exists, set it to 0.
             setResolvedReceiverId(0);
           }
         }
@@ -72,7 +71,7 @@ const Messages: React.FC = () => {
     const userId = localUserId;
     let actualReceiverId = receiverId;
     if (role === "giver") {
-      // For giver, use the resolved receiver id from the conversation messages.
+      // For giver, use the resolved receiver id from conversation messages.
       if (resolvedReceiverId === 0) {
         alert("No taker to send a message to yet.");
         return;
@@ -90,7 +89,7 @@ const Messages: React.FC = () => {
         {
           mealId: conversationId,
           senderId: userId,
-          receiverId: actualReceiverId,
+          receiverId: actualReceiverId, // use the computed receiver id
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
