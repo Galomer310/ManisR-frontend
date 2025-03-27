@@ -4,6 +4,7 @@ import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
+import locationIcon from "../assets/location.png";
 
 interface Meal {
   id: number;
@@ -87,18 +88,6 @@ const GiverMealScreen: React.FC = () => {
     setConfirmModalOpen(false);
   };
 
-  // Handler: Edit meal.
-  const handleEditMeal = (meal: Meal) => {
-    navigate("/food/upload", { state: { meal } });
-  };
-
-  // Handler: Navigate to messages.
-  const handleMessages = (meal: Meal) => {
-    navigate("/messages", {
-      state: { conversationId: meal.id.toString(), role: "giver" },
-    });
-  };
-
   if (loading) {
     return <div className="screen-container">Loading meals...</div>;
   }
@@ -107,20 +96,7 @@ const GiverMealScreen: React.FC = () => {
     <div className="screen-container">
       {/* Summary Container for the selected meal (only for the giver's own meal) */}
       {selectedMeal && selectedMeal.user_id === localUserId && (
-        <div
-          className="mealCardGiver"
-          style={{
-            position: "absolute",
-            top: "0",
-            left: "0",
-            right: "0",
-            backgroundColor: "white",
-            padding: "1rem",
-            display: "flex",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-            zIndex: 10,
-          }}
-        >
+        <div className="mealCardGiver">
           {/* Image area (occupies ~33% width) */}
           <div style={{ width: "33%", textAlign: "center" }}>
             {selectedMeal.avatar_url ? (
@@ -146,12 +122,22 @@ const GiverMealScreen: React.FC = () => {
             )}
           </div>
           {/* Details area (occupies ~67% width) */}
-          <div style={{ width: "67%", paddingRight: "1rem" }}>
+          <div
+            className="popUpMeal"
+            style={{ width: "67%", paddingRight: "1rem" }}
+          >
             <h3 style={{ margin: "0 0 0.5rem 0" }}>
               {selectedMeal.item_description}
             </h3>
-            <p style={{ margin: "0 0 0.5rem 0" }}>
+            <p>
               {selectedMeal.pickup_address}
+              <img
+                src={locationIcon}
+                style={{
+                  width: "1rem",
+                  height: "1rem",
+                }}
+              />
             </p>
             <a
               href="#"
@@ -163,17 +149,7 @@ const GiverMealScreen: React.FC = () => {
             >
               אני רוצה להסיר את המנה
             </a>
-            <div style={{ marginTop: "0.5rem" }}>
-              <button
-                onClick={() => handleMessages(selectedMeal)}
-                style={{ marginRight: "0.5rem" }}
-              >
-                הודעות
-              </button>
-              <button onClick={() => handleEditMeal(selectedMeal)}>
-                עריכת מנה
-              </button>
-            </div>
+            <div style={{ marginTop: "0.5rem" }}></div>
           </div>
         </div>
       )}
@@ -195,17 +171,12 @@ const GiverMealScreen: React.FC = () => {
             zIndex: 1000,
           }}
         >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "1rem",
-              borderRadius: "8px",
-              textAlign: "center",
-              width: "80%",
-              maxWidth: "400px",
-            }}
-          >
-            <p>האם אתה בטוח שברצונך להסיר את המנה?</p>
+          <div className="modal-content">
+            <h3> ? בטוח שבא לך להסיר את המנה</h3>
+            <p>
+              אם המנה תוסר, היא לא תופיע יותר במפה. אם תרצה/י תוכל/י להעלות אותה
+              שוב בהמשך.
+            </p>
             <div
               style={{
                 display: "flex",
@@ -213,8 +184,10 @@ const GiverMealScreen: React.FC = () => {
                 marginTop: "1rem",
               }}
             >
-              <button onClick={handleConfirmCancel}>בטל מנה</button>
-              <button onClick={handleLeaveIt}>השאר את המנה</button>
+              <button id="takeOffBtn" onClick={handleLeaveIt}>
+                <span>התחרטתי, תשאירו</span>
+              </button>
+              <button onClick={handleConfirmCancel}>הסירו את המנה</button>
             </div>
           </div>
         </div>
