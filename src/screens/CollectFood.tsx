@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { Marker, Popup, Source, Layer } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
+import logo from "../assets/MNSR_logo.svg";
 
 interface Meal {
   id: number;
@@ -26,11 +27,17 @@ const CollectFood: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
+  // The viewport state is still used for the map display.
   const [viewport, setViewport] = useState({
     latitude: 32.0853,
     longitude: 34.7818,
     zoom: 13,
   });
+
+  // State for route navigation.
+  const [showRoute, setShowRoute] = useState(false);
+  const [routeGeoJSON, setRouteGeoJSON] = useState<any>(null);
+  const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
 
   // Fetch available meals.
   useEffect(() => {
@@ -46,37 +53,85 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
+  // Function to get the route from Mapbox Directions API.
+  const getRoute = async (
+    start: { lat: number; lng: number },
+    end: { lat: number; lng: number }
+  ) => {
+    const token = import.meta.env.VITE_MAPBOX_TOKEN;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=geojson&access_token=${token}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  };
+
+  // Toggle navigation route display using the taker's current location.
+  const toggleNavigate = async () => {
+    if (!selectedMeal) return;
+    if (!showRoute) {
+      // Use the browser's geolocation API to get the user's current location.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const start = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            const end = { lat: selectedMeal.lat, lng: selectedMeal.lng };
+            try {
+              const data = await getRoute(start, end);
+              if (
+                data.routes &&
+                data.routes.length > 0 &&
+                data.routes[0].geometry &&
+                data.routes[0].duration
+              ) {
+                setRouteGeoJSON(data.routes[0].geometry);
+                setEstimatedTime(data.routes[0].duration); // duration in seconds
+                setShowRoute(true);
+              } else {
+                alert("Could not get route data.");
+              }
+            } catch (err) {
+              console.error("Error fetching route:", err);
+              alert("Error fetching route.");
+            }
+          },
+          (error) => {
+            console.error("Geolocation error:", error);
+            alert("Unable to retrieve your current location.");
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    } else {
+      // If route is already shown, remove it.
+      setRouteGeoJSON(null);
+      setEstimatedTime(null);
+      setShowRoute(false);
+    }
+  };
+
   // Handler for when a taker accepts a meal.
   const handleAcceptMeal = async (meal: Meal) => {
     try {
       const token = localStorage.getItem("token");
       const userId = Number(localStorage.getItem("userId"));
-
-      // Check if a conversation for this meal already exists.
-      const convRes = await axios.get(
-        `${API_BASE_URL}/meal-conversation/${meal.id}`,
+      const defaultMessage = "I would like to pick up this meal.";
+      // For a taker, the receiver should be the giver's id.
+      const receiverId = meal.user_id;
+      await axios.post(
+        `${API_BASE_URL}/meal-conversation`,
+        {
+          mealId: meal.id,
+          senderId: userId,
+          receiverId,
+          message: defaultMessage,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      if (
-        !convRes.data.conversation ||
-        convRes.data.conversation.length === 0
-      ) {
-        // If no conversation exists, send the default message once.
-        const defaultMessage = "I would like to pick up this meal.";
-        await axios.post(
-          `${API_BASE_URL}/meal-conversation`,
-          {
-            mealId: meal.id,
-            senderId: userId,
-            receiverId: meal.user_id, // giver's id
-            message: defaultMessage,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
-
-      // Navigate to the Messages screen and pass the conversation id, receiver, and role.
+      // Navigate to the Messages screen and pass required state.
       navigate("/messages", {
         state: {
           conversationId: meal.id.toString(),
@@ -85,9 +140,23 @@ const CollectFood: React.FC = () => {
         },
       });
     } catch (err) {
-      console.error("Error handling accept meal:", err);
-      // Handle error as needed.
+      console.error("Error sending message:", err);
     }
+  };
+
+  // Define a layer style for the route line.
+  // We cast this object as "any" to bypass strict type-checking on layout properties.
+  const routeLayer: any = {
+    id: "route",
+    type: "line" as const,
+    layout: {
+      "line-join": "round",
+      "line-cap": "round",
+    },
+    paint: {
+      "line-color": "#888",
+      "line-width": 6,
+    },
   };
 
   return (
@@ -106,7 +175,7 @@ const CollectFood: React.FC = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
               >
-                📍
+                <img id="location-logo" src={logo} />
               </div>
             </Marker>
           ))}
@@ -115,16 +184,34 @@ const CollectFood: React.FC = () => {
               latitude={selectedMeal.lat}
               longitude={selectedMeal.lng}
               closeOnClick={false}
-              onClose={() => setSelectedMeal(null)}
+              onClose={() => {
+                setSelectedMeal(null);
+                setShowRoute(false);
+                setRouteGeoJSON(null);
+                setEstimatedTime(null);
+              }}
             >
               <div>
                 <strong>{selectedMeal.item_description}</strong>
                 <p>{selectedMeal.pickup_address}</p>
-                <button onClick={() => handleAcceptMeal(selectedMeal)}>
-                  Accept Meal
-                </button>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button onClick={() => handleAcceptMeal(selectedMeal)}>
+                    Message Giver
+                  </button>
+                  <button onClick={toggleNavigate}>
+                    {showRoute ? "Don't Navigate" : "Navigate"}
+                  </button>
+                </div>
+                {showRoute && estimatedTime && (
+                  <p>Estimated time: {Math.round(estimatedTime / 60)} min</p>
+                )}
               </div>
             </Popup>
+          )}
+          {showRoute && routeGeoJSON && (
+            <Source id="route" type="geojson" data={routeGeoJSON}>
+              <Layer {...routeLayer} />
+            </Source>
           )}
         </Map>
       </div>

@@ -20,6 +20,11 @@
   width: 100%;
   height: 100%;
 }
+/* logo on map for giver  */
+#location-logo {
+  width: 2rem;
+  height: 2rem;
+}
 
 .meal-summary {
   border: 1px solid #ccc;
@@ -74,4 +79,10 @@ button:hover {
   padding: 8px;
   height: 300px;
   overflow-y: scroll;
+}
+
+logo {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1rem;
 }

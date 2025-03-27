@@ -71,12 +71,6 @@ const GiverMealScreen: React.FC = () => {
     fetchConversationCount();
   }, [API_BASE_URL, meal]);
 
-  const handleEdit = () => {
-    if (meal) {
-      navigate("/food/upload", { state: { meal } });
-    }
-  };
-
   const handleCancel = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -183,7 +177,6 @@ const GiverMealScreen: React.FC = () => {
           <strong>Address:</strong> {meal.pickup_address}
         </p>
         <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-          <button onClick={handleEdit}>Edit Meal</button>
           <button onClick={handleCancel}>Cancel Meal</button>
           <button onClick={handleMessages}>
             Messages {convCount > 0 ? `(${convCount})` : ""}
