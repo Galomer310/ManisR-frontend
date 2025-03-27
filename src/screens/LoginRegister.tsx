@@ -22,7 +22,7 @@ const LoginRegister: React.FC = () => {
   };
 
   return (
-    <div className="screen-container centered">
+    <div className="screen-container login-register centered">
       <img
         src={logo}
         alt="Manisr Logo"

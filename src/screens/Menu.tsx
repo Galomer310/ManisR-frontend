@@ -1,6 +1,9 @@
 // src/screens/Menu.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/MNSR_logo.svg";
+import giver from "../assets/giver.svg";
+import taker from "../assets/taker.svg";
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
@@ -14,14 +17,16 @@ const Menu: React.FC = () => {
   };
 
   return (
-    <div className="screen-container centered">
-      <h1>Welcome to Manisr</h1>
-      <p>Please choose an option:</p>
-      <div style={{ margin: "1rem" }}>
+    <div className="screen-container menu-container centered">
+      <img src={logo} />
+
+      <div style={{ margin: "5rem" }}>
         <button onClick={handleGiveMeal} style={{ marginRight: "1rem" }}>
-          I want to Give a Meal
+          <img src={giver} />
         </button>
-        <button onClick={handleTakeMeal}>I want to Take a Meal</button>
+        <button onClick={handleTakeMeal}>
+          <img src={taker} />
+        </button>
       </div>
     </div>
   );

@@ -7,9 +7,6 @@ justify-content: center;
 align-items: center;
 }
 
-
-
-
 .screen-container {
   height: 100vh;
   display: flex;
@@ -49,6 +46,18 @@ align-items: center;
   box-shadow: 1px 1px 5px 1px #888888;
   color: white;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Register Screen */
 
@@ -175,7 +184,6 @@ align-items: center;
   margin: 10rem;
 }
 
-
 #already-register {
   margin-top: 1rem;
   background-color: white;
@@ -183,6 +191,35 @@ align-items: center;
   border: 3px solid rgb(41, 179, 41);
   cursor: pointer;
 }
+#already-register:hover {
+  background-color: rgb(41, 179, 41);
+  color: white;
+}
+.login-register button:hover {
+  background-color: white;
+  color: rgb(41, 179, 41);
+  border: 1.5px solid rgb(41, 179, 41);
+}
+
+
+
+/* menu-container */
+
+
+.menu-container button{
+  display: flex;
+  align-items: center;
+  background-color: white;
+  
+  padding: 0%;
+  margin-bottom: 2rem;
+}
+
+
+
+
+
+
 
 .centered {
   display: flex;
