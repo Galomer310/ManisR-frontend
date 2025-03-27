@@ -5,10 +5,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png"; // your location icon image
-import ProfileIcon from "../assets/menu profile.svg";
-import SettingsIcon from "../assets/menu settings.svg";
-import TalkToUsIcon from "../assets/menu contact us.svg";
-import MessagesIcon from "../assets/menu notifications.svg";
 
 interface Meal {
   id: number;
@@ -20,7 +16,7 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-  avatar_url: string; // URL to an image preview
+  avatar_url: string;
   user_id: number; // owner's id
 }
 
@@ -28,8 +24,8 @@ const GiverMealScreen: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false); // For drop-down menu
-  const [, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false); // for drop-down menu
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const API_BASE_URL =
@@ -55,16 +51,14 @@ const GiverMealScreen: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // Handler to cancel (delete) the giver's meal.
+  // Handler to cancel (delete) the meal.
   const handleConfirmCancel = async () => {
     if (!selectedMeal) return;
     try {
       const token = localStorage.getItem("token");
-      // Delete the meal.
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Delete associated conversation (if exists).
       try {
         await axios.delete(
           `${API_BASE_URL}/meal-conversation/${selectedMeal.id}`,
@@ -88,9 +82,21 @@ const GiverMealScreen: React.FC = () => {
     }
   };
 
-  // Handler: Closes the confirmation modal (leaves the meal).
+  // Handler to close the confirmation modal.
   const handleLeaveIt = () => {
     setConfirmModalOpen(false);
+  };
+
+  // Handler: Edit meal.
+  const handleEditMeal = (meal: Meal) => {
+    navigate("/food/upload", { state: { meal } });
+  };
+
+  // Handler: Navigate to Messages.
+  const handleMessages = (meal: Meal) => {
+    navigate("/messages", {
+      state: { conversationId: meal.id.toString(), role: "giver" },
+    });
   };
 
   // Toggle the drop-down menu.
@@ -123,7 +129,6 @@ const GiverMealScreen: React.FC = () => {
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
         <div onClick={toggleMenu} style={{ cursor: "pointer" }}>
-          {/* Hamburger icon (always visible) */}
           <div
             style={{
               width: "25px",
@@ -153,8 +158,22 @@ const GiverMealScreen: React.FC = () => {
 
       {/* Drop-Down Menu Overlay */}
       {menuOpen && (
-        <div className="menu-overlay">
-          {/* The hamburger icon remains in the top-right for closing */}
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,128,0,0.8)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1100,
+          }}
+        >
+          {/* Hamburger icon remains in overlay */}
           <div
             style={{
               position: "absolute",
@@ -194,32 +213,36 @@ const GiverMealScreen: React.FC = () => {
               toggleMenu();
               goToProfile();
             }}
+            style={{ margin: "1rem" }}
           >
-            <img src={ProfileIcon} />
-          </button>
-          <button
-            onClick={() => {
-              toggleMenu();
-              goToMessages();
-            }}
-          >
-            <img src={MessagesIcon} />
+            Profile
           </button>
           <button
             onClick={() => {
               toggleMenu();
               goToSettings();
             }}
+            style={{ margin: "1rem" }}
           >
-            <img src={SettingsIcon} />
+            Settings
           </button>
           <button
             onClick={() => {
               toggleMenu();
               goToTalkToUs();
             }}
+            style={{ margin: "1rem" }}
           >
-            <img src={TalkToUsIcon} />
+            Talk To Us
+          </button>
+          <button
+            onClick={() => {
+              toggleMenu();
+              goToMessages();
+            }}
+            style={{ margin: "1rem" }}
+          >
+            Messages
           </button>
         </div>
       )}
@@ -230,7 +253,7 @@ const GiverMealScreen: React.FC = () => {
           className="mealCardGiver"
           style={{
             position: "absolute",
-            top: "10%", // Adjust so it appears above the marker icon
+            top: "10%", // adjust as needed so it appears above the marker
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -243,7 +266,7 @@ const GiverMealScreen: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", flexDirection: "row" }}>
-            {/* Image area (approximately 33% width) */}
+            {/* Image area (about 1/3 of the card) */}
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
@@ -267,7 +290,7 @@ const GiverMealScreen: React.FC = () => {
                 </div>
               )}
             </div>
-            {/* Details area (approximately 67% width) */}
+            {/* Details area (about 2/3 of the card) */}
             <div style={{ flex: "2", paddingRight: "1rem" }}>
               <h3 style={{ margin: "0 0 0.5rem 0" }}>
                 {selectedMeal.item_description}
@@ -290,7 +313,11 @@ const GiverMealScreen: React.FC = () => {
               >
                 אני רוצה להסיר את המנה
               </a>
-              {/* Removed the Messages button from the card */}
+              <div style={{ marginTop: "0.5rem" }}>
+                <button onClick={() => handleEditMeal(selectedMeal)}>
+                  עריכת מנה
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -335,7 +362,7 @@ const GiverMealScreen: React.FC = () => {
         </div>
       )}
 
-      {/* Map Container covers full screen */}
+      {/* Map Container covering full screen */}
       <div className="map-container" style={{ height: "100vh" }}>
         <Map
           initialViewState={{

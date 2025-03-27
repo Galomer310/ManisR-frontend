@@ -1,3 +1,4 @@
+// src/screens/GiverMealCardApproval.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -82,7 +83,6 @@ const GiverMealCardApproval: React.FC = () => {
     }
   };
 
-  // Go back to FoodUpload for editing, passing the same data.
   const handleGoBack = () => {
     navigate("/food/upload", {
       state: {

@@ -41,9 +41,6 @@ const FoodUpload: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-
   // Use device geolocation to suggest an address if not editing.
   useEffect(() => {
     if (!editMeal && navigator.geolocation) {
