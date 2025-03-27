@@ -1,9 +1,9 @@
 // src/screens/Menu.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/MNSR_logo.svg";
-import giver from "../assets/giver.svg";
-import taker from "../assets/taker.svg";
+import logo from "/src/assets/MNSR_logo.svg";
+import giver from "/src/assets/giver.svg";
+import taker from "/src/assets/taker.svg";
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
@@ -18,14 +18,14 @@ const Menu: React.FC = () => {
 
   return (
     <div className="screen-container menu-container centered">
-      <img src={logo} />
+      <img src={logo} alt="Manisr Logo" />
 
       <div style={{ margin: "5rem" }}>
         <button onClick={handleGiveMeal} style={{ marginRight: "1rem" }}>
-          <img src={giver} />
+          <img src={giver} alt="Give a Meal" />
         </button>
         <button onClick={handleTakeMeal}>
-          <img src={taker} />
+          <img src={taker} alt="Take a Meal" />
         </button>
       </div>
     </div>
