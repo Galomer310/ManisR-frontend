@@ -11,7 +11,7 @@ interface Message {
 
 interface LocationState {
   conversationId: string;
-  receiverId?: number;
+  receiverId?: number; // initially passed receiver id (for taker)
   role?: string;
 }
 
@@ -24,11 +24,15 @@ const Messages: React.FC = () => {
   } = location.state as LocationState;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  // For giver: resolvedReceiverId will store the taker id from the conversation messages
+  const [resolvedReceiverId, setResolvedReceiverId] =
+    useState<number>(receiverId);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const localUserId = Number(localStorage.getItem("userId"));
 
-  // Fetch conversation messages when the component mounts.
+  // Fetch conversation messages (and update resolvedReceiverId for giver)
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -37,20 +41,43 @@ const Messages: React.FC = () => {
           `${API_BASE_URL}/meal-conversation/${conversationId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMessages(res.data.conversation);
+        const conv = res.data.conversation;
+        setMessages(conv);
+
+        // For giver, update resolvedReceiverId from conversation messages.
+        if (role === "giver") {
+          const takerMessage = conv.find(
+            (msg: Message) => msg.senderId !== localUserId
+          );
+          if (takerMessage) {
+            setResolvedReceiverId(takerMessage.senderId);
+          } else {
+            // If no taker message exists, set it to 0.
+            setResolvedReceiverId(0);
+          }
+        }
       } catch (err) {
         console.error("Error fetching conversation:", err);
       }
     };
+
     fetchMessages();
-  }, [conversationId, API_BASE_URL]);
+    // Optionally, refresh messages every few seconds.
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [conversationId, API_BASE_URL, role, localUserId]);
 
   // Send a new message.
   const sendMessage = async () => {
-    const userId = Number(localStorage.getItem("userId"));
-    if (role === "giver" && receiverId === 0) {
-      alert("No taker to send a message to yet.");
-      return;
+    const userId = localUserId;
+    let actualReceiverId = receiverId;
+    if (role === "giver") {
+      // For giver, use the resolved receiver id from the conversation messages.
+      if (resolvedReceiverId === 0) {
+        alert("No taker to send a message to yet.");
+        return;
+      }
+      actualReceiverId = resolvedReceiverId;
     }
     if (newMessage.trim() === "") {
       alert("Please enter a message.");
@@ -63,7 +90,7 @@ const Messages: React.FC = () => {
         {
           mealId: conversationId,
           senderId: userId,
-          receiverId, // use the provided receiverId
+          receiverId: actualReceiverId,
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -104,12 +131,7 @@ const Messages: React.FC = () => {
       >
         {messages.map((msg, index) => (
           <div key={index}>
-            <strong>
-              {msg.senderId === Number(localStorage.getItem("userId"))
-                ? "You"
-                : "Other"}
-              :
-            </strong>{" "}
+            <strong>{msg.senderId === localUserId ? "You" : "Other"}:</strong>{" "}
             {msg.message}
           </div>
         ))}
