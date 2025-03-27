@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
+import logo from "../assets/MNSR_logo.svg";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -58,8 +59,8 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="screen-container">
-      <h2>Login</h2>
+    <div className="screen-container login-container">
+      <img src={logo} />
       <input
         type="email"
         placeholder="Email"
@@ -72,7 +73,7 @@ const Login: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleLogin}>אישור</button>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );

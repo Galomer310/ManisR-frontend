@@ -26,7 +26,6 @@ const LaunchScreen: React.FC = () => {
         style={{ width: 200 }}
         className="animate__animated animate__heartBeat"
       />
-      <p>Loading...</p>
     </div>
   );
 };

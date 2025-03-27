@@ -13,7 +13,7 @@ const LoginRegister: React.FC = () => {
 
   // Navigate to the registration screen
   const handleRegisterClick = () => {
-    navigate("/register");
+    navigate("/register-intro");
   };
 
   // Navigate to the login screen
@@ -28,9 +28,11 @@ const LoginRegister: React.FC = () => {
         alt="Manisr Logo"
         style={{ width: 200, marginBottom: 20 }}
       />
-      <h1>Welcome to Manisr</h1>
-      <button onClick={handleRegisterClick}>Register</button>
-      <button onClick={handleLoginClick}>Log In</button>
+      <h1>Rמניש</h1>
+      <button onClick={handleRegisterClick}>הרשמה</button>
+      <button id="already-register" onClick={handleLoginClick}>
+        יש לי כבר חשבון
+      </button>
     </div>
   );
 };

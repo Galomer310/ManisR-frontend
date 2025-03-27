@@ -11,6 +11,7 @@ import FoodUpload from "./screens/FoodUpload";
 import GiverMealScreen from "./screens/GiverMealScreen";
 import CollectFood from "./screens/CollectFood";
 import Messages from "./screens/Messages";
+import RegisterIntro from "./screens/RegisterIntro";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
         <Route path="/giver-meal-screen" element={<GiverMealScreen />} />
         <Route path="/collect-food" element={<CollectFood />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/register-intro" element={<RegisterIntro />} />
       </Routes>
     </Router>
   );
