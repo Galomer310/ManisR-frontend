@@ -16,7 +16,7 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-  avatar_url: string;
+  avatar_url: string; // URL to an image preview
   user_id: number; // owner's id
 }
 
@@ -25,7 +25,6 @@ const GiverMealScreen: React.FC = () => {
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // for drop-down menu
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const API_BASE_URL =
@@ -42,8 +41,7 @@ const GiverMealScreen: React.FC = () => {
         });
         setMeals(res.data.meals);
       } catch (err) {
-        setError("Server error fetching meals.");
-        console.error(err);
+        console.error("Server error fetching meals:", err);
       } finally {
         setLoading(false);
       }
@@ -56,9 +54,11 @@ const GiverMealScreen: React.FC = () => {
     if (!selectedMeal) return;
     try {
       const token = localStorage.getItem("token");
+      // Delete the meal.
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Delete associated conversation (if exists).
       try {
         await axios.delete(
           `${API_BASE_URL}/meal-conversation/${selectedMeal.id}`,
@@ -78,11 +78,10 @@ const GiverMealScreen: React.FC = () => {
       navigate("/menu");
     } catch (err) {
       console.error("Error cancelling meal:", err);
-      setError("Server error cancelling meal.");
     }
   };
 
-  // Handler to close the confirmation modal.
+  // Handler: Closes the confirmation modal.
   const handleLeaveIt = () => {
     setConfirmModalOpen(false);
   };
@@ -90,13 +89,6 @@ const GiverMealScreen: React.FC = () => {
   // Handler: Edit meal.
   const handleEditMeal = (meal: Meal) => {
     navigate("/food/upload", { state: { meal } });
-  };
-
-  // Handler: Navigate to Messages.
-  const handleMessages = (meal: Meal) => {
-    navigate("/messages", {
-      state: { conversationId: meal.id.toString(), role: "giver" },
-    });
   };
 
   // Toggle the drop-down menu.
@@ -173,7 +165,7 @@ const GiverMealScreen: React.FC = () => {
             zIndex: 1100,
           }}
         >
-          {/* Hamburger icon remains in overlay */}
+          {/* Hamburger icon remains in overlay for closing */}
           <div
             style={{
               position: "absolute",
@@ -253,7 +245,7 @@ const GiverMealScreen: React.FC = () => {
           className="mealCardGiver"
           style={{
             position: "absolute",
-            top: "10%", // adjust as needed so it appears above the marker
+            top: "10%", // Adjust so it appears above the marker icon
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -266,7 +258,7 @@ const GiverMealScreen: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", flexDirection: "row" }}>
-            {/* Image area (about 1/3 of the card) */}
+            {/* Image area (about 33% of the card) */}
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
@@ -290,7 +282,7 @@ const GiverMealScreen: React.FC = () => {
                 </div>
               )}
             </div>
-            {/* Details area (about 2/3 of the card) */}
+            {/* Details area (about 67% of the card) */}
             <div style={{ flex: "2", paddingRight: "1rem" }}>
               <h3 style={{ margin: "0 0 0.5rem 0" }}>
                 {selectedMeal.item_description}

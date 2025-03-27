@@ -62,7 +62,7 @@ const Messages: React.FC = () => {
         {
           mealId: Number(conversationId),
           senderId: localUserId,
-          receiverId: 0, // Update this if needed; using 0 as placeholder.
+          receiverId: 0, // Placeholder; adjust if needed.
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
