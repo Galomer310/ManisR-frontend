@@ -1,99 +1,149 @@
 import React, { useEffect, useState } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "mapbox-gl/dist/mapbox-gl.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface Meal {
-  id: number;
+interface MealData {
+  id?: number;
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";
   food_types: string;
   ingredients: string;
   special_notes: string;
-  lat: number;
-  lng: number;
-  avatar_url: string;
 }
 
-const GiverMealScreen: React.FC = () => {
-  const [meal, setMeal] = useState<Meal | null>(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+const GiverMealCardApproval: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { mealData, imageFile, isEdit } = location.state as {
+    mealData: MealData;
+    imageFile: File | null;
+    isEdit: boolean;
+  };
+
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
   useEffect(() => {
-    const fetchMyMeal = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_BASE_URL}/food/myMeal`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMeal(response.data.meal);
-      } catch (err) {
-        setError("Server error fetching meal.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+    if (imageFile) {
+      const objectUrl = URL.createObjectURL(imageFile);
+      setImagePreviewUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [imageFile]);
+
+  // Submit the meal to the server.
+  const handleApprove = async () => {
+    try {
+      setError("");
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        setError("No userId found. Please log in first.");
+        return;
       }
-    };
-    fetchMyMeal();
-  }, [API_BASE_URL]);
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("itemDescription", mealData.item_description);
+      formData.append("pickupAddress", mealData.pickup_address);
+      formData.append("boxOption", mealData.box_option);
+      formData.append("foodTypes", mealData.food_types);
+      formData.append("ingredients", mealData.ingredients);
+      formData.append("specialNotes", mealData.special_notes);
+      formData.append("userId", userId);
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
-  if (loading) {
-    return <div className="screen-container">Loading your meal...</div>;
-  }
+      let response;
+      if (isEdit) {
+        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/food/give`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+      }
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Error uploading food item");
+      } else {
+        navigate("/giver-meal-screen");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error during food upload");
+    }
+  };
 
-  if (error || !meal) {
-    return (
-      <div className="screen-container">
-        <p className="error">{error || "No meal found."}</p>
-        <button onClick={() => navigate("/menu")}>Create a Meal</button>
-      </div>
-    );
-  }
+  // Go back to FoodUpload for editing, passing the same data.
+  const handleGoBack = () => {
+    navigate("/food/upload", {
+      state: {
+        meal: {
+          id: mealData.id,
+          item_description: mealData.item_description,
+          pickup_address: mealData.pickup_address,
+          box_option: mealData.box_option,
+          food_types: mealData.food_types,
+          ingredients: mealData.ingredients,
+          special_notes: mealData.special_notes,
+        },
+      },
+    });
+  };
 
   return (
-    <div className="screen-container">
-      {/* Updated to react-map-gl */}
-      <div className="map-container">
-        <Map
-          initialViewState={{
-            latitude: meal.lat,
-            longitude: meal.lng,
-            zoom: 14,
-          }}
-          style={{ width: "100%", height: "100%" }}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
-          mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-        >
-          <Marker latitude={meal.lat} longitude={meal.lng}>
-            <div>📍</div>
-          </Marker>
-          <Popup latitude={meal.lat} longitude={meal.lng} closeOnClick={false}>
-            Pickup Location
-          </Popup>
-        </Map>
-      </div>
-
-      <div className="meal-summary">
-        <h2>Your Meal</h2>
+    <div className="screen-container" style={{ textAlign: "right" }}>
+      <h2>אישור המנה</h2>
+      <div
+        style={{
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          padding: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
+        {imagePreviewUrl ? (
+          <img
+            src={imagePreviewUrl}
+            alt="Meal Preview"
+            style={{ width: "100%", maxWidth: "300px", marginBottom: "1rem" }}
+          />
+        ) : (
+          <p>אין תמונה להצגה</p>
+        )}
         <p>
-          <strong>Description:</strong> {meal.item_description}
+          <strong>שם המנה:</strong> {mealData.item_description}
         </p>
         <p>
-          <strong>Address:</strong> {meal.pickup_address}
+          <strong>כתובת לאיסוף:</strong> {mealData.pickup_address}
         </p>
-        <button onClick={() => navigate("/food/upload", { state: { meal } })}>
-          Edit Meal
-        </button>
-        <button onClick={() => navigate("/menu")}>Cancel Meal</button>
+        <p>
+          <strong>צריך להביא קופסא:</strong>{" "}
+          {mealData.box_option === "need" ? "כן" : "לא"}
+        </p>
+        <p>
+          <strong>סוגי אוכל:</strong> {mealData.food_types}
+        </p>
+        <p>
+          <strong>מרכיבים:</strong> {mealData.ingredients}
+        </p>
+        <p>
+          <strong>הערות מיוחדות:</strong> {mealData.special_notes}
+        </p>
       </div>
+      {error && <p className="error">{error}</p>}
+      <button onClick={handleApprove}>אישור סופי</button>
+      <button onClick={handleGoBack}>חזור לעריכה</button>
     </div>
   );
 };
 
-export default GiverMealScreen;
+export default GiverMealCardApproval;

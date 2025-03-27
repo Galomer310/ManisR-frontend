@@ -1,3 +1,4 @@
+// src/screens/FoodUpload.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -16,22 +17,27 @@ const FoodUpload: React.FC = () => {
   const location = useLocation();
   const editMeal: MealData | null = location.state?.meal || null;
 
+  // Basic text fields:
   const [itemDescription, setItemDescription] = useState(
     editMeal?.item_description || ""
   );
   const [pickupAddress, setPickupAddress] = useState(
     editMeal?.pickup_address || ""
   );
+  // For the box option, only one may be selected:
   const [boxOption, setBoxOption] = useState<"need" | "noNeed">(
     editMeal?.box_option || "need"
   );
-  const [foodTypes, setFoodTypes] = useState<string[]>(
-    editMeal ? editMeal.food_types.split(",") : []
+  // For food types and ingredients (multiple selections allowed):
+  const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>(
+    editMeal?.food_types ? editMeal.food_types.split(",") : []
   );
-  const [ingredients] = useState<string[]>(
-    editMeal ? editMeal.ingredients.split(",") : []
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>(
+    editMeal?.ingredients ? editMeal.ingredients.split(",") : []
   );
-  const [specialNotes] = useState(editMeal?.special_notes || "");
+  const [specialNotes, setSpecialNotes] = useState(
+    editMeal?.special_notes || ""
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
@@ -69,155 +75,208 @@ const FoodUpload: React.FC = () => {
     }
   };
 
-  const handleCancel = async () => {
-    // If editing and meal has an ID, try deleting it.
-    if (editMeal?.id) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/food/myMeal`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setError(data.error || "Error deleting meal");
-          return;
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Server error deleting meal");
-        return;
-      }
+  // Helper function for toggling selections in food types or ingredients.
+  const toggleSelection = (
+    value: string,
+    selected: string[],
+    setSelected: (arr: string[]) => void
+  ) => {
+    if (selected.includes(value)) {
+      setSelected(selected.filter((v) => v !== value));
+    } else {
+      setSelected([...selected, value]);
     }
-    navigate("/menu");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Instead of submitting directly, we navigate to the approval page,
+   * passing the entered data and the selected image via location.state.
+   */
+  const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setError("No userId found. Please log in first.");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("itemDescription", itemDescription);
-    formData.append("pickupAddress", pickupAddress);
-    formData.append("boxOption", boxOption);
-    formData.append("foodTypes", foodTypes.join(","));
-    formData.append("ingredients", ingredients.join(","));
-    formData.append("specialNotes", specialNotes);
-    formData.append("userId", userId);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
-    try {
-      const token = localStorage.getItem("token");
-      let response;
-      if (editMeal) {
-        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      } else {
-        response = await fetch(`${API_BASE_URL}/food/give`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      }
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Error uploading food item");
-      } else {
-        navigate("/giver-meal-screen");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Server error during food upload");
-    }
+
+    const mealData: MealData = {
+      id: editMeal?.id,
+      item_description: itemDescription,
+      pickup_address: pickupAddress,
+      box_option: boxOption,
+      // Save selected food types and ingredients as comma-separated strings.
+      food_types: selectedFoodTypes.join(","),
+      ingredients: selectedIngredients.join(","),
+      special_notes: specialNotes,
+    };
+
+    navigate("/giver-meal-card-approval", {
+      state: { mealData, imageFile, isEdit: !!editMeal },
+    });
   };
 
   return (
-    <div className="screen-container">
-      <h2>{editMeal ? "Edit Your Meal" : "Upload Food Item"}</h2>
-      <form onSubmit={handleSubmit} autoComplete="off">
+    <div className="screen-container upload-food">
+      <h2>{editMeal ? "Edit Your Meal" : ""}</h2>
+      <form onSubmit={handlePreview} autoComplete="off">
+        <label htmlFor="itemDescription">אני רוצה למסור</label>
         <input
           type="text"
-          placeholder="Description of the food item"
+          placeholder="פסטה ברוטב עגבניות"
           value={itemDescription}
           onChange={(e) => setItemDescription(e.target.value)}
           required
         />
+
+        <label htmlFor="pickupAddress">כתובת לאיסוף</label>
         <input
           type="text"
-          placeholder="Pickup Address"
+          placeholder="ביאליק 115 רמת גן"
           value={pickupAddress}
           onChange={(e) => setPickupAddress(e.target.value)}
           required
         />
+
         <div>
-          <p>Do you need to bring a box?</p>
-          <label>
-            <input
-              type="radio"
-              name="boxOption"
-              value="need"
-              checked={boxOption === "need"}
-              onChange={() => setBoxOption("need")}
-            />
-            Need to bring box
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="boxOption"
-              value="noNeed"
-              checked={boxOption === "noNeed"}
-              onChange={() => setBoxOption("noNeed")}
-            />
-            No need
-          </label>
+          <p>בחר/י את האפשרות המתאימה (קופסא)</p>
+          <button
+            type="button"
+            className={boxOption === "need" ? "selected" : ""}
+            onClick={() => setBoxOption("need")}
+          >
+            צריך להביא קופסא
+          </button>
+          <button
+            type="button"
+            className={boxOption === "noNeed" ? "selected" : ""}
+            onClick={() => setBoxOption("noNeed")}
+          >
+            לא צריך להביא קופסא
+          </button>
         </div>
+
         <div>
-          <p>Select food types:</p>
-          <label>
-            <input
-              type="checkbox"
-              value="Kosher vegetarian"
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setFoodTypes((prev) => [...prev, "Kosher vegetarian"]);
-                } else {
-                  setFoodTypes((prev) =>
-                    prev.filter((ft) => ft !== "Kosher vegetarian")
-                  );
-                }
-              }}
-              checked={foodTypes.includes("Kosher vegetarian")}
-            />
-            Kosher vegetarian
-          </label>
-          <br />
-          <label>
-            <input
-              type="checkbox"
-              value="Vegan"
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setFoodTypes((prev) => [...prev, "Vegan"]);
-                } else {
-                  setFoodTypes((prev) => prev.filter((ft) => ft !== "Vegan"));
-                }
-              }}
-              checked={foodTypes.includes("Vegan")}
-            />
-            Vegan
-          </label>
+          <p>בחר/י סוג אוכל (אופציונלי, ניתן לבחור יותר מאחד)</p>
+          <button
+            type="button"
+            className={selectedFoodTypes.includes("כשר") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection("כשר", selectedFoodTypes, setSelectedFoodTypes)
+            }
+          >
+            כשר
+          </button>
+          <button
+            type="button"
+            className={selectedFoodTypes.includes("צמחוני") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection("צמחוני", selectedFoodTypes, setSelectedFoodTypes)
+            }
+          >
+            צמחוני
+          </button>
+          <button
+            type="button"
+            className={selectedFoodTypes.includes("טבעוני") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection("טבעוני", selectedFoodTypes, setSelectedFoodTypes)
+            }
+          >
+            טבעוני
+          </button>
+          <button
+            type="button"
+            className={
+              selectedFoodTypes.includes("צמחוני + דגים") ? "selected" : ""
+            }
+            onClick={() =>
+              toggleSelection(
+                "צמחוני + דגים",
+                selectedFoodTypes,
+                setSelectedFoodTypes
+              )
+            }
+          >
+            צמחוני + דגים
+          </button>
         </div>
+
         <div>
-          <label htmlFor="foodImage">Upload Image (optional):</label>
+          <p>בחר/י מרכיבים (אופציונלי, ניתן לבחור יותר מאחד)</p>
+          <button
+            type="button"
+            className={selectedIngredients.includes("חלב") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection(
+                "חלב",
+                selectedIngredients,
+                setSelectedIngredients
+              )
+            }
+          >
+            חלב
+          </button>
+          <button
+            type="button"
+            className={selectedIngredients.includes("ביצים") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection(
+                "ביצים",
+                selectedIngredients,
+                setSelectedIngredients
+              )
+            }
+          >
+            ביצים
+          </button>
+          <button
+            type="button"
+            className={selectedIngredients.includes("אגוזים") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection(
+                "אגוזים",
+                selectedIngredients,
+                setSelectedIngredients
+              )
+            }
+          >
+            אגוזים
+          </button>
+          <button
+            type="button"
+            className={selectedIngredients.includes("קמח") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection(
+                "קמח",
+                selectedIngredients,
+                setSelectedIngredients
+              )
+            }
+          >
+            קמח
+          </button>
+          <button
+            type="button"
+            className={selectedIngredients.includes("גלוטן") ? "selected" : ""}
+            onClick={() =>
+              toggleSelection(
+                "גלוטן",
+                selectedIngredients,
+                setSelectedIngredients
+              )
+            }
+          >
+            גלוטן
+          </button>
+        </div>
+
+        <div>
+          <p>הערות מיוחדות</p>
+          <textarea
+            value={specialNotes}
+            onChange={(e) => setSpecialNotes(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="foodImage">צרפ/י תמונה של המנה</label>
           <input
             id="foodImage"
             type="file"
@@ -225,13 +284,12 @@ const FoodUpload: React.FC = () => {
             onChange={handleFileChange}
           />
         </div>
+
         <button type="submit">
-          {editMeal ? "Update Meal" : "Upload Food"}
+          {editMeal ? "צפייה בעדכון" : "צפייה מקדימה"}
         </button>
       </form>
-      <button type="button" onClick={handleCancel}>
-        Cancel
-      </button>
+
       {error && <p className="error">{error}</p>}
     </div>
   );

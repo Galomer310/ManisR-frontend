@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import logo from "../assets/MNSR_logo.svg";
+
 /**
  * Register screen:
  * Collects name, username, email, password, and gender,
@@ -41,7 +42,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="screen-container register-container">
-      <img src={logo} />
+      <img src={logo} alt="Manisr Logo" />
       <form onSubmit={handleSubmit} autoComplete="off">
         <label htmlFor="name"> ? מה השם שלך </label>
         <input
@@ -100,17 +101,16 @@ const Register: React.FC = () => {
           </div>
         </div>
 
-        <div className="register-input">
-          <label htmlFor="password">בחר/י סיסמה</label>
-          <input
-            type="password"
-            id="password"
-            placeholder=""
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <label htmlFor="password">בחר/י סיסמה</label>
+        <input
+          type="password"
+          id="password"
+          placeholder=""
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
         <p>הסיסמה חייבת לכלול 8 תווים, לפחות ספרה אחת ולפחות אות אחת *</p>
         <button id="approveBtn" type="submit">
           אישור
