@@ -1,7 +1,7 @@
 // src/screens/Menu.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "@assets/manisr-logo.svg";
+import logo from "@assets/manisr_logo.svg";
 import giver from "@assets/giver.svg";
 import taker from "@assets/taker.svg";
 
