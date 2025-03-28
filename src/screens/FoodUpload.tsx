@@ -264,7 +264,7 @@ const FoodUpload: React.FC = () => {
           </button>
         </div>
 
-        <div>
+        <div className="special-notes">
           <p>הערות מיוחדות</p>
           <textarea
             value={specialNotes}
@@ -272,7 +272,7 @@ const FoodUpload: React.FC = () => {
           />
         </div>
 
-        <div>
+        <div className="file-upload">
           <label htmlFor="foodImage">צרפ/י תמונה של המנה</label>
           <input
             id="foodImage"
