@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
-import logo from "../assets/MNSR_logo.svg";
+import logo from "../assets/manisr_logo.svg";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

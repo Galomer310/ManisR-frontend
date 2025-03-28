@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../assets/MNSR_logo.svg";
+import logo from "../assets/manisr_logo.svg";
 
 /**
  * Register screen:

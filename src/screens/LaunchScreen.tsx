@@ -1,7 +1,7 @@
 // src/screens/LaunchScreen.tsx
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/MNSR_logo.svg";
+import logo from "../assets/manisr_logo.svg";
 import "animate.css";
 
 /**
