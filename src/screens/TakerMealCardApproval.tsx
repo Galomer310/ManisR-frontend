@@ -4,6 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 interface MealData {
   id?: number;
+  user_id?: number; // Giver's ID
+  item_image?: string; // Optional image URL for editing
+  item_image_file?: File | null; // Optional image file for editing
+  lat?: number; // Optional latitude for editing
+  lng?: number; // Optional longitude for editing
+
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";
@@ -40,6 +46,9 @@ const TakerMealCardApproval: React.FC = () => {
       const token = localStorage.getItem("token");
       const userId = Number(localStorage.getItem("userId"));
       const defaultMessage = "I want to collect";
+      const giverId = mealData.user_id;
+      // Send a message to the giver.
+
       await fetch(`${API_BASE_URL}/meal-conversation`, {
         method: "POST",
         headers: {
@@ -49,7 +58,7 @@ const TakerMealCardApproval: React.FC = () => {
         body: JSON.stringify({
           mealId: mealData.id,
           senderId: userId,
-          receiverId: 0, // Update with giver's id if available.
+          receiverId: giverId, // Update with giver's id if available.
           message: defaultMessage,
         }),
       });
@@ -67,6 +76,8 @@ const TakerMealCardApproval: React.FC = () => {
       const token = localStorage.getItem("token");
       const userId = Number(localStorage.getItem("userId"));
       const defaultMessage = "I have a question";
+      const giverId = mealData.user_id;
+      // Send a message to the giver.
       await fetch(`${API_BASE_URL}/meal-conversation`, {
         method: "POST",
         headers: {
@@ -76,7 +87,7 @@ const TakerMealCardApproval: React.FC = () => {
         body: JSON.stringify({
           mealId: mealData.id,
           senderId: userId,
-          receiverId: 0, // Update if available.
+          receiverId: giverId,
           message: defaultMessage,
         }),
       });

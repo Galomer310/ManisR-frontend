@@ -6,6 +6,9 @@ import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 interface Meal {
   id: number;
   item_description: string;
@@ -108,7 +111,7 @@ const CollectFood: React.FC = () => {
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
-                  src={selectedMeal.avatar_url}
+                  src={`${API_BASE_URL}${selectedMeal.avatar_url}`}
                   alt="Meal"
                   style={{
                     width: "100%",

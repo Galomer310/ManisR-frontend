@@ -10,6 +10,8 @@ interface MealData {
   food_types: string;
   ingredients: string;
   special_notes: string;
+  lat?: number;
+  lng?: number;
 }
 
 const GiverMealCardApproval: React.FC = () => {
@@ -37,49 +39,54 @@ const GiverMealCardApproval: React.FC = () => {
 
   // Submit the meal to the server.
   const handleApprove = async () => {
-    try {
-      setError("");
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        setError("No userId found. Please log in first.");
-        return;
-      }
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("itemDescription", mealData.item_description);
-      formData.append("pickupAddress", mealData.pickup_address);
-      formData.append("boxOption", mealData.box_option);
-      formData.append("foodTypes", mealData.food_types);
-      formData.append("ingredients", mealData.ingredients);
-      formData.append("specialNotes", mealData.special_notes);
-      formData.append("userId", userId);
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+    setError("");
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setError("No userId found. Please log in first.");
+      return;
+    }
 
-      let response;
-      if (isEdit) {
-        response = await fetch(`${API_BASE_URL}/food/myMeal`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      } else {
-        response = await fetch(`${API_BASE_URL}/food/give`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-      }
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Error uploading food item");
-      } else {
-        navigate("/giver-meal-screen");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Server error during food upload");
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("itemDescription", mealData.item_description);
+    formData.append("pickupAddress", mealData.pickup_address);
+    formData.append("boxOption", mealData.box_option);
+    formData.append("foodTypes", mealData.food_types);
+    formData.append("ingredients", mealData.ingredients);
+    formData.append("specialNotes", mealData.special_notes);
+    formData.append("userId", userId);
+
+    // add lat/lng:
+    if (mealData.lat !== undefined)
+      formData.append("lat", String(mealData.lat));
+    if (mealData.lng !== undefined)
+      formData.append("lng", String(mealData.lng));
+    console.log("Final lat/lng to be uploaded:", mealData.lat, mealData.lng);
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    let response;
+    if (isEdit) {
+      response = await fetch(`${API_BASE_URL}/food/myMeal`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+    } else {
+      response = await fetch(`${API_BASE_URL}/food/give`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error || "Error uploading food item");
+    } else {
+      navigate("/giver-meal-screen");
     }
   };
 

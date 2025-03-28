@@ -10,6 +10,8 @@ interface MealData {
   food_types: string;
   ingredients: string;
   special_notes: string;
+  lat?: number; // Latitude for geolocation
+  lng?: number; // Longitude for geolocation
 }
 
 const FoodUpload: React.FC = () => {
@@ -24,11 +26,9 @@ const FoodUpload: React.FC = () => {
   const [pickupAddress, setPickupAddress] = useState(
     editMeal?.pickup_address || ""
   );
-  // For the box option, only one may be selected:
   const [boxOption, setBoxOption] = useState<"need" | "noNeed">(
     editMeal?.box_option || "need"
   );
-  // For food types and ingredients (multiple selections allowed):
   const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>(
     editMeal?.food_types ? editMeal.food_types.split(",") : []
   );
@@ -40,31 +40,39 @@ const FoodUpload: React.FC = () => {
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>({
+    lat: 0,
+    lng: 0,
+  });
 
-  // Use device geolocation to suggest an address if not editing.
-  useEffect(() => {
-    if (!editMeal && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
-            );
-            const data = await response.json();
-            if (data && data.display_name) {
-              setPickupAddress(data.display_name);
-            }
-          } catch (err) {
-            console.error("Reverse geocoding error:", err);
-          }
-        },
-        (err) => {
-          console.error("Geolocation error:", err);
-        }
-      );
+  const geocodeAddress = async (
+    address: string
+  ): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        address
+      )}.json?access_token=${mapboxToken}`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error("Mapbox geocoding error:", await res.text());
+        return null;
+      }
+      const data = await res.json();
+
+      // Each result has geometry.coordinates = [lng, lat]
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].geometry.coordinates;
+        return { lat, lng };
+      }
+      // No geocoding result
+      return null;
+    } catch (error) {
+      console.error("Mapbox geocoding error:", error);
+      return null;
     }
-  }, [editMeal]);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -72,7 +80,7 @@ const FoodUpload: React.FC = () => {
     }
   };
 
-  // Helper function for toggling selections in food types or ingredients.
+  // Helper function for toggling selections.
   const toggleSelection = (
     value: string,
     selected: string[],
@@ -85,23 +93,38 @@ const FoodUpload: React.FC = () => {
     }
   };
 
-  /**
-   * Instead of submitting directly, we navigate to the approval page,
-   * passing the entered data and the selected image via location.state.
-   */
-  const handlePreview = (e: React.FormEvent) => {
+  // Instead of submitting directly, navigate to the approval page.
+  const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
+    let lat = userCoords.lat;
+    let lng = userCoords.lng;
+
+    // If user typed an address and hasn't used geolocation, we geocode:
+    if (pickupAddress && pickupAddress !== "Using current location") {
+      const coords = await geocodeAddress(pickupAddress);
+      if (coords) {
+        lat = coords.lat;
+        lng = coords.lng;
+        console.log("DEBUG lat/lng before navigating:", { lat, lng });
+      } else {
+        // If geocode fails, you might want to show an error or fallback
+        console.warn("Geocoding failed or no result.");
+      }
+    }
+
+    // Build the meal data:
     const mealData: MealData = {
       id: editMeal?.id,
       item_description: itemDescription,
       pickup_address: pickupAddress,
       box_option: boxOption,
-      // Save selected food types and ingredients as comma-separated strings.
       food_types: selectedFoodTypes.join(","),
       ingredients: selectedIngredients.join(","),
       special_notes: specialNotes,
+      lat,
+      lng,
     };
 
     navigate("/giver-meal-card-approval", {
@@ -111,7 +134,7 @@ const FoodUpload: React.FC = () => {
 
   return (
     <div className="screen-container upload-food">
-      <h2>{editMeal ? "Edit Your Meal" : ""}</h2>
+      <h2>{editMeal ? "Edit Your Meal" : "Upload Your Meal"}</h2>
       <form onSubmit={handlePreview} autoComplete="off">
         <label htmlFor="itemDescription">אני רוצה למסור</label>
         <input
@@ -130,6 +153,28 @@ const FoodUpload: React.FC = () => {
           onChange={(e) => setPickupAddress(e.target.value)}
           required
         />
+        <button
+          type="button"
+          onClick={async () => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  setUserCoords({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                  });
+                  // Also override pickupAddress with something like "Current Location"
+                  setPickupAddress("Using current location");
+                },
+                (err) => {
+                  console.error("Geolocation error:", err);
+                }
+              );
+            }
+          }}
+        >
+          Use My Current Location
+        </button>
 
         <div>
           <p>בחר/י את האפשרות המתאימה (קופסא)</p>
