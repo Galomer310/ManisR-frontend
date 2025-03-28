@@ -251,8 +251,8 @@ align-items: center;
 }
 
 .upload-food button {
-  margin: 0.5rem;
-  padding: 0.5rem 2rem;
+  margin: 0.25rem;
+  padding: 0.25rem 1rem;
   border-radius: 25px;
   background-color: rgb(255, 255, 255);
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
@@ -377,7 +377,9 @@ align-items: center;
   font-weight: 500;
   box-shadow: 1px 1px 5px 1px #fffefe;
   color: white;
-  border: 1.5px solid rgb(41, 179, 41);}
+  border: 1.5px solid rgb(41, 179, 41);
+}
+
 .modal-content button:hover {
   background-color: white;
   color: rgb(41, 179, 41);
@@ -403,18 +405,19 @@ align-items: center;
 
 
 
-
 .meal-summary {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 0.5rem;
   margin-top: 1rem;
 }
+/* dont know */
 
 .meal-list-container {
   padding: 1rem;
   background-color: #fff;
 }
+/* dont know */
 
 .meal-card {
   border: 1px solid #ccc;
@@ -422,11 +425,13 @@ align-items: center;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
 }
+/* dont know */
 
 .error {
   color: red;
   margin-top: 1rem;
 }
+/* dont know */
 
 
 
@@ -478,7 +483,7 @@ align-items: center;
 }
 
 /* === MOBILE-FIRST OPTIMIZATION === */
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .screen-container {
     padding: 1rem;
   }
@@ -578,4 +583,4 @@ align-items: center;
   .modal-content h3 {
     font-size: 1.2rem;
   }
-}
+} */
