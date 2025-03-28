@@ -15,19 +15,14 @@ interface MealData {
 const TakerMealCardApproval: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Expecting state: mealData, imageFile (optional), and role (should be "taker")
-  const {
-    mealData,
-    imageFile,
-    role = "taker",
-  } = location.state as {
+  // Remove "role" since it's not used.
+  const { mealData, imageFile } = location.state as {
     mealData: MealData;
     imageFile?: File | null;
-    role?: string;
   };
 
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
@@ -39,7 +34,7 @@ const TakerMealCardApproval: React.FC = () => {
     }
   }, [imageFile]);
 
-  // For "I want to collect" button:
+  // For "I want to collect" button.
   const handleCollect = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -54,7 +49,7 @@ const TakerMealCardApproval: React.FC = () => {
         body: JSON.stringify({
           mealId: mealData.id,
           senderId: userId,
-          receiverId: 0, // Update this if you have the giver's id available.
+          receiverId: 0, // Update with giver's id if available.
           message: defaultMessage,
         }),
       });
@@ -66,7 +61,7 @@ const TakerMealCardApproval: React.FC = () => {
     }
   };
 
-  // For "I have a question" button:
+  // For "I have a question" button.
   const handleQuestion = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -107,19 +102,17 @@ const TakerMealCardApproval: React.FC = () => {
           zIndex: 1100,
         }}
       >
-        <a
+        <button
           onClick={() => navigate(-1)}
           style={{
             fontSize: "1.5rem",
             background: "none",
             border: "none",
             cursor: "pointer",
-            display: "flex",
-            alignItems: "right",
           }}
         >
           &gt;
-        </a>
+        </button>
       </div>
       <h2 style={{ textAlign: "center", marginTop: "3rem" }}>Meal Details</h2>
       <div
