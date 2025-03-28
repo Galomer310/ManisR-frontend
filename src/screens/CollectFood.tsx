@@ -3,7 +3,7 @@ import Map, { Marker, Popup, Source, Layer } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
-import logo from "../assets/MNSR_logo.svg";
+import logo from "../assets/manisr_logo.svg";
 
 interface Meal {
   id: number;
