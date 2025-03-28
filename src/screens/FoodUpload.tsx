@@ -1,5 +1,5 @@
 // src/screens/FoodUpload.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface MealData {
@@ -17,13 +17,14 @@ const FoodUpload: React.FC = () => {
   const location = useLocation();
   const editMeal: MealData | null = location.state?.meal || null;
 
-  // Basic text fields:
+  // Basic text fields – required: item_description (meal name) and pickup_address (address)
   const [itemDescription, setItemDescription] = useState(
     editMeal?.item_description || ""
   );
   const [pickupAddress, setPickupAddress] = useState(
     editMeal?.pickup_address || ""
   );
+  // Default box_option is "need"
   const [boxOption, setBoxOption] = useState<"need" | "noNeed">(
     editMeal?.box_option || "need"
   );
@@ -38,23 +39,6 @@ const FoodUpload: React.FC = () => {
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
-  // Get device geolocation (currently unused)
-  useEffect(() => {
-    if (!editMeal && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log("User coordinates:", {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (err) => {
-          console.error("Geolocation error:", err);
-          // Use default coordinates if permission denied.
-        }
-      );
-    }
-  }, [editMeal]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -75,10 +59,15 @@ const FoodUpload: React.FC = () => {
     }
   };
 
-  // Instead of submitting directly, navigate to the approval page.
+  // On form submit, ensure required fields are provided and navigate to approval page.
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!itemDescription.trim() || !pickupAddress.trim()) {
+      setError("Meal name and address are required.");
+      return;
+    }
 
     const mealData: MealData = {
       id: editMeal?.id,
@@ -99,19 +88,19 @@ const FoodUpload: React.FC = () => {
     <div className="screen-container upload-food">
       <h2>{editMeal ? "Edit Your Meal" : "Upload Your Meal"}</h2>
       <form onSubmit={handlePreview} autoComplete="off">
-        <label htmlFor="itemDescription">אני רוצה למסור</label>
+        <label htmlFor="itemDescription">אני רוצה למסור (Meal Name)</label>
         <input
           type="text"
-          placeholder="פסטה ברוטב עגבניות"
+          placeholder="Enter meal name"
           value={itemDescription}
           onChange={(e) => setItemDescription(e.target.value)}
           required
         />
 
-        <label htmlFor="pickupAddress">כתובת לאיסוף</label>
+        <label htmlFor="pickupAddress">כתובת לאיסוף (Address)</label>
         <input
           type="text"
-          placeholder="ביאליק 115 רמת גן"
+          placeholder="Enter pickup address"
           value={pickupAddress}
           onChange={(e) => setPickupAddress(e.target.value)}
           required

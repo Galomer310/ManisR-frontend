@@ -1,6 +1,7 @@
 // src/screens/GiverMealCardApproval.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Map, { Marker } from "react-map-gl";
 
 interface MealData {
   id?: number;
@@ -23,9 +24,15 @@ const GiverMealCardApproval: React.FC = () => {
 
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [mapError, setMapError] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const MAPBOX_TOKEN =
+    import.meta.env.VITE_MAPBOX_TOKEN || "YOUR_MAPBOX_ACCESS_TOKEN";
 
   useEffect(() => {
     if (imageFile) {
@@ -35,10 +42,46 @@ const GiverMealCardApproval: React.FC = () => {
     }
   }, [imageFile]);
 
-  // Submit the meal to the server.
+  // Forward-geocode the pickup address using Mapbox
+  useEffect(() => {
+    if (!mealData.pickup_address) {
+      setMapError("No address provided.");
+      return;
+    }
+    const geocodeAddress = async (address: string) => {
+      try {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          address
+        )}.json?access_token=${MAPBOX_TOKEN}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`Mapbox geocoding error: ${txt}`);
+        }
+        const data = await res.json();
+        if (data.features && data.features.length > 0) {
+          const [foundLng, foundLat] = data.features[0].geometry.coordinates;
+          setLat(foundLat);
+          setLng(foundLng);
+          setMapError("");
+        } else {
+          setMapError("Could not find that address. Please correct it.");
+        }
+      } catch (err) {
+        console.error("Geocoding error:", err);
+        setMapError("Geocoding failed. Please correct your address.");
+      }
+    };
+    geocodeAddress(mealData.pickup_address);
+  }, [mealData.pickup_address, MAPBOX_TOKEN]);
+
   const handleApprove = async () => {
     try {
       setError("");
+      if (!lat || !lng) {
+        setError("Please correct the address before continuing.");
+        return;
+      }
       const userId = localStorage.getItem("userId");
       if (!userId) {
         setError("No userId found. Please log in first.");
@@ -53,6 +96,8 @@ const GiverMealCardApproval: React.FC = () => {
       formData.append("ingredients", mealData.ingredients);
       formData.append("specialNotes", mealData.special_notes);
       formData.append("userId", userId);
+      formData.append("lat", String(lat));
+      formData.append("lng", String(lng));
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -83,7 +128,7 @@ const GiverMealCardApproval: React.FC = () => {
     }
   };
 
-  const handleGoBack = () => {
+  const handleGoBackToEdit = () => {
     navigate("/food/upload", {
       state: {
         meal: {
@@ -139,9 +184,37 @@ const GiverMealCardApproval: React.FC = () => {
           <strong>הערות מיוחדות:</strong> {mealData.special_notes}
         </p>
       </div>
+
+      {mapError ? (
+        <p style={{ color: "red" }}>{mapError}</p>
+      ) : lat && lng ? (
+        <div style={{ width: "100%", height: "300px", marginBottom: "1rem" }}>
+          <Map
+            initialViewState={{
+              latitude: lat,
+              longitude: lng,
+              zoom: 14,
+            }}
+            style={{ width: "100%", height: "100%" }}
+            mapStyle="mapbox://styles/mapbox/streets-v11"
+            mapboxAccessToken={MAPBOX_TOKEN}
+            onLoad={() => setMapLoaded(true)}
+          >
+            <Marker latitude={lat} longitude={lng}>
+              <div style={{ fontSize: "2rem" }}>📍</div>
+            </Marker>
+          </Map>
+        </div>
+      ) : (
+        <p>Loading map preview...</p>
+      )}
+
       {error && <p className="error">{error}</p>}
-      <button onClick={handleApprove}>אישור סופי</button>
-      <button onClick={handleGoBack}>חזור לעריכה</button>
+
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <button onClick={handleApprove}>אישור סופי</button>
+        <button onClick={handleGoBackToEdit}>חזור לעריכה</button>
+      </div>
     </div>
   );
 };

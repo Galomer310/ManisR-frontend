@@ -4,6 +4,7 @@ import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
+import manisrLogo from "../assets/manisr_logo.svg";
 import locationIcon from "../assets/location.png";
 
 interface Meal {
@@ -79,10 +80,6 @@ const GiverMealScreen: React.FC = () => {
 
   const handleLeaveIt = () => {
     setConfirmModalOpen(false);
-  };
-
-  const handleEditMeal = (meal: Meal) => {
-    navigate("/food/upload", { state: { meal } });
   };
 
   const toggleMenu = () => {
@@ -289,11 +286,6 @@ const GiverMealScreen: React.FC = () => {
               >
                 אני רוצה להסיר את המנה
               </a>
-              <div style={{ marginTop: "0.5rem" }}>
-                <button onClick={() => handleEditMeal(selectedMeal)}>
-                  עריכת מנה
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -359,14 +351,18 @@ const GiverMealScreen: React.FC = () => {
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         >
           {meals.map((meal) => (
-            <Marker key={meal.id} latitude={meal.lat} longitude={meal.lng}>
-              <div
-                id="location-logo"
-                style={{ cursor: "pointer" }}
+            <Marker
+              key={meal.id}
+              latitude={meal.lat}
+              longitude={meal.lng}
+              anchor="bottom"
+            >
+              <img
+                src={manisrLogo}
+                alt="Meal Marker"
+                style={{ width: "20px", height: "20px", cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
-              >
-                📍
-              </div>
+              />
             </Marker>
           ))}
         </Map>
