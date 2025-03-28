@@ -225,7 +225,7 @@ align-items: center;
   text-align: right;
   font-size: 1.2rem;
   font-weight: bold;
-  margin-top: 3rem; 
+  /* margin-top: 3rem;  */
 }
 
 .upload-food p {
@@ -475,4 +475,107 @@ align-items: center;
   border: none;
   background-color: rgb(111, 207, 111);
 
+}
+
+/* === MOBILE-FIRST OPTIMIZATION === */
+@media (max-width: 600px) {
+  .screen-container {
+    padding: 1rem;
+  }
+
+  .screen-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .screen-container p {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    text-align: center;
+  }
+
+  .screen-container button {
+    font-size: 1rem;
+    padding: 0.6rem 2rem;
+  }
+
+  .register-container,
+  .login-container,
+  .upload-food {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .register-container input,
+  .login-container input,
+  .upload-food input {
+    margin: 1rem 0;
+    width: 90%;
+  }
+
+  .register-container button,
+  .upload-food button,
+  .modal-content button,
+  #approveBtn,
+  #takeOffBtn {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+    width: 80%;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .register-container img,
+  .login-container img {
+    margin: 2rem;
+    width: 80px;
+    height: auto;
+  }
+
+  .mealCardGiver {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  .mealCardGiver button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .chat-messages,
+  .chat-window {
+    height: 200px;
+  }
+
+  .menu-container button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .menu-overlay button {
+    font-size: 0.9rem;
+    width: 80%;
+  }
+
+  .meal-controls {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .popUpMeal {
+    width: 95%;
+    padding: 0.5rem;
+  }
+
+  .popUpMeal p {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.2rem;
+  }
 }
