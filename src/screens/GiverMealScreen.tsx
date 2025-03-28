@@ -86,11 +86,6 @@ const GiverMealScreen: React.FC = () => {
     setConfirmModalOpen(false);
   };
 
-  // Handler: Edit meal.
-  const handleEditMeal = (meal: Meal) => {
-    navigate("/food/upload", { state: { meal } });
-  };
-
   // Toggle the drop-down menu.
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -305,11 +300,6 @@ const GiverMealScreen: React.FC = () => {
               >
                 אני רוצה להסיר את המנה
               </a>
-              <div style={{ marginTop: "0.5rem" }}>
-                <button onClick={() => handleEditMeal(selectedMeal)}>
-                  עריכת מנה
-                </button>
-              </div>
             </div>
           </div>
         </div>

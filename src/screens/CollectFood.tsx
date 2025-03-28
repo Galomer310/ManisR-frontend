@@ -1,9 +1,10 @@
+// src/screens/CollectFood.tsx
 import React, { useEffect, useState } from "react";
-import Map, { Marker, Popup, Source, Layer } from "react-map-gl";
+import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
-import logo from "../assets/manisr_logo.svg";
+import locationIcon from "../assets/location.png";
 
 interface Meal {
   id: number;
@@ -16,219 +17,167 @@ interface Meal {
   lat: number;
   lng: number;
   avatar_url: string;
-  user_id: number;
+  user_id: number; // giver's id
 }
 
 const CollectFood: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-
-  // The viewport state is still used for the map display.
-  const [viewport, setViewport] = useState({
-    latitude: 32.0853,
-    longitude: 34.7818,
-    zoom: 13,
-  });
-
-  // State for route navigation.
-  const [showRoute, setShowRoute] = useState(false);
-  const [routeGeoJSON, setRouteGeoJSON] = useState<any>(null);
-  const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
+  const localUserId = Number(localStorage.getItem("userId"));
 
   // Fetch available meals.
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/food/available`);
-        setMeals(response.data.meals);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_BASE_URL}/food/available`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMeals(res.data.meals);
       } catch (err) {
-        console.error("Error fetching meals:", err);
-        setError("Server error retrieving available meals");
+        console.error("Server error fetching meals:", err);
       }
     };
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // Function to get the route from Mapbox Directions API.
-  const getRoute = async (
-    start: { lat: number; lng: number },
-    end: { lat: number; lng: number }
-  ) => {
-    const token = import.meta.env.VITE_MAPBOX_TOKEN;
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=geojson&access_token=${token}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    return data;
-  };
-
-  // Toggle navigation route display using the taker's current location.
-  const toggleNavigate = async () => {
-    if (!selectedMeal) return;
-    if (!showRoute) {
-      // Use the browser's geolocation API to get the user's current location.
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const start = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-            const end = { lat: selectedMeal.lat, lng: selectedMeal.lng };
-            try {
-              const data = await getRoute(start, end);
-              if (
-                data.routes &&
-                data.routes.length > 0 &&
-                data.routes[0].geometry &&
-                data.routes[0].duration
-              ) {
-                setRouteGeoJSON(data.routes[0].geometry);
-                setEstimatedTime(data.routes[0].duration); // duration in seconds
-                setShowRoute(true);
-              } else {
-                alert("Could not get route data.");
-              }
-            } catch (err) {
-              console.error("Error fetching route:", err);
-              alert("Error fetching route.");
-            }
-          },
-          (error) => {
-            console.error("Geolocation error:", error);
-            alert("Unable to retrieve your current location.");
-          }
-        );
-      } else {
-        alert("Geolocation is not supported by your browser.");
-      }
-    } else {
-      // If route is already shown, remove it.
-      setRouteGeoJSON(null);
-      setEstimatedTime(null);
-      setShowRoute(false);
-    }
-  };
-
-  // Handler for when a taker accepts a meal.
-  const handleAcceptMeal = async (meal: Meal) => {
-    try {
-      const token = localStorage.getItem("token");
-      const userId = Number(localStorage.getItem("userId"));
-      const defaultMessage = "I would like to pick up this meal.";
-      // For a taker, the receiver should be the giver's id.
-      const receiverId = meal.user_id;
-      await axios.post(
-        `${API_BASE_URL}/meal-conversation`,
-        {
-          mealId: meal.id,
-          senderId: userId,
-          receiverId,
-          message: defaultMessage,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      // Navigate to the Messages screen and pass required state.
-      navigate("/messages", {
-        state: {
-          conversationId: meal.id.toString(),
-          receiverId: meal.user_id,
-          role: "taker",
-        },
-      });
-    } catch (err) {
-      console.error("Error sending message:", err);
-    }
-  };
-
-  // Define a layer style for the route line.
-  // We cast this object as "any" to bypass strict type-checking on layout properties.
-  const routeLayer: any = {
-    id: "route",
-    type: "line" as const,
-    layout: {
-      "line-join": "round",
-      "line-cap": "round",
-    },
-    paint: {
-      "line-color": "#888",
-      "line-width": 6,
-    },
+  // When taker clicks on a marker (a meal not posted by himself),
+  // show an overlay. The overlay will have a "View Meal Post" button.
+  const handleViewMealPost = (meal: Meal) => {
+    // Navigate to the approval page with role "taker"
+    navigate("/giver-meal-card-approval", {
+      state: { mealData: meal, imageFile: null, role: "taker" },
+    });
   };
 
   return (
-    <div className="screen-container collect-food-container">
-      <div className="map-container" style={{ height: "50vh" }}>
+    <div className="screen-container" style={{ position: "relative" }}>
+      {/* Fixed Drop-Down Menu Icon (Same as giver's) */}
+      <div
+        style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
+      >
+        <div onClick={() => {}} style={{ cursor: "pointer" }}>
+          {/* You can add drop-down logic here if needed */}
+          <div
+            style={{
+              width: "25px",
+              height: "3px",
+              backgroundColor: "black",
+              margin: "4px 0",
+            }}
+          ></div>
+          <div
+            style={{
+              width: "25px",
+              height: "3px",
+              backgroundColor: "black",
+              margin: "4px 0",
+            }}
+          ></div>
+          <div
+            style={{
+              width: "25px",
+              height: "3px",
+              backgroundColor: "black",
+              margin: "4px 0",
+            }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Taker Meal Summary Overlay */}
+      {selectedMeal && selectedMeal.user_id !== localUserId && (
+        <div
+          className="mealCardTaker"
+          style={{
+            position: "absolute",
+            top: "10%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "90%",
+            maxWidth: "500px",
+            backgroundColor: "rgba(255,255,255,0.95)",
+            padding: "1rem",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            zIndex: 1000,
+            borderRadius: "8px",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            {/* Image area (33% width) */}
+            <div style={{ flex: "1", textAlign: "center" }}>
+              {selectedMeal.avatar_url ? (
+                <img
+                  src={selectedMeal.avatar_url}
+                  alt="Meal"
+                  style={{
+                    width: "100%",
+                    maxWidth: "150px",
+                    borderRadius: "8px",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "150px",
+                    backgroundColor: "#eee",
+                  }}
+                >
+                  אין תמונה
+                </div>
+              )}
+            </div>
+            {/* Details area (67% width) */}
+            <div style={{ flex: "2", paddingRight: "1rem" }}>
+              <h3 style={{ margin: "0 0 0.5rem 0" }}>
+                {selectedMeal.item_description}
+              </h3>
+              <p style={{ margin: "0 0 0.5rem 0" }}>
+                {selectedMeal.pickup_address}{" "}
+                <img
+                  src={locationIcon}
+                  alt="location icon"
+                  style={{ width: "1rem", height: "1rem" }}
+                />
+              </p>
+              <div style={{ marginTop: "0.5rem" }}>
+                <button onClick={() => handleViewMealPost(selectedMeal)}>
+                  View Meal Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Map Container covering full screen */}
+      <div className="map-container" style={{ height: "100vh" }}>
         <Map
-          initialViewState={viewport}
+          initialViewState={{
+            latitude: 32.0853,
+            longitude: 34.7818,
+            zoom: 12,
+          }}
           style={{ width: "100%", height: "100%" }}
-          onMove={(evt) => setViewport(evt.viewState)}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         >
           {meals.map((meal) => (
             <Marker key={meal.id} latitude={meal.lat} longitude={meal.lng}>
               <div
+                id="location-logo"
                 style={{ cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
               >
-                <img id="location-logo" src={logo} />
+                📍
               </div>
             </Marker>
           ))}
-          {selectedMeal && (
-            <Popup
-              latitude={selectedMeal.lat}
-              longitude={selectedMeal.lng}
-              closeOnClick={false}
-              onClose={() => {
-                setSelectedMeal(null);
-                setShowRoute(false);
-                setRouteGeoJSON(null);
-                setEstimatedTime(null);
-              }}
-            >
-              <div>
-                <strong>{selectedMeal.item_description}</strong>
-                <p>{selectedMeal.pickup_address}</p>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => handleAcceptMeal(selectedMeal)}>
-                    Message Giver
-                  </button>
-                  <button onClick={toggleNavigate}>
-                    {showRoute ? "Don't Navigate" : "Navigate"}
-                  </button>
-                </div>
-                {showRoute && estimatedTime && (
-                  <p>Estimated time: {Math.round(estimatedTime / 60)} min</p>
-                )}
-              </div>
-            </Popup>
-          )}
-          {showRoute && routeGeoJSON && (
-            <Source id="route" type="geojson" data={routeGeoJSON}>
-              <Layer {...routeLayer} />
-            </Source>
-          )}
         </Map>
-      </div>
-      <div className="meal-list-container">
-        <h2>Available Meals</h2>
-        {error && <p className="error">{error}</p>}
-        {meals.length === 0 ? (
-          <p>No meals available.</p>
-        ) : (
-          meals.map((meal) => (
-            <div className="meal-card" key={meal.id}>
-              <strong>{meal.item_description}</strong>
-              <p>{meal.pickup_address}</p>
-            </div>
-          ))
-        )}
-        <button onClick={() => navigate("/menu")}>Cancel Request</button>
       </div>
     </div>
   );
