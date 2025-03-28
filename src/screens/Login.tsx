@@ -40,10 +40,7 @@ const Login: React.FC = () => {
           }
         );
         if (resMyMeal.ok) {
-          const data = await resMyMeal.json();
-          if (data.meal) {
-            navigate("/giver-meal-screen");
-          }
+          navigate("/giver-meal-screen");
         } else if (resMyMeal.status === 404) {
           navigate("/menu");
         } else {

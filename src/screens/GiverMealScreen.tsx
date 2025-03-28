@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
-import manisrLogo from "../assets/manisr_logo.svg";
 
 interface Meal {
   id: number;
@@ -360,18 +359,14 @@ const GiverMealScreen: React.FC = () => {
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         >
           {meals.map((meal) => (
-            <Marker
-              key={meal.id}
-              latitude={meal.lat}
-              longitude={meal.lng}
-              anchor="bottom" // optional anchor so the bottom of the icon is the point
-            >
-              <img
-                src={manisrLogo}
-                alt="Meal Marker"
-                style={{ width: "20px", height: "20px", cursor: "pointer" }}
+            <Marker key={meal.id} latitude={meal.lat} longitude={meal.lng}>
+              <div
+                id="location-logo"
+                style={{ cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
-              />
+              >
+                📍
+              </div>
             </Marker>
           ))}
         </Map>

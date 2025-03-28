@@ -1,5 +1,5 @@
 // src/screens/FoodUpload.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface MealData {
@@ -10,8 +10,6 @@ interface MealData {
   food_types: string;
   ingredients: string;
   special_notes: string;
-  lat?: number; // Latitude for geolocation
-  lng?: number; // Longitude for geolocation
 }
 
 const FoodUpload: React.FC = () => {
@@ -40,39 +38,23 @@ const FoodUpload: React.FC = () => {
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState("");
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>({
-    lat: 0,
-    lng: 0,
-  });
-
-  const geocodeAddress = async (
-    address: string
-  ): Promise<{ lat: number; lng: number } | null> => {
-    try {
-      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-        address
-      )}.json?access_token=${mapboxToken}`;
-
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.error("Mapbox geocoding error:", await res.text());
-        return null;
-      }
-      const data = await res.json();
-
-      // Each result has geometry.coordinates = [lng, lat]
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].geometry.coordinates;
-        return { lat, lng };
-      }
-      // No geocoding result
-      return null;
-    } catch (error) {
-      console.error("Mapbox geocoding error:", error);
-      return null;
+  // Get device geolocation (currently unused)
+  useEffect(() => {
+    if (!editMeal && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log("User coordinates:", {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          // Use default coordinates if permission denied.
+        }
+      );
     }
-  };
+  }, [editMeal]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -94,27 +76,10 @@ const FoodUpload: React.FC = () => {
   };
 
   // Instead of submitting directly, navigate to the approval page.
-  const handlePreview = async (e: React.FormEvent) => {
+  const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    let lat = userCoords.lat;
-    let lng = userCoords.lng;
-
-    // If user typed an address and hasn't used geolocation, we geocode:
-    if (pickupAddress && pickupAddress !== "Using current location") {
-      const coords = await geocodeAddress(pickupAddress);
-      if (coords) {
-        lat = coords.lat;
-        lng = coords.lng;
-        console.log("DEBUG lat/lng before navigating:", { lat, lng });
-      } else {
-        // If geocode fails, you might want to show an error or fallback
-        console.warn("Geocoding failed or no result.");
-      }
-    }
-
-    // Build the meal data:
     const mealData: MealData = {
       id: editMeal?.id,
       item_description: itemDescription,
@@ -123,8 +88,6 @@ const FoodUpload: React.FC = () => {
       food_types: selectedFoodTypes.join(","),
       ingredients: selectedIngredients.join(","),
       special_notes: specialNotes,
-      lat,
-      lng,
     };
 
     navigate("/giver-meal-card-approval", {
@@ -153,28 +116,6 @@ const FoodUpload: React.FC = () => {
           onChange={(e) => setPickupAddress(e.target.value)}
           required
         />
-        <button
-          type="button"
-          onClick={async () => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                  setUserCoords({
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude,
-                  });
-                  // Also override pickupAddress with something like "Current Location"
-                  setPickupAddress("Using current location");
-                },
-                (err) => {
-                  console.error("Geolocation error:", err);
-                }
-              );
-            }
-          }}
-        >
-          Use My Current Location
-        </button>
 
         <div>
           <p>בחר/י את האפשרות המתאימה (קופסא)</p>

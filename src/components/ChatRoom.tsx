@@ -40,9 +40,8 @@ const ChatRoom: React.FC = () => {
   // Function to send a new message.
   const sendMessage = async () => {
     const userId = Number(localStorage.getItem("userId"));
-    // (Receiver ID should be determined by your app logic.
-    // Here we leave it as 0 or you can pass it via state.)
-    const receiverId = 0; // <-- Update this logic as needed.
+    // (Receiver ID should be determined by your app logic.)
+    const receiverId = 0; // <--- placeholder
     try {
       const token = localStorage.getItem("token");
       await axios.post(

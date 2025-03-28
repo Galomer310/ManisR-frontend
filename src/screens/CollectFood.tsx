@@ -6,9 +6,6 @@ import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-
 interface Meal {
   id: number;
   item_description: string;
@@ -27,6 +24,8 @@ const CollectFood: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const navigate = useNavigate();
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
   // Fetch available meals.
@@ -109,7 +108,7 @@ const CollectFood: React.FC = () => {
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
-                  src={`${API_BASE_URL}${selectedMeal.avatar_url}`}
+                  src={selectedMeal.avatar_url}
                   alt="Meal"
                   style={{
                     width: "100%",
