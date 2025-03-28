@@ -233,7 +233,7 @@ align-items: center;
   justify-content: right;
   align-items:end; 
   margin-bottom: 1.5rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .upload-food input {
@@ -251,7 +251,7 @@ align-items: center;
 }
 
 .upload-food button {
-  margin: 0.25rem;
+  margin: 0.1rem;
   padding: 0.25rem 0.5rem;
   border-radius: 25px;
   background-color: rgb(255, 255, 255);
