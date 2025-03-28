@@ -44,23 +44,20 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // When taker clicks on a marker (a meal not posted by himself),
-  // show an overlay. The overlay will have a "View Meal Post" button.
+  // When a taker clicks "View Meal Post", navigate to TakerMealCardApproval
   const handleViewMealPost = (meal: Meal) => {
-    // Navigate to the approval page with role "taker"
-    navigate("/giver-meal-card-approval", {
+    navigate("/taker-meal-card-approval", {
       state: { mealData: meal, imageFile: null, role: "taker" },
     });
   };
 
   return (
     <div className="screen-container" style={{ position: "relative" }}>
-      {/* Fixed Drop-Down Menu Icon (Same as giver's) */}
+      {/* Fixed Burger Menu Icon (optional drop-down; you can add similar logic as in GiverMealScreen) */}
       <div
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
         <div onClick={() => {}} style={{ cursor: "pointer" }}>
-          {/* You can add drop-down logic here if needed */}
           <div
             style={{
               width: "25px",
@@ -88,13 +85,13 @@ const CollectFood: React.FC = () => {
         </div>
       </div>
 
-      {/* Taker Meal Summary Overlay */}
+      {/* Meal Summary Overlay for taker (only if selectedMeal is not his own) */}
       {selectedMeal && selectedMeal.user_id !== localUserId && (
         <div
           className="mealCardTaker"
           style={{
             position: "absolute",
-            top: "10%",
+            top: "10%", // Adjust this value as needed
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -107,7 +104,7 @@ const CollectFood: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", flexDirection: "row" }}>
-            {/* Image area (33% width) */}
+            {/* Image area (approximately 33%) */}
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
@@ -131,7 +128,7 @@ const CollectFood: React.FC = () => {
                 </div>
               )}
             </div>
-            {/* Details area (67% width) */}
+            {/* Details area (approximately 67%) */}
             <div style={{ flex: "2", paddingRight: "1rem" }}>
               <h3 style={{ margin: "0 0 0.5rem 0" }}>
                 {selectedMeal.item_description}
@@ -144,11 +141,10 @@ const CollectFood: React.FC = () => {
                   style={{ width: "1rem", height: "1rem" }}
                 />
               </p>
-              <div style={{ marginTop: "0.5rem" }}>
-                <button onClick={() => handleViewMealPost(selectedMeal)}>
-                  View Meal Post
-                </button>
-              </div>
+              {/* Button instead of a link */}
+              <a onClick={() => handleViewMealPost(selectedMeal)}>
+                View Meal Post
+              </a>
             </div>
           </div>
         </div>

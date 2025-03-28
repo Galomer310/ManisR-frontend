@@ -10,6 +10,7 @@ import Menu from "./screens/Menu";
 import FoodUpload from "./screens/FoodUpload";
 import GiverMealScreen from "./screens/GiverMealScreen";
 import GiverMealCardApproval from "./screens/GiverMealCardApproval";
+import TakerMealCardApproval from "./screens/TakerMealCardApproval";
 import CollectFood from "./screens/CollectFood";
 import Messages from "./screens/Messages";
 import RegisterIntro from "./screens/RegisterIntro";
@@ -29,6 +30,10 @@ const App: React.FC = () => {
         <Route
           path="/giver-meal-card-approval"
           element={<GiverMealCardApproval />}
+        />
+        <Route
+          path="/taker-meal-card-approval"
+          element={<TakerMealCardApproval />}
         />
         <Route path="/collect-food" element={<CollectFood />} />
         <Route path="/messages" element={<Messages />} />
