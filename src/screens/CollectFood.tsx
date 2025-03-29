@@ -31,6 +31,9 @@ const CollectFood: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // New state for the "take" confirmation modal and to track if the meal is taken
+  const [confirmTakeModalOpen, setConfirmTakeModalOpen] = useState(false);
+  const [mealTaken, setMealTaken] = useState(false);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -52,37 +55,21 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // When a taker clicks on a meal marker, navigate to TakerMealCardApproval.
-  const handleViewMealPost = (meal: Meal) => {
-    navigate("/taker-meal-card-approval", {
-      state: { mealData: meal, imageFile: null, role: "taker" },
-    });
+  // Handler when taker confirms "Yes, I want to take".
+  const handleConfirmTake = () => {
+    setMealTaken(true);
+    setConfirmTakeModalOpen(false);
+    // You can add additional logic here, for example saving this status in the backend.
   };
 
-  // Function to check if the taker already started a conversation.
-  // It calls the /messages/myConversations endpoint.
-  const goToMessages = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_BASE_URL}/messages/myConversations`, {
-        headers: { Authorization: `Bearer ${token}` },
+  // Handler when taker chooses "Chat" instead.
+  const handleChat = () => {
+    setConfirmTakeModalOpen(false);
+    // Navigate to messages screen (assuming you pass the meal's id as conversation id)
+    if (selectedMeal) {
+      navigate("/messages", {
+        state: { mealId: selectedMeal.id.toString(), role: "taker" },
       });
-      const conversations = res.data.conversations;
-      if (conversations && conversations.length > 0) {
-        // For simplicity, navigate to the first conversation.
-        // We assume that conversation_id can be used as the identifier for the conversation.
-        const conversationId = conversations[0].conversation_id;
-        navigate("/messages", {
-          state: { mealId: conversationId, role: "taker" },
-        });
-      } else {
-        alert(
-          "You haven't started any conversation. Please click on a meal icon and send the first message."
-        );
-      }
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-      alert("Error fetching your conversations. Please try again later.");
     }
   };
 
@@ -195,10 +182,11 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={alertsIcon}
-              alt="Messages"
+              alt="Alerts"
               onClick={() => {
                 toggleMenu();
-                goToMessages();
+                // Here you might call a function to go to alerts or messages.
+                goToTalkToUs();
               }}
             />
             <p>התראות</p>
@@ -234,7 +222,7 @@ const CollectFood: React.FC = () => {
           className="mealCardTaker"
           style={{
             position: "absolute",
-            top: "10%",
+            top: "10%", // Adjust this value as needed
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -282,11 +270,62 @@ const CollectFood: React.FC = () => {
                   style={{ width: "1rem", height: "1rem" }}
                 />
               </span>
+              {/* "מתאים לי" button */}
               <button
                 className="pickUpMeal"
-                onClick={() => handleViewMealPost(selectedMeal)}
+                onClick={() => {
+                  if (!mealTaken) {
+                    // Open confirmation modal if meal is not already taken
+                    setConfirmTakeModalOpen(true);
+                  }
+                }}
+                disabled={mealTaken}
+                style={{
+                  backgroundColor: mealTaken ? "gray" : "",
+                  cursor: mealTaken ? "not-allowed" : "pointer",
+                }}
               >
-                מתאים לי
+                {mealTaken ? "אופס, כרגע שמור" : "מתאים לי"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Taker Action */}
+      {confirmTakeModalOpen && (
+        <div
+          className="confirmation-modal"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1500,
+          }}
+        >
+          <div className="modal-content">
+            <h3 style={{ fontSize: "1.5rem" }}>
+              המנה שמורה עבורך למשך 30 דקות
+            </h3>
+            <p>אם אין באפשרותך לאסוף את המנה בטווח זה, דבר/י עם מוסר/ת המנה</p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                marginTop: "1rem",
+              }}
+            >
+              <button className="whiteBtn" onClick={handleChat}>
+                צ'אט
+              </button>
+              <button className="greenBtn" onClick={handleConfirmTake}>
+                לקחת
               </button>
             </div>
           </div>
@@ -296,7 +335,11 @@ const CollectFood: React.FC = () => {
       {/* Map Container */}
       <div className="map-container" style={{ height: "100vh" }}>
         <Map
-          initialViewState={{ latitude: 32.0853, longitude: 34.7818, zoom: 12 }}
+          initialViewState={{
+            latitude: 32.0853,
+            longitude: 34.7818,
+            zoom: 12,
+          }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}

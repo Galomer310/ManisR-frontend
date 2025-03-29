@@ -415,7 +415,7 @@ align-items: center;
 .modal-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items:center;
   justify-content: center;
   background-color: rgb(252, 251, 242);
   padding: 1rem;
@@ -428,6 +428,12 @@ align-items: center;
 .modal-content h3 {
   font-size: 1.5rem;
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+}
+
+.modal-content p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .modal-content button {
   display: flex;
