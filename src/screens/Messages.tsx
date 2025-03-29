@@ -155,10 +155,7 @@ const Messages: React.FC = () => {
               <p>No messages yet.</p>
             ) : (
               conversation.map((msg) => (
-                <div key={msg.id}>
-                  <strong>
-                    {msg.sender_id === localUserId ? "You" : "Other"}:
-                  </strong>{" "}
+                <div className="messageText" key={msg.id}>
                   {msg.message}
                 </div>
               ))

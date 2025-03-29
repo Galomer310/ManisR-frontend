@@ -403,13 +403,17 @@ align-items: center;
 
 .messageBtn button {
   border-radius: 25px;
-  border: 1px solid green;
+  border: 1px solid rgb(41, 179, 41);
   background-color: white;
   box-shadow: none;
   cursor: pointer;
   font-size: 1rem;
   margin: 0.5rem;
   width: fit-content;
+}
+.messageBtn button:hover {
+  background-color: rgb(41, 179, 41);
+  color: white;
 }
 
 
@@ -513,6 +517,16 @@ align-items: center;
   display: flex;
   flex-direction: column;
   align-items: end;
+  font-size: 1.2rem;
+  background-color: azure;
+
+}
+.messageText {
+  border-radius: 25px;
+  background-color: rgb(18, 189, 18);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  margin: 0.25rem;
 }
 
 /* Additional classes for chat window */
