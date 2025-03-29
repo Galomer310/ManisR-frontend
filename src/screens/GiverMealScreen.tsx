@@ -86,9 +86,9 @@ const GiverMealScreen: React.FC = () => {
     setMenuOpen((prev) => !prev);
   };
 
-  const goToProfile = () => navigate("/profile");
-  const goToSettings = () => navigate("/settings");
-  const goToTalkToUs = () => navigate("/talk-to-us");
+  const goToProfile = () => navigate("/Profile");
+  const goToSettings = () => navigate("/Settings");
+  const goToTalkToUs = () => navigate("/TalkToUs");
   const goToMessages = () =>
     navigate("/messages", { state: { role: "giver" } });
 
@@ -240,13 +240,9 @@ const GiverMealScreen: React.FC = () => {
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
-                  src={selectedMeal.avatar_url}
+                  // Important: remove the slash between API_BASE_URL and avatar_url
+                  src={`${API_BASE_URL}/${selectedMeal.avatar_url}`}
                   alt="Meal"
-                  style={{
-                    width: "100%",
-                    maxWidth: "150px",
-                    borderRadius: "8px",
-                  }}
                 />
               ) : (
                 <div
@@ -360,7 +356,7 @@ const GiverMealScreen: React.FC = () => {
               <img
                 src={manisrLogo}
                 alt="Meal Marker"
-                style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                style={{ width: "30px", height: "30px", cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
               />
             </Marker>

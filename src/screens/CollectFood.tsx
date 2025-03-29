@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
+import manisrLogo from "../assets/manisr_logo.svg";
 
 interface Meal {
   id: number;
@@ -169,7 +170,12 @@ const CollectFood: React.FC = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => setSelectedMeal(meal)}
               >
-                📍
+                <img
+                  src={manisrLogo}
+                  alt="Meal Marker"
+                  style={{ width: "30px", height: "30px", cursor: "pointer" }}
+                  onClick={() => setSelectedMeal(meal)}
+                />
               </div>
             </Marker>
           ))}

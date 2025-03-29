@@ -348,6 +348,12 @@ align-items: center;
   padding: 0.5rem 0.9rem;
 }
 
+.mealCardGiver img {
+  height: 100px;
+  width: 100%;
+  border-radius: 20px;
+}
+
 .popUpMeal {
   display: flex;
   flex-direction: column;

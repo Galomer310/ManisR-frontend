@@ -14,6 +14,9 @@ import TakerMealCardApproval from "./screens/TakerMealCardApproval";
 import CollectFood from "./screens/CollectFood";
 import Messages from "./screens/Messages";
 import RegisterIntro from "./screens/RegisterIntro";
+import TalkToUs from "./screens/TalkToUs";
+import Settings from "./screens/Settings";
+import Profile from "./screens/Profile";
 
 const App: React.FC = () => {
   return (
@@ -37,7 +40,11 @@ const App: React.FC = () => {
         />
         <Route path="/collect-food" element={<CollectFood />} />
         <Route path="/messages" element={<Messages />} />
+
         <Route path="/register-intro" element={<RegisterIntro />} />
+        <Route path="/Settings" element={<Settings />} />
+        <Route path="/TalkToUS" element={<TalkToUs />} />
+        <Route path="/Profile" element={<Profile />} />
       </Routes>
     </Router>
   );
