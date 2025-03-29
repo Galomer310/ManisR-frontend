@@ -1,7 +1,8 @@
 // src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaArrowRight } from "react-icons/fa";
 
 interface Message {
   id: number;
@@ -21,6 +22,7 @@ interface LocationState {
 const Messages: React.FC = () => {
   const locationState = (useLocation().state || {}) as LocationState;
   const { mealId, role, otherPartyId } = locationState;
+  const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
@@ -30,7 +32,7 @@ const Messages: React.FC = () => {
     otherPartyId !== undefined && otherPartyId !== null
       ? otherPartyId
       : role === "giver"
-      ? 9999 // <-- Replace 9999 with a valid fallback taker id for testing, or ensure your navigation state supplies this
+      ? 9999 // Replace with a valid fallback id if needed.
       : undefined;
 
   // Default messages: six for taker, seven for giver.
@@ -47,7 +49,7 @@ const Messages: React.FC = () => {
     "המנה נמצאת מחוץ לדלת בכתובת שצוינה",
     "לא לשכוח להביא קופסא לאיסוף בבקשה",
     "שולח/ת צילום של המיקום בו מונחת המנה",
-    "בסדר",
+    "👍 בסדר",
     "אני ממהר/ת, אודה להגעה בהקדם",
     "לצערי לא אוכל להתעכב ב5 דק' נוספות",
   ];
@@ -55,6 +57,7 @@ const Messages: React.FC = () => {
     role === "taker" ? defaultMessagesTaker : defaultMessagesGiver;
 
   const [conversation, setConversation] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -81,9 +84,13 @@ const Messages: React.FC = () => {
     return () => clearInterval(interval);
   }, [mealId, API_BASE_URL]);
 
-  const sendMessage = async (msgText: string) => {
+  const sendMessageHandler = async () => {
     if (!mealId) {
       alert("Conversation not found. Please try again later.");
+      return;
+    }
+    if (newMessage.trim() === "") {
+      alert("Please enter a message.");
       return;
     }
     if (receiverId === undefined) {
@@ -98,11 +105,12 @@ const Messages: React.FC = () => {
           mealId: Number(mealId),
           senderId: localUserId,
           receiverId: receiverId,
-          message: msgText,
+          message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Refresh conversation
+      setNewMessage("");
+      // Refresh messages after sending.
       const res = await axios.get(
         `${API_BASE_URL}/meal-conversation/${mealId}`,
         {
@@ -117,66 +125,79 @@ const Messages: React.FC = () => {
   };
 
   const handleDefaultMessageClick = async (msg: string) => {
-    await sendMessage(msg);
+    // Use the default message as newMessage and send it.
+    setNewMessage(msg);
+    await sendMessageHandler();
   };
 
   return (
     <div className="screen-container">
-      <h2>Default Messages</h2>
+      {/* Clickable Back Icon at Top Right */}
+      <div
+        style={{
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
+        }}
+        onClick={() => navigate(-1)}
+      >
+        <FaArrowRight size={24} color="black" />
+      </div>
+      <h2>Messages</h2>
+      {!mealId ? (
+        <p style={{ color: "red" }}>No conversation found for this meal.</p>
+      ) : (
+        <>
+          <div
+            className="chat-messages"
+            style={{
+              border: "1px solid #ccc",
+              padding: "8px",
+              height: "300px",
+              overflowY: "scroll",
+            }}
+          >
+            {conversation.length === 0 ? (
+              <p>No messages yet.</p>
+            ) : (
+              conversation.map((msg) => (
+                <div key={msg.id}>
+                  <strong>
+                    {msg.sender_id === localUserId ? "You" : "Other"}:
+                  </strong>{" "}
+                  {msg.message}
+                </div>
+              ))
+            )}
+          </div>
+          <div
+            className="messageBtn"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              marginTop: "1rem",
+            }}
+          >
+            <p>בחר/י את ההודעות שברצונך לשלוח</p>
+            {defaultMessages.map((msg, index) => (
+              <button
+                key={index}
+                onClick={() => handleDefaultMessageClick(msg)}
+              >
+                {msg}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
       {error && (
         <p className="error" style={{ color: "red" }}>
           {error}
         </p>
       )}
-      {/* If otherPartyId is still missing, show a warning */}
-      {receiverId === undefined && (
-        <p style={{ color: "red" }}>
-          Warning: Other party's ID is missing. Please ensure that the
-          navigation state includes a valid ID.
-        </p>
-      )}
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {defaultMessages.map((msg, index) => (
-          <button
-            key={index}
-            onClick={() => handleDefaultMessageClick(msg)}
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
-              backgroundColor: "#f0f0f0",
-              cursor: "pointer",
-              fontSize: "1rem",
-            }}
-          >
-            {msg}
-          </button>
-        ))}
-      </div>
-      <h3 style={{ marginTop: "2rem" }}>Conversation</h3>
-      <div
-        className="chat-messages"
-        style={{
-          border: "1px solid #ccc",
-          padding: "8px",
-          height: "300px",
-          overflowY: "scroll",
-          marginTop: "1rem",
-        }}
-      >
-        {conversation.length === 0 ? (
-          <p>No messages yet.</p>
-        ) : (
-          conversation.map((msg) => (
-            <div key={msg.id}>
-              <strong>
-                {msg.sender_id === localUserId ? "You" : "Other"}:
-              </strong>{" "}
-              {msg.message}
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 };

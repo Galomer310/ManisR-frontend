@@ -388,6 +388,30 @@ align-items: center;
 
 
 
+
+
+/* Messageing */
+.message-container {
+  display: flex;
+  text-align: end;
+}
+.messageBtn {
+  display: flex;
+  align-items: end;
+}
+
+.messageBtn button {
+  border-radius: 25px;
+  border: 1px solid (41, 179, 41);
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 0.1rem;
+  width: fit-content;
+}
+
+
+
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -478,10 +502,12 @@ align-items: center;
 
 /* Chat styles */
 .chat-messages {
-  border: 1px solid #ccc;
+  border-top: 1px solid green;
+  border-bottom: 1px solid green;
   padding: 8px;
-  height: 300px;
-  overflow-y: scroll;
+  height: 400px;
+  /* overflow: scroll; */
+  margin-top: 10rem;
 }
 
 /* Additional classes for chat window */

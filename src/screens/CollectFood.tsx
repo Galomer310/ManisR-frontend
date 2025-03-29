@@ -7,7 +7,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
 import manisrLogo from "../assets/manisr_logo.svg";
 
-// Import the overlay icons
+// Dropdown overlay icons – ensure these paths match your project.
 import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
@@ -30,6 +30,7 @@ interface Meal {
 const CollectFood: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -51,30 +52,53 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // When a taker clicks "View Meal Post", navigate to TakerMealCardApproval
+  // When a taker clicks on a meal marker, navigate to TakerMealCardApproval.
   const handleViewMealPost = (meal: Meal) => {
     navigate("/taker-meal-card-approval", {
       state: { mealData: meal, imageFile: null, role: "taker" },
     });
   };
 
-  // ----- Dropdown Overlay (Copied from GiverMealScreen) -----
-  const [menuOpen, setMenuOpen] = useState(false);
+  // Function to check if the taker already started a conversation.
+  // It calls the /messages/myConversations endpoint.
+  const goToMessages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_BASE_URL}/messages/myConversations`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const conversations = res.data.conversations;
+      if (conversations && conversations.length > 0) {
+        // For simplicity, navigate to the first conversation.
+        // We assume that conversation_id can be used as the identifier for the conversation.
+        const conversationId = conversations[0].conversation_id;
+        navigate("/messages", {
+          state: { mealId: conversationId, role: "taker" },
+        });
+      } else {
+        alert(
+          "You haven't started any conversation. Please click on a meal icon and send the first message."
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+      alert("Error fetching your conversations. Please try again later.");
+    }
+  };
+
+  // Dropdown overlay toggle.
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
 
+  // Navigation functions for dropdown overlay.
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
-  const goToMessages = () =>
-    navigate("/messages", { state: { role: "taker" } }); // Adjust role if needed
-
-  // ---------------------------------------------------------
 
   return (
     <div className="screen-container" style={{ position: "relative" }}>
-      {/* Fixed Burger Menu Icon (Dropdown Overlay trigger) */}
+      {/* Fixed Burger Menu Icon */}
       <div
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
@@ -106,7 +130,7 @@ const CollectFood: React.FC = () => {
         </div>
       </div>
 
-      {/* Dropdown Menu Overlay (Copied from GiverMealScreen) */}
+      {/* Dropdown Menu Overlay */}
       {menuOpen && (
         <div
           style={{
@@ -115,7 +139,7 @@ const CollectFood: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(114, 223, 114, 0.98)",
+            backgroundColor: "rgba(114,223,114,0.98)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -160,51 +184,51 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={ProfileIcon}
+              alt="Profile"
               onClick={() => {
                 toggleMenu();
                 goToProfile();
               }}
-              alt="Profile"
             />
             <p>פרופיל אישי</p>
           </div>
           <div className="overLay-menu">
             <img
               src={alertsIcon}
+              alt="Messages"
               onClick={() => {
                 toggleMenu();
                 goToMessages();
               }}
-              alt="Notifications"
             />
             <p>התראות</p>
           </div>
           <div className="overLay-menu">
             <img
               src={settingsIcon}
+              alt="Settings"
               onClick={() => {
                 toggleMenu();
                 goToSettings();
               }}
-              alt="Settings"
             />
             <p>הגדרות</p>
           </div>
           <div className="overLay-menu">
             <img
               src={talkToUsIcon}
+              alt="Talk To Us"
               onClick={() => {
                 toggleMenu();
                 goToTalkToUs();
               }}
-              alt="Talk To Us"
             />
             <p>דבר איתנו</p>
           </div>
         </div>
       )}
 
-      {/* Meal Summary Overlay for taker (only if selectedMeal is not his own) */}
+      {/* Meal Summary Overlay for Taker */}
       {selectedMeal && selectedMeal.user_id !== localUserId && (
         <div
           className="mealCardTaker"
@@ -223,7 +247,7 @@ const CollectFood: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", flexDirection: "row" }}>
-            {/* Image area (approximately 33%) */}
+            {/* Image area */}
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
                 <img
@@ -247,7 +271,7 @@ const CollectFood: React.FC = () => {
                 </div>
               )}
             </div>
-            {/* Details area (approximately 67%) */}
+            {/* Details area */}
             <div className="popupmealTaker" style={{ flex: "2" }}>
               <h3>{selectedMeal.item_description}</h3>
               <span>
@@ -258,7 +282,6 @@ const CollectFood: React.FC = () => {
                   style={{ width: "1rem", height: "1rem" }}
                 />
               </span>
-              {/* Button to view meal post */}
               <a onClick={() => handleViewMealPost(selectedMeal)}>
                 View Meal Post
               </a>
@@ -267,14 +290,10 @@ const CollectFood: React.FC = () => {
         </div>
       )}
 
-      {/* Map Container covering full screen */}
+      {/* Map Container */}
       <div className="map-container" style={{ height: "100vh" }}>
         <Map
-          initialViewState={{
-            latitude: 32.0853,
-            longitude: 34.7818,
-            zoom: 12,
-          }}
+          initialViewState={{ latitude: 32.0853, longitude: 34.7818, zoom: 12 }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
