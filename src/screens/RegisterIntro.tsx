@@ -26,7 +26,9 @@ const RegisterIntro: React.FC = () => {
       </p>
       <p>,שלכם</p>
       <p>Rצוות מניש </p>
-      <button onClick={handleRegisterClick}>אישור</button>
+      <button className="greenBtn" onClick={handleRegisterClick}>
+        אישור
+      </button>
     </div>
   );
 };

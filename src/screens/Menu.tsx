@@ -21,10 +21,14 @@ const Menu: React.FC = () => {
       <img src={logo} alt="Manisr Logo" />
 
       <div style={{ margin: "5rem" }}>
-        <button onClick={handleGiveMeal} style={{ marginRight: "1rem" }}>
+        <button
+          className="pickActionBtn"
+          onClick={handleGiveMeal}
+          style={{ marginRight: "1rem" }}
+        >
           <img src={giver} alt="Give a Meal" />
         </button>
-        <button onClick={handleTakeMeal}>
+        <button className="pickActionBtn" onClick={handleTakeMeal}>
           <img src={taker} alt="Take a Meal" />
         </button>
       </div>

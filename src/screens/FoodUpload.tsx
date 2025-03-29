@@ -86,9 +86,8 @@ const FoodUpload: React.FC = () => {
 
   return (
     <div className="screen-container upload-food">
-      <h2>{editMeal ? "Edit Your Meal" : "Upload Your Meal"}</h2>
       <form onSubmit={handlePreview} autoComplete="off">
-        <label htmlFor="itemDescription">אני רוצה למסור (Meal Name)</label>
+        <label htmlFor="itemDescription">אני רוצה למסור </label>
         <input
           type="text"
           placeholder="Enter meal name"
@@ -97,7 +96,7 @@ const FoodUpload: React.FC = () => {
           required
         />
 
-        <label htmlFor="pickupAddress">כתובת לאיסוף (Address)</label>
+        <label htmlFor="pickupAddress">כתובת לאיסוף</label>
         <input
           type="text"
           placeholder="Enter pickup address"
@@ -107,7 +106,7 @@ const FoodUpload: React.FC = () => {
         />
 
         <div>
-          <p>בחר/י את האפשרות המתאימה (קופסא)</p>
+          <p>בחר/י את האפשרות המתאימה</p>
           <button
             type="button"
             className={boxOption === "need" ? "selected" : ""}
@@ -125,7 +124,7 @@ const FoodUpload: React.FC = () => {
         </div>
 
         <div>
-          <p>בחר/י סוג אוכל (אופציונלי, ניתן לבחור יותר מאחד)</p>
+          <p>סמן/י אם רלוונטי למנה</p>
           <button
             type="button"
             className={selectedFoodTypes.includes("כשר") ? "selected" : ""}
@@ -171,7 +170,7 @@ const FoodUpload: React.FC = () => {
         </div>
 
         <div>
-          <p>בחר/י מרכיבים (אופציונלי, ניתן לבחור יותר מאחד)</p>
+          <p>סמן/י אם אחד או יותר מהמרכיבים נמצאים במנה</p>
           <button
             type="button"
             className={selectedIngredients.includes("חלב") ? "selected" : ""}
@@ -257,8 +256,8 @@ const FoodUpload: React.FC = () => {
           />
         </div>
 
-        <button type="submit">
-          {editMeal ? "צפייה בעדכון" : "צפייה מקדימה"}
+        <button id="approvedMeal" type="submit">
+          {editMeal ? "צפייה בעדכון" : "אישור"}
         </button>
       </form>
 

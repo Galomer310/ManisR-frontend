@@ -73,7 +73,9 @@ const Login: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleLogin}>אישור</button>
+      <button className="greenBtn" onClick={handleLogin}>
+        אישור
+      </button>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );

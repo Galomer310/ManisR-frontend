@@ -29,8 +29,14 @@ const LoginRegister: React.FC = () => {
         style={{ width: 200, marginBottom: 20 }}
       />
       <h1>Rמניש</h1>
-      <button onClick={handleRegisterClick}>הרשמה</button>
-      <button id="already-register" onClick={handleLoginClick}>
+      <button className="registerBtn" onClick={handleRegisterClick}>
+        הרשמה
+      </button>
+      <button
+        className="alreadyRegisterBtn"
+        id="already-register"
+        onClick={handleLoginClick}
+      >
         יש לי כבר חשבון
       </button>
     </div>
