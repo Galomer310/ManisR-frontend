@@ -1,5 +1,5 @@
 // src/screens/TakerMealCardApproval.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface MealData {
@@ -16,18 +16,15 @@ interface MealData {
 const TakerMealCardApproval: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // Expect mealData (the meal's details) and optionally an imageFile from location state.
   const { mealData, imageFile } = location.state as {
     mealData: MealData;
     imageFile?: File | null;
   };
-
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Create an image preview if an image file was provided.
   useEffect(() => {
     if (imageFile) {
       const objectUrl = URL.createObjectURL(imageFile);
@@ -36,12 +33,11 @@ const TakerMealCardApproval: React.FC = () => {
     }
   }, [imageFile]);
 
-  // This function sends a default message to the giver via the meal_conversation endpoint
   const handleSendMessage = async (defaultMsg: string) => {
     try {
       const token = localStorage.getItem("token");
       const takerId = Number(localStorage.getItem("userId"));
-      const giverId = mealData.user_id; // Ensure mealData.user_id is defined
+      const giverId = mealData.user_id;
       if (!mealData.id) {
         setError("Meal ID is missing.");
         return;
@@ -74,6 +70,7 @@ const TakerMealCardApproval: React.FC = () => {
         setError(errorData.error || "Error sending message.");
         return;
       }
+      // Navigate to the Messages screen, passing mealId in location state.
       navigate("/messages", {
         state: { mealId: mealData.id.toString(), role: "taker" },
       });
@@ -84,12 +81,10 @@ const TakerMealCardApproval: React.FC = () => {
   };
 
   const handleConnect = () => {
-    // Default message for connection
     handleSendMessage("I want to connect");
   };
 
   const handleQuestion = () => {
-    // Default message for a question
     handleSendMessage("I have a question");
   };
 

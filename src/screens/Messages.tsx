@@ -1,6 +1,6 @@
 // src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 
 interface Message {
@@ -13,7 +13,7 @@ interface Message {
 }
 
 interface LocationState {
-  mealId?: string; // the meal's id will act as the conversation id
+  mealId?: string;
   role?: string;
 }
 
@@ -22,17 +22,9 @@ const Messages: React.FC = () => {
   const { mealId } = locationState;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
-
-  // If mealId is not provided, show an error message.
-  useEffect(() => {
-    if (!mealId) {
-      console.error("No mealId provided in location state.");
-    }
-  }, [mealId]);
 
   const fetchMessages = async () => {
     if (!mealId) return;
@@ -70,9 +62,9 @@ const Messages: React.FC = () => {
       await axios.post(
         `${API_BASE_URL}/meal-conversation`,
         {
-          mealId: mealId, // This is required by the backend
+          mealId: Number(mealId),
           senderId: localUserId,
-          receiverId: 0, // Adjust this if you have a specific receiver id
+          receiverId: 0, // Adjust this if you want to set a specific receiver
           message: newMessage,
         },
         {
