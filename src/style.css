@@ -398,15 +398,17 @@ align-items: center;
 .messageBtn {
   display: flex;
   align-items: end;
+  flex-direction: column;
 }
 
 .messageBtn button {
   border-radius: 25px;
-  border: 1px solid (41, 179, 41);
-  background-color: #ffffff;
+  border: 1px solid green;
+  background-color: white;
+  box-shadow: none;
   cursor: pointer;
   font-size: 1rem;
-  margin: 0.1rem;
+  margin: 0.5rem;
   width: fit-content;
 }
 
@@ -502,12 +504,15 @@ align-items: center;
 
 /* Chat styles */
 .chat-messages {
-  border-top: 1px solid green;
-  border-bottom: 1px solid green;
+  border-top: 1px solid rgb(18, 189, 18);
+  border-bottom: 1px solid rgb(18, 189, 18);
   padding: 8px;
   height: 400px;
   /* overflow: scroll; */
   margin-top: 10rem;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
 }
 
 /* Additional classes for chat window */

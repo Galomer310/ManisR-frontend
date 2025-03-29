@@ -145,20 +145,12 @@ const Messages: React.FC = () => {
       >
         <FaArrowRight size={24} color="black" />
       </div>
-      <h2>Messages</h2>
+
       {!mealId ? (
         <p style={{ color: "red" }}>No conversation found for this meal.</p>
       ) : (
         <>
-          <div
-            className="chat-messages"
-            style={{
-              border: "1px solid #ccc",
-              padding: "8px",
-              height: "300px",
-              overflowY: "scroll",
-            }}
-          >
+          <div className="chat-messages">
             {conversation.length === 0 ? (
               <p>No messages yet.</p>
             ) : (
@@ -172,15 +164,7 @@ const Messages: React.FC = () => {
               ))
             )}
           </div>
-          <div
-            className="messageBtn"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              marginTop: "1rem",
-            }}
-          >
+          <div className="messageBtn">
             <p>בחר/י את ההודעות שברצונך לשלוח</p>
             {defaultMessages.map((msg, index) => (
               <button
