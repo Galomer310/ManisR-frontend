@@ -27,7 +27,7 @@ const Messages: React.FC = () => {
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
-  // Determine the receiver ID – the other party's id
+  // Ensure that otherPartyId is provided:
   const receiverId = otherPartyId;
 
   useEffect(() => {
@@ -63,6 +63,10 @@ const Messages: React.FC = () => {
       alert("Please enter a message.");
       return;
     }
+    if (receiverId === undefined || receiverId === null) {
+      alert("Other party's ID is missing. Please try again.");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       await axios.post(
@@ -70,7 +74,7 @@ const Messages: React.FC = () => {
         {
           mealId: Number(mealId),
           senderId: localUserId,
-          receiverId: receiverId, // this should be the other party's id
+          receiverId: receiverId,
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
