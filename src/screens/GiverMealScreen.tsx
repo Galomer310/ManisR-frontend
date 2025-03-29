@@ -159,7 +159,7 @@ const GiverMealScreen: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,128,0,0.8)",
+            backgroundColor: "rgba(114, 223, 114, 0.98)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",

@@ -33,12 +33,10 @@ const TakerMealCardApproval: React.FC = () => {
     }
   }, [imageFile]);
 
-  // src/screens/TakerMealCardApproval.tsx (snippet)
   const handleSendMessage = async (defaultMsg: string) => {
     try {
       const token = localStorage.getItem("token");
       const takerId = Number(localStorage.getItem("userId"));
-      // Ensure giverId is defined:
       const giverId = mealData.user_id;
       if (!mealData.id) {
         setError("Meal ID is missing.");
@@ -51,7 +49,7 @@ const TakerMealCardApproval: React.FC = () => {
       const payload = {
         mealId: mealData.id,
         senderId: takerId,
-        receiverId: giverId, // always include the giver's ID
+        receiverId: giverId,
         message: defaultMsg,
       };
       console.log("Sending message payload:", payload);
@@ -68,7 +66,7 @@ const TakerMealCardApproval: React.FC = () => {
         setError(errorData.error || "Error sending message.");
         return;
       }
-      // Navigate to the Messages screen, passing mealId and otherPartyId
+      // Navigate to the Messages screen, passing mealId and otherPartyId (givers' id)
       navigate("/messages", {
         state: {
           mealId: mealData.id.toString(),

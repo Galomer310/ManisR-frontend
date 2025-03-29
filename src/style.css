@@ -488,7 +488,7 @@ align-items: center;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgb(111, 207, 111);
+  background-color: rgba(45, 163, 45, 0.55);
   z-index: 1100;
   
 }
@@ -500,7 +500,7 @@ align-items: center;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  background-color: rgb(111, 207, 111);
+  background-color: rgb(102, 144, 102);
 
 }
 
