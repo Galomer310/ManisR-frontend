@@ -282,9 +282,12 @@ const CollectFood: React.FC = () => {
                   style={{ width: "1rem", height: "1rem" }}
                 />
               </span>
-              <a onClick={() => handleViewMealPost(selectedMeal)}>
-                View Meal Post
-              </a>
+              <button
+                className="pickUpMeal"
+                onClick={() => handleViewMealPost(selectedMeal)}
+              >
+                מתאים לי
+              </button>
             </div>
           </div>
         </div>

@@ -97,10 +97,10 @@ align-items: center;
   font-weight: 500;
   box-shadow: 1px 1px 5px 1px #fffefe;
   color: rgb(113, 113, 113);
-  border: 1.5px solid rgb(41, 179, 41);
+  border: 1.5px solid rgb(71, 156, 71);
 }
 .register-container button:hover {
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 
@@ -116,7 +116,7 @@ align-items: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   width: 50%;
   color: white;
   border: none;
@@ -128,8 +128,8 @@ align-items: center;
 }
 #approveBtn:hover{
   background-color: white;
-  color: rgb(41, 179, 41);
-  border: 1.5px solid rgb(41, 179, 41);
+  color: rgb(71, 156, 71);
+  border: 1.5px solid rgb(71, 156, 71);
 
 }
 
@@ -177,18 +177,18 @@ align-items: center;
 #already-register {
   margin-top: 1rem;
   background-color: white;
-  color: rgb(41, 179, 41);
-  border: 3px solid rgb(41, 179, 41);
+  color: rgb(71, 156, 71);
+  border: 3px solid rgb(71, 156, 71);
   cursor: pointer;
 }
 #already-register:hover {
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 .login-register button:hover {
   background-color: white;
-  color: rgb(41, 179, 41);
-  border: 1.5px solid rgb(41, 179, 41);
+  color: rgb(71, 156, 71);
+  border: 1.5px solid rgb(71, 156, 71);
 }
 
 
@@ -253,18 +253,18 @@ align-items: center;
   font-weight: 500;
   box-shadow: 1px 1px 5px 1px #fffefe;
   color: rgb(113, 113, 113);
-  border: 1.5px solid rgb(41, 179, 41);
+  border: 1.5px solid rgb(71, 156, 71);
   cursor: pointer;
 }
 .upload-food button:hover {
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 .approveBrn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   width: 50%;
   color: white;
   border: none;
@@ -396,7 +396,7 @@ align-items: center;
 
 .messageBtn button {
   border-radius: 25px;
-  border: 1px solid rgb(41, 179, 41);
+  border: 1px solid rgb(71, 156, 71);
   background-color: white;
   box-shadow: none;
   cursor: pointer;
@@ -406,7 +406,7 @@ align-items: center;
   width: fit-content;
 }
 .messageBtn button:hover {
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 
@@ -434,19 +434,19 @@ align-items: center;
   margin: 1rem;
   padding: 0.5rem 2rem;
   border-radius: 25px;
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
   font-size: 1rem;
   font-weight: 500;
   box-shadow: 1px 1px 5px 1px #fffefe;
   color: white;
-  border: 1.5px solid rgb(41, 179, 41);
+  border: 1.5px solid rgb(71, 156, 71);
 }
 
 .modal-content button:hover {
   background-color: white;
-  color: rgb(41, 179, 41);
-  border: 1.5px solid rgb(41, 179, 41);
+  color: rgb(71, 156, 71);
+  border: 1.5px solid rgb(71, 156, 71);
 }
 
 #takeOffBtn {
@@ -455,14 +455,14 @@ align-items: center;
   justify-content: center;
   background-color: white;
   width: 50%;
-  color: rgb(41, 179, 41);
-  border: 1.5px solid rgb(41, 179, 41);
+  color: rgb(71, 156, 71);
+  border: 1.5px solid rgb(71, 156, 71);
   padding: 0.75rem ;
   border-radius: 25px;
   cursor: pointer;
 }
 #takeOffBtn:hover {
-  background-color: rgb(41, 179, 41);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 
@@ -502,8 +502,8 @@ align-items: center;
 
 /* Chat styles */
 .chat-messages {
-  border-top: 1px solid rgb(18, 189, 18);
-  border-bottom: 1px solid rgb(18, 189, 18);
+  border-top: 1px solid rgb(71, 156, 71);
+  border-bottom: 1px solid rgb(71, 156, 71);
   padding: 8px;
   height: 400px;
   /* overflow: scroll; */
@@ -517,7 +517,7 @@ align-items: center;
 }
 .messageText {
   border-radius: 25px;
-  background-color: rgb(18, 189, 18);
+  background-color: rgb(71, 156, 71);
   color: white;
   padding: 0.5rem 0.75rem;
   margin: 0.25rem;
@@ -556,7 +556,7 @@ align-items: center;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  background-color: rgb(102, 144, 102);
+  background-color: rgb(71, 156, 71);
 
 }
 
@@ -607,7 +607,7 @@ align-items: center;
   border: none;
 }
 .greenBtn {
- background-color: rgb(102, 144, 102);
+ background-color: rgb(71, 156, 71);
  color: white;
  font-size: 1.5rem;
  padding: 0.25rem 2.5rem;
@@ -616,23 +616,23 @@ align-items: center;
 }
 .greenBtn:hover {
   background-color: white;
-  color: rgb(102, 144, 102);
+  color: rgb(71, 156, 71);
 }
 
 .whiteBtn {
   background-color: white;
-  color: rgb(102, 144, 102);
+  color: rgb(71, 156, 71);
   font-size: 1.5rem;
   padding: 0.25rem 2rem;
   border-radius: 25px;
 }
 .whiteBtn:hover {
-  background-color: rgb(102, 144, 102);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 
 .registerBtn {
-  background-color: rgb(102, 144, 102);
+  background-color: rgb(71, 156, 71);
   color: white;
   font-size: 1.5rem;
   padding: 0.25rem 2rem;
@@ -642,20 +642,20 @@ align-items: center;
 }
 .registerBtn:hover {
   background-color: white;
-  color: rgb(102, 144, 102);
+  color: rgb(71, 156, 71);
 }
 
 
 .alreadyRegisterBtn {
   background-color: white;
-  color: rgb(102, 144, 102);
+  color: rgb(71, 156, 71);
   font-size: 1.5rem;
   padding: 0.25rem 2rem;
   border-radius: 25px;
   width: 15rem;
 }
 .alreadyRegisterBtn:hover {
-  background-color: rgb(102, 144, 102);
+  background-color: rgb(71, 156, 71);
   color: white;
 }
 
@@ -671,10 +671,23 @@ align-items: center;
 }
 
 #approvedMeal {
-  background-color: rgb(102, 144, 102);
+  background-color: rgb(71, 156, 71);
   color: white;
   font-size: 1.2rem;
   padding: 0.5rem 2.5rem;
   display: flex;
   align-items: center;
+}
+
+.pickUpMeal {
+  background-color: rgb(71, 156, 71);
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 25px;
+  padding: 0.5rem 2rem;
+  border: none;
+}
+.pickUpMeal:hover {
+  background-color: rgb(214, 214, 214);
+  color:rgb(71, 156, 71);
 }
