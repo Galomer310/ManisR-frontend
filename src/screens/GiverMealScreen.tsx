@@ -6,6 +6,10 @@ import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import manisrLogo from "../assets/manisr_logo.svg";
 import locationIcon from "../assets/location.png";
+import ProfileIcon from "../assets/icons_ profile.svg";
+import settingsIcon from "../assets/icosnd_ settings.svg";
+import talkToUsIcon from "../assets/icons_ messages.svg";
+import alertsIcon from "../assets/1 notification alert icon.svg";
 
 interface Meal {
   id: number;
@@ -201,42 +205,49 @@ const GiverMealScreen: React.FC = () => {
               }}
             ></div>
           </div>
-          <button
-            onClick={() => {
-              toggleMenu();
-              goToProfile();
-            }}
-            style={{ margin: "1rem" }}
-          >
-            Profile
-          </button>
-          <button
-            onClick={() => {
-              toggleMenu();
-              goToSettings();
-            }}
-            style={{ margin: "1rem" }}
-          >
-            Settings
-          </button>
-          <button
-            onClick={() => {
-              toggleMenu();
-              goToTalkToUs();
-            }}
-            style={{ margin: "1rem" }}
-          >
-            Talk To Us
-          </button>
-          <button
-            onClick={() => {
-              toggleMenu();
-              goToMessages();
-            }}
-            style={{ margin: "1rem" }}
-          >
-            Messages
-          </button>
+
+          <div className="overLay-menu">
+            <img
+              src={ProfileIcon}
+              onClick={() => {
+                toggleMenu();
+                goToProfile();
+              }}
+            />
+            <p>פרופיל אישי</p>
+          </div>
+
+          <div className="overLay-menu">
+            <img
+              src={settingsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToSettings();
+              }}
+            />
+            <p>הגדרות</p>
+          </div>
+          <div className="overLay-menu">
+            <img
+              src={talkToUsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToTalkToUs();
+              }}
+            />
+            <p>דבר איתנו</p>
+          </div>
+
+          <div className="overLay-menu">
+            <img
+              src={alertsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToMessages();
+              }}
+            />
+            <p>התראות</p>
+          </div>
         </div>
       )}
 
