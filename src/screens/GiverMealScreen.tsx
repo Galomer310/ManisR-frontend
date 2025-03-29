@@ -216,7 +216,16 @@ const GiverMealScreen: React.FC = () => {
             />
             <p>פרופיל אישי</p>
           </div>
-
+          <div className="overLay-menu">
+            <img
+              src={alertsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToMessages();
+              }}
+            />
+            <p>התראות</p>
+          </div>
           <div className="overLay-menu">
             <img
               src={settingsIcon}
@@ -236,17 +245,6 @@ const GiverMealScreen: React.FC = () => {
               }}
             />
             <p>דבר איתנו</p>
-          </div>
-
-          <div className="overLay-menu">
-            <img
-              src={alertsIcon}
-              onClick={() => {
-                toggleMenu();
-                goToMessages();
-              }}
-            />
-            <p>התראות</p>
           </div>
         </div>
       )}
