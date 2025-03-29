@@ -55,17 +55,28 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
+  // Handler for when taker clicks on "מתאים לי" button.
+  const handleTakeButtonClick = () => {
+    if (!mealTaken) {
+      setConfirmTakeModalOpen(true);
+    }
+  };
+
   // Handler when taker confirms "Yes, I want to take".
   const handleConfirmTake = () => {
     setMealTaken(true);
     setConfirmTakeModalOpen(false);
-    // You can add additional logic here, for example saving this status in the backend.
+    // Navigate to TakerTracker component.
+    if (selectedMeal) {
+      navigate("/TakerTracker", {
+        state: { mealData: selectedMeal },
+      });
+    }
   };
 
   // Handler when taker chooses "Chat" instead.
   const handleChat = () => {
     setConfirmTakeModalOpen(false);
-    // Navigate to messages screen (assuming you pass the meal's id as conversation id)
     if (selectedMeal) {
       navigate("/messages", {
         state: { mealId: selectedMeal.id.toString(), role: "taker" },
@@ -85,7 +96,7 @@ const CollectFood: React.FC = () => {
 
   return (
     <div className="screen-container" style={{ position: "relative" }}>
-      {/* Fixed Burger Menu Icon */}
+      {/* Fixed Dropdown Menu Icon */}
       <div
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
@@ -117,7 +128,7 @@ const CollectFood: React.FC = () => {
         </div>
       </div>
 
-      {/* Dropdown Menu Overlay */}
+      {/* Dropdown Menu Overlay (copied from GiverMealScreen) */}
       {menuOpen && (
         <div
           style={{
@@ -185,7 +196,6 @@ const CollectFood: React.FC = () => {
               alt="Alerts"
               onClick={() => {
                 toggleMenu();
-                // Here you might call a function to go to alerts or messages.
                 goToTalkToUs();
               }}
             />
@@ -222,7 +232,7 @@ const CollectFood: React.FC = () => {
           className="mealCardTaker"
           style={{
             position: "absolute",
-            top: "10%", // Adjust this value as needed
+            top: "10%",
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -273,12 +283,7 @@ const CollectFood: React.FC = () => {
               {/* "מתאים לי" button */}
               <button
                 className="pickUpMeal"
-                onClick={() => {
-                  if (!mealTaken) {
-                    // Open confirmation modal if meal is not already taken
-                    setConfirmTakeModalOpen(true);
-                  }
-                }}
+                onClick={handleTakeButtonClick}
                 disabled={mealTaken}
                 style={{
                   backgroundColor: mealTaken ? "gray" : "",
@@ -313,7 +318,7 @@ const CollectFood: React.FC = () => {
             <h3 style={{ fontSize: "1.5rem" }}>
               המנה שמורה עבורך למשך 30 דקות
             </h3>
-            <p>אם אין באפשרותך לאסוף את המנה בטווח זה, דבר/י עם מוסר/ת המנה</p>
+            <p>בחר/י בין לקחת את המנה לבין צ'אט עם מוסר/ת המנה.</p>
             <div
               style={{
                 display: "flex",
@@ -321,11 +326,11 @@ const CollectFood: React.FC = () => {
                 marginTop: "1rem",
               }}
             >
-              <button className="whiteBtn" onClick={handleChat}>
-                צ'אט
-              </button>
               <button className="greenBtn" onClick={handleConfirmTake}>
                 לקחת
+              </button>
+              <button className="whiteBtn" onClick={handleChat}>
+                צ'אט
               </button>
             </div>
           </div>
@@ -335,17 +340,18 @@ const CollectFood: React.FC = () => {
       {/* Map Container */}
       <div className="map-container" style={{ height: "100vh" }}>
         <Map
-          initialViewState={{
-            latitude: 32.0853,
-            longitude: 34.7818,
-            zoom: 12,
-          }}
+          initialViewState={{ latitude: 32.0853, longitude: 34.7818, zoom: 12 }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         >
           {meals.map((meal) => (
-            <Marker key={meal.id} latitude={meal.lat} longitude={meal.lng}>
+            <Marker
+              key={meal.id}
+              latitude={meal.lat}
+              longitude={meal.lng}
+              anchor="bottom"
+            >
               <div
                 id="location-logo"
                 style={{ cursor: "pointer" }}

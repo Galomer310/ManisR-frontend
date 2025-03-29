@@ -17,6 +17,8 @@ import RegisterIntro from "./screens/RegisterIntro";
 import TalkToUs from "./screens/TalkToUs";
 import Settings from "./screens/Settings";
 import Profile from "./screens/Profile";
+import TakerTracker from "./screens/TakerTracker";
+import GiverTracker from "./screens/GiverTracker";
 
 const App: React.FC = () => {
   return (
@@ -45,6 +47,8 @@ const App: React.FC = () => {
         <Route path="/Settings" element={<Settings />} />
         <Route path="/TalkToUS" element={<TalkToUs />} />
         <Route path="/Profile" element={<Profile />} />
+        <Route path="TakerTracker" element={<TakerTracker />} />
+        <Route path="GiverTracker" element={<GiverTracker />} />
       </Routes>
     </Router>
   );
