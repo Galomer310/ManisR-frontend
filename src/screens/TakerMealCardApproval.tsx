@@ -33,10 +33,12 @@ const TakerMealCardApproval: React.FC = () => {
     }
   }, [imageFile]);
 
+  // src/screens/TakerMealCardApproval.tsx (snippet)
   const handleSendMessage = async (defaultMsg: string) => {
     try {
       const token = localStorage.getItem("token");
       const takerId = Number(localStorage.getItem("userId"));
+      // Ensure giverId is defined:
       const giverId = mealData.user_id;
       if (!mealData.id) {
         setError("Meal ID is missing.");
@@ -46,33 +48,33 @@ const TakerMealCardApproval: React.FC = () => {
         setError("Giver ID is missing.");
         return;
       }
-      console.log("Sending message payload:", {
+      const payload = {
         mealId: mealData.id,
         senderId: takerId,
-        receiverId: giverId,
+        receiverId: giverId, // always include the giver's ID
         message: defaultMsg,
-      });
+      };
+      console.log("Sending message payload:", payload);
       const res = await fetch(`${API_BASE_URL}/meal-conversation`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          mealId: mealData.id,
-          senderId: takerId,
-          receiverId: giverId,
-          message: defaultMsg,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const errorData = await res.json();
         setError(errorData.error || "Error sending message.");
         return;
       }
-      // Navigate to the Messages screen, passing mealId in location state.
+      // Navigate to the Messages screen, passing mealId and otherPartyId
       navigate("/messages", {
-        state: { mealId: mealData.id.toString(), role: "taker" },
+        state: {
+          mealId: mealData.id.toString(),
+          role: "taker",
+          otherPartyId: giverId,
+        },
       });
     } catch (err) {
       console.error("Error sending message:", err);

@@ -89,8 +89,29 @@ const GiverMealScreen: React.FC = () => {
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
-  const goToMessages = () =>
-    navigate("/messages", { state: { role: "giver" } });
+  const goToMessages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/food/myMeal`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.meal && data.meal.id) {
+          // Pass the meal id in location state
+          navigate("/messages", {
+            state: { mealId: data.meal.id.toString(), role: "giver" },
+          });
+        } else {
+          alert("You have not posted a meal yet.");
+        }
+      } else {
+        alert("Error fetching your meal.");
+      }
+    } catch (err) {
+      console.error("Error fetching giver's meal:", err);
+    }
+  };
 
   if (loading) {
     return <div className="screen-container">Loading meals...</div>;

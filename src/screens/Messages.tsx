@@ -14,35 +14,41 @@ interface Message {
 
 interface LocationState {
   mealId?: string;
-  role?: string;
+  role: string; // "taker" or "giver"
+  otherPartyId?: number; // For taker, this is the giver's id; for giver, this is the taker's id.
 }
 
 const Messages: React.FC = () => {
   const locationState = (useLocation().state || {}) as LocationState;
-  const { mealId } = locationState;
+  const { mealId, otherPartyId } = locationState;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
-  const fetchMessages = async () => {
-    if (!mealId) return;
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${API_BASE_URL}/meal-conversation/${mealId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setMessages(res.data.conversation);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    }
-  };
+  // Determine the receiver ID – the other party's id
+  const receiverId = otherPartyId;
 
   useEffect(() => {
+    if (!mealId) {
+      console.error("No mealId provided in location state.");
+      return;
+    }
+    const fetchMessages = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${API_BASE_URL}/meal-conversation/${mealId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setMessages(res.data.conversation);
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      }
+    };
     fetchMessages();
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
@@ -64,15 +70,20 @@ const Messages: React.FC = () => {
         {
           mealId: Number(mealId),
           senderId: localUserId,
-          receiverId: 0, // Adjust this if you want to set a specific receiver
+          receiverId: receiverId, // this should be the other party's id
           message: newMessage,
         },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNewMessage("");
+      // Refresh messages after sending.
+      const res = await axios.get(
+        `${API_BASE_URL}/meal-conversation/${mealId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setNewMessage("");
-      fetchMessages();
+      setMessages(res.data.conversation);
     } catch (err) {
       console.error("Error sending message:", err);
     }
