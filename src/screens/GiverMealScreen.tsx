@@ -93,6 +93,7 @@ const GiverMealScreen: React.FC = () => {
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
+
   const goToMessages = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -102,7 +103,7 @@ const GiverMealScreen: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         if (data.meal && data.meal.id) {
-          // Pass the meal id in location state
+          // Pass only mealId + role = "giver"
           navigate("/messages", {
             state: { mealId: data.meal.id.toString(), role: "giver" },
           });

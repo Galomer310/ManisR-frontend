@@ -1,4 +1,3 @@
-// src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -16,7 +15,7 @@ interface Message {
 interface LocationState {
   mealId?: string;
   role: string; // "taker" or "giver"
-  otherPartyId?: number; // For taker: giver's id; for giver: taker's id.
+  otherPartyId?: number; // Taker: Giver’s ID, Giver: Taker’s ID
 }
 
 const Messages: React.FC = () => {
@@ -27,19 +26,22 @@ const Messages: React.FC = () => {
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
-  // If the otherPartyId is missing and role is "giver", use a fallback (for testing only).
-  const receiverId =
-    otherPartyId !== undefined && otherPartyId !== null
-      ? otherPartyId
-      : role === "giver"
-      ? 9999 // Replace with a valid fallback id if needed.
-      : undefined;
+  // We'll keep our real "otherPartyId" in a local state variable
+  // so we can overwrite it if the Giver tries to open messages
+  // with no known Taker yet.
+  const [actualOtherPartyId, setActualOtherPartyId] = useState<number | null>(
+    otherPartyId || null
+  );
 
-  // Default messages: six for taker, seven for giver.
+  const [conversation, setConversation] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [error, setError] = useState("");
+
+  // Default messages
   const defaultMessagesTaker = [
     "אני בדרך לאסוף",
     "אני צריך/ה עוד 5 ד'ק בבקשה",
-    "אני נאלץ/ץ לבטל הגעה, מתנצל/ת",
+    "אני נאלץ/ת לבטל הגעה, מתנצל/ת",
     "הגעתי",
     "הגעתי ואני לא מוצא/ת את המנה",
     "המנה אצלי, תודה רבה",
@@ -56,34 +58,47 @@ const Messages: React.FC = () => {
   const defaultMessages =
     role === "taker" ? defaultMessagesTaker : defaultMessagesGiver;
 
-  const [conversation, setConversation] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [error, setError] = useState("");
-
+  // 1) Fetch conversation on mount & every 5 seconds
   useEffect(() => {
     if (!mealId) {
       console.error("No mealId provided in location state.");
       return;
     }
+    const token = localStorage.getItem("token");
+
     const fetchMessages = async () => {
       try {
-        const token = localStorage.getItem("token");
         const res = await axios.get(
           `${API_BASE_URL}/meal-conversation/${mealId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setConversation(res.data.conversation);
+        const convData = res.data.conversation as Message[];
+        setConversation(convData);
+
+        // 2) If we are the "giver" and we do NOT yet have a known otherPartyId,
+        //    try to find the Taker's ID from the conversation
+        if (role === "giver" && !actualOtherPartyId && convData.length > 0) {
+          // Find a message from a user that isn't me
+          const messageFromSomeoneElse = convData.find(
+            (msg) => msg.sender_id !== localUserId
+          );
+          if (messageFromSomeoneElse) {
+            setActualOtherPartyId(messageFromSomeoneElse.sender_id);
+          }
+        }
       } catch (err) {
         console.error("Error fetching messages:", err);
       }
     };
+
     fetchMessages();
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [mealId, API_BASE_URL]);
+  }, [mealId, API_BASE_URL, role, actualOtherPartyId, localUserId]);
 
+  // 3) Send message
   const sendMessageHandler = async () => {
     if (!mealId) {
       alert("Conversation not found. Please try again later.");
@@ -93,10 +108,11 @@ const Messages: React.FC = () => {
       alert("Please enter a message.");
       return;
     }
-    if (receiverId === undefined) {
-      alert("Other party's ID is missing. Please try again.");
+    if (!actualOtherPartyId) {
+      alert("The other party's ID is missing. Please try again.");
       return;
     }
+
     try {
       const token = localStorage.getItem("token");
       await axios.post(
@@ -104,12 +120,13 @@ const Messages: React.FC = () => {
         {
           mealId: Number(mealId),
           senderId: localUserId,
-          receiverId: receiverId,
+          receiverId: actualOtherPartyId,
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setNewMessage("");
+
       // Refresh messages after sending.
       const res = await axios.get(
         `${API_BASE_URL}/meal-conversation/${mealId}`,
@@ -124,12 +141,13 @@ const Messages: React.FC = () => {
     }
   };
 
+  // Let them click a default message quickly
   const handleDefaultMessageClick = async (msg: string) => {
-    // Use the default message as newMessage and send it.
     setNewMessage(msg);
     await sendMessageHandler();
   };
 
+  // Basic UI
   return (
     <div className="screen-container">
       {/* Clickable Back Icon at Top Right */}
@@ -146,11 +164,13 @@ const Messages: React.FC = () => {
         <FaArrowRight size={24} color="black" />
       </div>
 
+      {/* If no mealId, just error out */}
       {!mealId ? (
         <p style={{ color: "red" }}>No conversation found for this meal.</p>
       ) : (
         <>
-          <div className="chat-messages">
+          {/* Conversation */}
+          <div className="chat-messages" style={{ minHeight: "200px" }}>
             {conversation.length === 0 ? (
               <p>No messages yet.</p>
             ) : (
@@ -161,6 +181,8 @@ const Messages: React.FC = () => {
               ))
             )}
           </div>
+
+          {/* Default message buttons */}
           <div className="messageBtn">
             <p>בחר/י את ההודעות שברצונך לשלוח</p>
             {defaultMessages.map((msg, index) => (
@@ -174,6 +196,7 @@ const Messages: React.FC = () => {
           </div>
         </>
       )}
+
       {error && (
         <p className="error" style={{ color: "red" }}>
           {error}

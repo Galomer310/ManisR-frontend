@@ -1,4 +1,3 @@
-// src/screens/CollectFood.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -74,12 +73,16 @@ const CollectFood: React.FC = () => {
     }
   };
 
-  // Handler when taker chooses "Chat" instead.
+  // Handler when taker chooses "Chat" instead of confirming.
   const handleChat = () => {
     setConfirmTakeModalOpen(false);
     if (selectedMeal) {
       navigate("/messages", {
-        state: { mealId: selectedMeal.id.toString(), role: "taker" },
+        state: {
+          mealId: selectedMeal.id.toString(),
+          role: "taker",
+          otherPartyId: selectedMeal.user_id, // Giver’s ID
+        },
       });
     }
   };
@@ -128,7 +131,7 @@ const CollectFood: React.FC = () => {
         </div>
       </div>
 
-      {/* Dropdown Menu Overlay (copied from GiverMealScreen) */}
+      {/* Dropdown Menu Overlay */}
       {menuOpen && (
         <div
           style={{
@@ -361,7 +364,6 @@ const CollectFood: React.FC = () => {
                   src={manisrLogo}
                   alt="Meal Marker"
                   style={{ width: "30px", height: "30px", cursor: "pointer" }}
-                  onClick={() => setSelectedMeal(meal)}
                 />
               </div>
             </Marker>

@@ -40,8 +40,8 @@ const ChatRoom: React.FC = () => {
   // Function to send a new message.
   const sendMessage = async () => {
     const userId = Number(localStorage.getItem("userId"));
-    // (Receiver ID should be determined by your app logic.)
-    const receiverId = 0; // <--- placeholder
+    const { giverId } = location.state;
+    const receiverId = giverId;
     try {
       const token = localStorage.getItem("token");
       await axios.post(
@@ -49,7 +49,7 @@ const ChatRoom: React.FC = () => {
         {
           mealId: conversationId,
           senderId: userId,
-          receiverId,
+          receiverId: receiverId,
           message: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
