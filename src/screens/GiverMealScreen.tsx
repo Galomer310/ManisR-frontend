@@ -239,11 +239,24 @@ const GiverMealScreen: React.FC = () => {
           <div style={{ display: "flex", flexDirection: "row" }}>
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
-                <img
-                  // Important: remove the slash between API_BASE_URL and avatar_url
-                  src={`${API_BASE_URL}/${selectedMeal.avatar_url}`}
-                  alt="Meal"
-                />
+                (() => {
+                  // Use the URL constructor to create an absolute URL.
+                  const fullImageUrl = new URL(
+                    selectedMeal.avatar_url,
+                    API_BASE_URL
+                  ).href;
+                  return (
+                    <img
+                      src={fullImageUrl}
+                      alt="Meal"
+                      style={{
+                        width: "100%",
+                        maxWidth: "150px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  );
+                })()
               ) : (
                 <div
                   style={{
@@ -254,7 +267,7 @@ const GiverMealScreen: React.FC = () => {
                 >
                   אין תמונה
                 </div>
-              )}
+              )}{" "}
             </div>
             <div style={{ flex: "2", paddingRight: "1rem" }}>
               <h3 style={{ margin: "0 0 0.5rem 0" }}>
