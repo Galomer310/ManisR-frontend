@@ -250,67 +250,45 @@ const GiverMealScreen: React.FC = () => {
       )}
 
       {selectedMeal && selectedMeal.user_id === localUserId && (
-        <div
-          className="mealCardGiver"
-          style={{
-            position: "absolute",
-            top: "10%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "90%",
-            maxWidth: "500px",
-            backgroundColor: "rgba(255,255,255,0.95)",
-            padding: "1rem",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-            zIndex: 1000,
-            borderRadius: "8px",
-          }}
-        >
+        <div className="mealCardGiver">
           <div style={{ display: "flex", flexDirection: "row" }}>
-            <div style={{ flex: "1", textAlign: "center" }}>
-              {selectedMeal.avatar_url ? (
-                (() => {
-                  // Use the URL constructor to create an absolute URL.
-                  const fullImageUrl = new URL(
-                    selectedMeal.avatar_url,
-                    API_BASE_URL
-                  ).href;
-                  return (
-                    <img
-                      src={fullImageUrl}
-                      alt="Meal"
-                      style={{
-                        width: "100%",
-                        maxWidth: "150px",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  );
-                })()
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "150px",
-                    backgroundColor: "#eee",
-                  }}
-                >
-                  אין תמונה
-                </div>
-              )}{" "}
-            </div>
-            <div style={{ flex: "2", paddingRight: "1rem" }}>
-              <h3 style={{ margin: "0 0 0.5rem 0" }}>
-                {selectedMeal.item_description}
-              </h3>
-              <p style={{ margin: "0 0 0.5rem 0" }}>
-                {selectedMeal.pickup_address}{" "}
-                <img
-                  src={locationIcon}
-                  alt="location icon"
-                  style={{ width: "1rem", height: "1rem" }}
-                />
-              </p>
+            {selectedMeal.avatar_url ? (
+              (() => {
+                // Use the URL constructor to create an absolute URL.
+                const fullImageUrl = new URL(
+                  selectedMeal.avatar_url,
+                  API_BASE_URL
+                ).href;
+                return (
+                  <img
+                    src={fullImageUrl}
+                    alt="Meal"
+                    style={{
+                      width: "100%",
+                      maxWidth: "150px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                );
+              })()
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  height: "150px",
+                  backgroundColor: "#eee",
+                }}
+              >
+                אין תמונה
+              </div>
+            )}{" "}
+            <div className="popupmeal" style={{ flex: "2" }}>
+              <h3>{selectedMeal.item_description}</h3>
+              <span>
+                {selectedMeal.pickup_address}
+                <img src={locationIcon} alt="location icon" />
+              </span>
+
               <a
                 href="#"
                 onClick={(e) => {
