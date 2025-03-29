@@ -7,6 +7,12 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/location.png";
 import manisrLogo from "../assets/manisr_logo.svg";
 
+// Import the overlay icons
+import ProfileIcon from "../assets/icons_ profile.svg";
+import settingsIcon from "../assets/icosnd_ settings.svg";
+import talkToUsIcon from "../assets/icons_ messages.svg";
+import alertsIcon from "../assets/1 notification alert icon.svg";
+
 interface Meal {
   id: number;
   item_description: string;
@@ -52,13 +58,27 @@ const CollectFood: React.FC = () => {
     });
   };
 
+  // ----- Dropdown Overlay (Copied from GiverMealScreen) -----
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  const goToProfile = () => navigate("/Profile");
+  const goToSettings = () => navigate("/Settings");
+  const goToTalkToUs = () => navigate("/TalkToUs");
+  const goToMessages = () =>
+    navigate("/messages", { state: { role: "taker" } }); // Adjust role if needed
+
+  // ---------------------------------------------------------
+
   return (
     <div className="screen-container" style={{ position: "relative" }}>
-      {/* Fixed Burger Menu Icon (optional drop-down; you can add similar logic as in GiverMealScreen) */}
+      {/* Fixed Burger Menu Icon (Dropdown Overlay trigger) */}
       <div
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
-        <div onClick={() => {}} style={{ cursor: "pointer" }}>
+        <div onClick={toggleMenu} style={{ cursor: "pointer" }}>
           <div
             style={{
               width: "25px",
@@ -86,13 +106,111 @@ const CollectFood: React.FC = () => {
         </div>
       </div>
 
+      {/* Dropdown Menu Overlay (Copied from GiverMealScreen) */}
+      {menuOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(114, 223, 114, 0.98)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1100,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "1rem",
+              right: "1rem",
+              cursor: "pointer",
+            }}
+            onClick={toggleMenu}
+          >
+            <div
+              style={{
+                width: "25px",
+                height: "3px",
+                backgroundColor: "black",
+                margin: "4px 0",
+              }}
+            ></div>
+            <div
+              style={{
+                width: "25px",
+                height: "3px",
+                backgroundColor: "black",
+                margin: "4px 0",
+              }}
+            ></div>
+            <div
+              style={{
+                width: "25px",
+                height: "3px",
+                backgroundColor: "black",
+                margin: "4px 0",
+              }}
+            ></div>
+          </div>
+          <div className="overLay-menu">
+            <img
+              src={ProfileIcon}
+              onClick={() => {
+                toggleMenu();
+                goToProfile();
+              }}
+              alt="Profile"
+            />
+            <p>פרופיל אישי</p>
+          </div>
+          <div className="overLay-menu">
+            <img
+              src={alertsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToMessages();
+              }}
+              alt="Notifications"
+            />
+            <p>התראות</p>
+          </div>
+          <div className="overLay-menu">
+            <img
+              src={settingsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToSettings();
+              }}
+              alt="Settings"
+            />
+            <p>הגדרות</p>
+          </div>
+          <div className="overLay-menu">
+            <img
+              src={talkToUsIcon}
+              onClick={() => {
+                toggleMenu();
+                goToTalkToUs();
+              }}
+              alt="Talk To Us"
+            />
+            <p>דבר איתנו</p>
+          </div>
+        </div>
+      )}
+
       {/* Meal Summary Overlay for taker (only if selectedMeal is not his own) */}
       {selectedMeal && selectedMeal.user_id !== localUserId && (
         <div
           className="mealCardTaker"
           style={{
             position: "absolute",
-            top: "10%", // Adjust this value as needed
+            top: "10%",
             left: "50%",
             transform: "translateX(-50%)",
             width: "90%",
@@ -130,19 +248,17 @@ const CollectFood: React.FC = () => {
               )}
             </div>
             {/* Details area (approximately 67%) */}
-            <div style={{ flex: "2", paddingRight: "1rem" }}>
-              <h3 style={{ margin: "0 0 0.5rem 0" }}>
-                {selectedMeal.item_description}
-              </h3>
-              <p style={{ margin: "0 0 0.5rem 0" }}>
-                {selectedMeal.pickup_address}{" "}
+            <div className="popupmealTaker" style={{ flex: "2" }}>
+              <h3>{selectedMeal.item_description}</h3>
+              <span>
+                {selectedMeal.pickup_address}
                 <img
                   src={locationIcon}
                   alt="location icon"
                   style={{ width: "1rem", height: "1rem" }}
                 />
-              </p>
-              {/* Button instead of a link */}
+              </span>
+              {/* Button to view meal post */}
               <a onClick={() => handleViewMealPost(selectedMeal)}>
                 View Meal Post
               </a>

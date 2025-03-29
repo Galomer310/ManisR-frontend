@@ -375,6 +375,19 @@ align-items: center;
 }
 
 
+/* Taker View */
+.popupmealTaker {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.popupmealTaker span {
+  margin-bottom: 1rem;
+}
+
+
+
 .modal-content {
   display: flex;
   flex-direction: column;
