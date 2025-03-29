@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Map, { Marker } from "react-map-gl";
+import locationIcon from "../assets/location.png";
 
 interface MealData {
   id?: number;
@@ -145,50 +146,40 @@ const GiverMealCardApproval: React.FC = () => {
   };
 
   return (
-    <div className="screen-container" style={{ textAlign: "right" }}>
-      <h2>אישור המנה</h2>
-      <div
-        style={{
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          padding: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
+    <div
+      className="screen-container GiverApprovalCard"
+      style={{ textAlign: "right" }}
+    >
+      <div className="foodSummeryCardApproval">
         {imagePreviewUrl ? (
-          <img
-            src={imagePreviewUrl}
-            alt="Meal Preview"
-            style={{ width: "100%", maxWidth: "300px", marginBottom: "1rem" }}
-          />
+          <img src={imagePreviewUrl} alt="Meal Preview" />
         ) : (
           <p>אין תמונה להצגה</p>
         )}
         <p>
-          <strong>שם המנה:</strong> {mealData.item_description}
+          <strong>{mealData.item_description}</strong>
         </p>
-        <p>
-          <strong>כתובת לאיסוף:</strong> {mealData.pickup_address}
-        </p>
+        <span>
+          {mealData.pickup_address}
+          <img src={locationIcon} style={{ height: "1rem", width: "1rem" }} />
+        </span>
+        <p>{mealData.ingredients}</p>
+        <p>{mealData.food_types}</p>
         <p>
           <strong>צריך להביא קופסא:</strong>{" "}
           {mealData.box_option === "need" ? "כן" : "לא"}
         </p>
+
         <p>
-          <strong>סוגי אוכל:</strong> {mealData.food_types}
+          <strong>:הערות מיוחדות</strong>
         </p>
-        <p>
-          <strong>מרכיבים:</strong> {mealData.ingredients}
-        </p>
-        <p>
-          <strong>הערות מיוחדות:</strong> {mealData.special_notes}
-        </p>
+        <p>{mealData.special_notes}</p>
       </div>
 
       {mapError ? (
         <p style={{ color: "red" }}>{mapError}</p>
       ) : lat && lng ? (
-        <div style={{ width: "100%", height: "300px", marginBottom: "1rem" }}>
+        <div style={{ width: "20%", height: "300px", marginBottom: "1rem" }}>
           <Map
             initialViewState={{
               latitude: lat,
@@ -211,9 +202,14 @@ const GiverMealCardApproval: React.FC = () => {
 
       {error && <p className="error">{error}</p>}
 
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <button onClick={handleApprove}>אישור סופי</button>
-        <button onClick={handleGoBackToEdit}>חזור לעריכה</button>
+      <div className="giverMealCardApproval">
+        <p>? האם כל הפרטים נכונים </p>
+        <button className="greenBtn" onClick={handleApprove}>
+          אישור
+        </button>
+        <button className="whiteBtn" onClick={handleGoBackToEdit}>
+          חזור
+        </button>
       </div>
     </div>
   );

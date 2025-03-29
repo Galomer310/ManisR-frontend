@@ -1,6 +1,8 @@
 // src/screens/TakerMealCardApproval.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import locationIcon from "../assets/location.png";
+import { FaArrowRight } from "react-icons/fa";
 
 interface MealData {
   id?: number;
@@ -89,49 +91,57 @@ const TakerMealCardApproval: React.FC = () => {
   };
 
   return (
-    <div className="screen-container" style={{ textAlign: "right" }}>
-      <h2>Meal Details</h2>
+    <div
+      className="screen-container GiverApprovalCard"
+      style={{ textAlign: "right" }}
+    >
+      {/* Clickable Back Icon at Top Right */}
       <div
         style={{
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          padding: "1rem",
-          marginBottom: "1rem",
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
         }}
+        onClick={() => navigate(-1)}
       >
+        <FaArrowRight size={24} color="black" />
+      </div>
+      <div className="foodSummeryCardApproval">
         {imagePreviewUrl ? (
-          <img
-            src={imagePreviewUrl}
-            alt="Meal Preview"
-            style={{ width: "100%", maxWidth: "300px", marginBottom: "1rem" }}
-          />
+          <img src={imagePreviewUrl} alt="Meal Preview" />
         ) : (
-          <p>No image available</p>
+          <p>אין תמונה להצגה</p>
         )}
         <p>
-          <strong>Meal Name:</strong> {mealData.item_description}
+          <strong>{mealData.item_description}</strong>
         </p>
+        <span>
+          {mealData.pickup_address}
+          <img src={locationIcon} style={{ height: "1rem", width: "1rem" }} />
+        </span>
+        <p>{mealData.ingredients}</p>
+        <p>{mealData.food_types}</p>
         <p>
-          <strong>Pickup Address:</strong> {mealData.pickup_address}
+          <strong>צריך להביא קופסא:</strong>{" "}
+          {mealData.box_option === "need" ? "כן" : "לא"}
         </p>
+
         <p>
-          <strong>Box Option:</strong>{" "}
-          {mealData.box_option === "need" ? "Need" : "No Need"}
+          <strong>:הערות מיוחדות</strong>
         </p>
-        <p>
-          <strong>Food Types:</strong> {mealData.food_types}
-        </p>
-        <p>
-          <strong>Ingredients:</strong> {mealData.ingredients}
-        </p>
-        <p>
-          <strong>Special Notes:</strong> {mealData.special_notes}
-        </p>
+        <p>{mealData.special_notes}</p>
       </div>
+
       {error && <p className="error">{error}</p>}
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <button onClick={handleConnect}>I want to connect</button>
-        <button onClick={handleQuestion}>I have a question</button>
+      <div className="giverMealCardApproval">
+        <button className="greenBtn" onClick={handleConnect}>
+          אני רוצה לאסוף
+        </button>
+        <button className="whiteBtn" onClick={handleQuestion}>
+          יש לי שאלה
+        </button>
       </div>
     </div>
   );
