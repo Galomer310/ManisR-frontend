@@ -32,7 +32,7 @@ const CollectFood: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   // New state for the "take" confirmation modal and to track if the meal is taken
   const [confirmTakeModalOpen, setConfirmTakeModalOpen] = useState(false);
-  const [mealTaken, setMealTaken] = useState(false);
+  const [mealTaken] = useState(false);
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -62,14 +62,26 @@ const CollectFood: React.FC = () => {
   };
 
   // Handler when taker confirms "Yes, I want to take".
-  const handleConfirmTake = () => {
-    setMealTaken(true);
-    setConfirmTakeModalOpen(false);
-    // Navigate to TakerTracker component.
-    if (selectedMeal) {
+  const handleConfirmTake = async () => {
+    try {
+      if (!selectedMeal) return;
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${API_BASE_URL}/food/reserve/${selectedMeal.id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // The backend now sets status='reserved', so the meal won't show
+      // for other Takers. Next, navigate to TakerTracker with the data:
       navigate("/TakerTracker", {
-        state: { mealData: selectedMeal },
+        state: {
+          mealData: selectedMeal,
+          reservationStart: Date.now(),
+        },
       });
+    } catch (err) {
+      console.error("Error reserving meal:", err);
     }
   };
 

@@ -10,6 +10,7 @@ import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
+import { io } from "socket.io-client";
 
 interface Meal {
   id: number;
@@ -36,6 +37,11 @@ const GiverMealScreen: React.FC = () => {
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
+  const socket = io(API_BASE_URL, {
+    transports: ["websocket"], // Force websocket for demonstration
+    autoConnect: false, // We'll manually connect in useEffect
+  });
+
   useEffect(() => {
     const fetchMeals = async () => {
       try {
@@ -52,6 +58,47 @@ const GiverMealScreen: React.FC = () => {
     };
     fetchMeals();
   }, [API_BASE_URL]);
+
+  useEffect(() => {
+    // 2) Connect the socket
+    socket.connect();
+
+    // 3) On connect
+    socket.on("connect", () => {
+      console.log("GiverMealScreen: connected to socket server", socket.id);
+    });
+
+    // 4) Listen for "mealReserved" events
+    socket.on("mealReserved", (data: any) => {
+      console.log("GiverMealScreen: received mealReserved event:", data);
+      // data = { mealId, giverId, takerId, reservedAt, expiresAt }
+
+      // Only navigate if this meal belongs to me (giverId === localUserId)
+      if (data.giverId === localUserId) {
+        // The Taker has reserved MY meal => move me to GiverTracker
+        navigate("/GiverTracker", {
+          state: {
+            // or pass the entire meal if you want
+            mealId: data.mealId,
+            reservationStart: Date.now(), // or data.reservedAt
+          },
+        });
+      }
+    });
+
+    // 5) On disconnect
+    socket.on("disconnect", () => {
+      console.log("GiverMealScreen: disconnected from socket server");
+    });
+
+    // 6) Cleanup when unmounting
+    return () => {
+      socket.off("connect");
+      socket.off("mealReserved");
+      socket.off("disconnect");
+      socket.disconnect();
+    };
+  }, [socket, localUserId, navigate]);
 
   const handleConfirmCancel = async () => {
     if (!selectedMeal) return;
