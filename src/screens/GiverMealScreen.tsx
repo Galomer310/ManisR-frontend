@@ -10,6 +10,7 @@ import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
 import { io } from "socket.io-client";
+import { IoMenu } from "react-icons/io5";
 
 interface Meal {
   id: number;
@@ -178,32 +179,12 @@ const GiverMealScreen: React.FC = () => {
       <div
         style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 1100 }}
       >
-        <div onClick={toggleMenu} style={{ cursor: "pointer" }}>
-          <div
-            style={{
-              width: "25px",
-              height: "3px",
-              backgroundColor: "black",
-              margin: "4px 0",
-            }}
-          ></div>
-          <div
-            style={{
-              width: "25px",
-              height: "3px",
-              backgroundColor: "black",
-              margin: "4px 0",
-            }}
-          ></div>
-          <div
-            style={{
-              width: "25px",
-              height: "3px",
-              backgroundColor: "black",
-              margin: "4px 0",
-            }}
-          ></div>
-        </div>
+        <IoMenu
+          size={32}
+          color="black"
+          onClick={toggleMenu}
+          style={{ cursor: "pointer" }}
+        />
       </div>
 
       {menuOpen && (
