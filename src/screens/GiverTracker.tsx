@@ -128,17 +128,7 @@ const GiverTracker: React.FC = () => {
       await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      // Optional: emit a message manually to taker if you want
-      if (mealData.taker_id) {
-        socket.emit("message", {
-          mealId: mealData.id,
-          senderId: localUserId,
-          receiverId: mealData.taker_id,
-          message: "המנה סומנה כאסופה על ידי המוסר. תודה!",
-        });
-      }
-
+      // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
       navigate("/menu");
     } catch (err) {
       console.error("Error collecting meal (giver):", err);
