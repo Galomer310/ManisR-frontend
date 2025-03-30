@@ -657,7 +657,7 @@ align-items: center;
 }
 
 .foodSummeryCardApproval img {
-  height: auto;
+  max-height: 100px;
   width: fit-content;
 }
 
