@@ -742,3 +742,35 @@ align-items: center;
   max-width: 100px;
   border-radius: 10px;
 }
+
+
+/* User Rate - after meal is collected */
+.rate-review-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-section {
+  display: flex;
+  flex-direction: column;
+  text-align: end;
+  justify-content: center;
+  align-items: center;
+}
+.review-section textarea {
+  text-align: end;
+  border: 1px solid rgb(251, 232, 232);
+  border-radius: 10px;
+  box-shadow: 1px 1px 1px 1px rgb(227, 227, 227);
+}
+
+.review-section h3 {
+  text-align: end;
+}

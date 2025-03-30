@@ -105,7 +105,7 @@ const GiverTracker: React.FC = () => {
   useEffect(() => {
     if (collected) {
       alert("המנה נאספה בהצלחה על ידי האוסף. תודה!");
-      navigate("/menu");
+      navigate("/rate-review");
     }
   }, [collected, navigate]);
 
@@ -130,7 +130,7 @@ const GiverTracker: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
-      navigate("/menu");
+      navigate("/rate-review");
     } catch (err) {
       console.error("Error collecting meal (giver):", err);
       alert("אירעה שגיאה בעת איסוף המנה.");

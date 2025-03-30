@@ -88,7 +88,7 @@ const TakerTracker: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
-      navigate("/menu");
+      navigate("/rate-review");
     } catch (err) {
       console.error("Error collecting meal:", err);
     }

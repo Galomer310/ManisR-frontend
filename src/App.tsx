@@ -19,6 +19,7 @@ import Settings from "./screens/Settings";
 import Profile from "./screens/Profile";
 import TakerTracker from "./screens/TakerTracker";
 import GiverTracker from "./screens/GiverTracker";
+import UserRateReview from "./screens/UserRateReview";
 
 const App: React.FC = () => {
   return (
@@ -49,6 +50,7 @@ const App: React.FC = () => {
         <Route path="/Profile" element={<Profile />} />
         <Route path="TakerTracker" element={<TakerTracker />} />
         <Route path="GiverTracker" element={<GiverTracker />} />
+        <Route path="/rate-review" element={<UserRateReview />} />
       </Routes>
     </Router>
   );
