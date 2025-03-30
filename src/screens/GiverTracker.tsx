@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import orangIcon from "../assets/orange tracker.svg";
+import axios from "axios";
 
 interface MealData {
   id?: number;
@@ -135,18 +137,45 @@ const GiverTracker: React.FC = () => {
     return <div>שגיאה: אין פרטי מנה.</div>;
   }
 
+  /**
+   * Handler: Taker confirms they picked up the meal.
+   * => calls `DELETE /food/collect/:mealId` to remove meal & conversation from DB,
+   *    then navigates Taker to Menu (or a rating screen).
+   */
+  const handleMealTaken = async () => {
+    if (!mealData?.id) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
+      navigate("/menu");
+    } catch (err) {
+      console.error("Error collecting meal:", err);
+    }
+  };
+
   return (
-    <div className="screen-container">
-      <h2>ממתינים לאיסוף</h2>
-      <div className="meal-details">
-        <h4>{mealData.item_description}</h4>
-        <p>{mealData.pickup_address}</p>
+    <div className="screen-container giver-tracker">
+      <h2>מממ בדרך לאסוף</h2>
+
+      <h4>{mealData.item_description}</h4>
+
+      <div>
+        {" "}
+        <img src={orangIcon} />
       </div>
 
       <h3>זמן שנותר: {formatTime(timeLeft)}</h3>
 
-      <div style={{ marginTop: "1rem" }}>
-        <button onClick={handleChat}>צ'אט</button>
+      <button className="greenBtn" onClick={handleMealTaken}>
+        המנה נאספה
+      </button>
+      <div>
+        <button className="whiteBtn" onClick={handleChat}>
+          צ'אט
+        </button>
       </div>
     </div>
   );

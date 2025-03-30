@@ -712,6 +712,7 @@ align-items: center;
 
 
 /* Trackers */
+/* taker */
 .tracker-container {
   display: flex;
   flex-direction: column;
@@ -741,4 +742,11 @@ align-items: center;
 .trackerBtn {
   display: flex;
   flex-direction: column;
+}
+/* giver */
+.giver-tracker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
