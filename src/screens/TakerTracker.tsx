@@ -10,6 +10,7 @@ interface MealData {
   item_description: string;
   pickup_address: string;
   avatar_url?: string;
+  user_id?: number; // <--- Add this line
 }
 
 /**
@@ -97,12 +98,13 @@ const TakerTracker: React.FC = () => {
    * Optionally, pass Giver's ID as `otherPartyId` if you have it.
    */
   const handleChat = () => {
+    // mealData.user_id is the Giver’s ID
     if (!mealData?.id) return;
     navigate("/messages", {
       state: {
         mealId: mealData.id.toString(),
         role: "taker",
-        // otherPartyId: ???  If you have the Giver's ID, pass it here
+        otherPartyId: mealData.user_id, // The Giver’s ID
       },
     });
   };

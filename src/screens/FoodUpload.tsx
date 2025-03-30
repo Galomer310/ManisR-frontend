@@ -1,6 +1,7 @@
 // src/screens/FoodUpload.tsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
 
 interface MealData {
   id?: number; // Optional ID for editing
@@ -86,6 +87,20 @@ const FoodUpload: React.FC = () => {
 
   return (
     <div className="screen-container upload-food">
+      {/* Clickable Back Icon at Top Right */}
+      <div
+        style={{
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
+        }}
+        onClick={() => navigate(-1)}
+      >
+        <FaArrowRight size={24} color="black" />
+      </div>
+
       <form onSubmit={handlePreview} autoComplete="off">
         <label htmlFor="itemDescription">אני רוצה למסור </label>
         <input

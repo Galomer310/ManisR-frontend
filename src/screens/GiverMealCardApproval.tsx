@@ -69,7 +69,6 @@ const GiverMealCardApproval: React.FC = () => {
           setMapError("Could not find that address. Please correct it.");
         }
       } catch (err) {
-        console.error("Geocoding error:", err);
         setMapError("Geocoding failed. Please correct your address.");
       }
     };
@@ -166,8 +165,9 @@ const GiverMealCardApproval: React.FC = () => {
         <p>{mealData.ingredients}</p>
         <p>{mealData.food_types}</p>
         <p>
-          <strong>צריך להביא קופסא:</strong>{" "}
           {mealData.box_option === "need" ? "כן" : "לא"}
+
+          <strong>: צריך להביא קופסא</strong>
         </p>
 
         <p>
