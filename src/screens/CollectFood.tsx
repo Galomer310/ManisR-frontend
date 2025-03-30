@@ -263,15 +263,24 @@ const CollectFood: React.FC = () => {
             {/* Image area */}
             <div style={{ flex: "1", textAlign: "center" }}>
               {selectedMeal.avatar_url ? (
-                <img
-                  src={selectedMeal.avatar_url}
-                  alt="Meal"
-                  style={{
-                    width: "100%",
-                    maxWidth: "150px",
-                    borderRadius: "8px",
-                  }}
-                />
+                (() => {
+                  // Build an absolute URL using your backend’s base URL + the avatar_url path
+                  const fullImageUrl = new URL(
+                    selectedMeal.avatar_url,
+                    API_BASE_URL
+                  ).href;
+                  return (
+                    <img
+                      src={fullImageUrl}
+                      alt="Meal"
+                      style={{
+                        width: "100%",
+                        maxWidth: "150px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  );
+                })()
               ) : (
                 <div
                   style={{
@@ -282,7 +291,7 @@ const CollectFood: React.FC = () => {
                 >
                   אין תמונה
                 </div>
-              )}
+              )}{" "}
             </div>
             {/* Details area */}
             <div className="popupmealTaker" style={{ flex: "2" }}>
