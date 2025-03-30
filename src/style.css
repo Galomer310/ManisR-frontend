@@ -755,6 +755,7 @@ align-items: center;
 .rating-section {
   display: flex;
   flex-direction: column;
+  text-align: center;
 }
 
 .review-section {
