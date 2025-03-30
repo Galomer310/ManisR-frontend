@@ -9,8 +9,6 @@ import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
-
-// 1) IMPORT SOCKET.IO CLIENT
 import { io } from "socket.io-client";
 
 interface Meal {
@@ -67,36 +65,34 @@ const GiverMealScreen: React.FC = () => {
 
   // 3) HOOK UP SOCKET LISTENERS
   useEffect(() => {
-    socket.connect(); // connect the socket
-
-    // On connect
+    socket.connect();
     socket.on("connect", () => {
       console.log("GiverMealScreen: connected to socket", socket.id);
     });
 
-    // Listen for "mealReserved" with the ENTIRE meal object
+    // The key: Listen for "mealReserved"
     socket.on("mealReserved", (payload: any) => {
-      console.log("GiverMealScreen: received mealReserved event:", payload);
-      // payload: { meal: { ... }, reservedAt, expiresAt, etc. }
+      // payload: { meal: {...}, reservedAt, expiresAt }
+      console.log("GiverMealScreen: mealReserved event:", payload);
+      const reservedMeal = payload.meal;
 
-      // Check if this meal belongs to me by comparing meal.user_id to localUserId
-      if (payload.meal && payload.meal.user_id === localUserId) {
-        // Navigate to GiverTracker with the ENTIRE meal object
+      // If the reserved meal's giver is me...
+      if (reservedMeal.user_id === localUserId) {
+        // => Navigate the Giver to GiverTracker
         navigate("/GiverTracker", {
           state: {
-            mealData: payload.meal, // Pass the full meal
-            reservationStart: Date.now(),
+            mealData: reservedMeal,
+            reservationStart: Date.now(), // or payload.reservedAt
           },
         });
       }
     });
 
-    // On disconnect
     socket.on("disconnect", () => {
       console.log("GiverMealScreen: disconnected from socket");
     });
 
-    // Cleanup listeners when unmounting
+    // Cleanup on unmount
     return () => {
       socket.off("connect");
       socket.off("mealReserved");
@@ -104,8 +100,6 @@ const GiverMealScreen: React.FC = () => {
       socket.disconnect();
     };
   }, [socket, localUserId, navigate]);
-
-  // --- YOUR EXISTING CODE BELOW ---
 
   const handleConfirmCancel = async () => {
     if (!selectedMeal) return;
