@@ -1,7 +1,8 @@
 // src/screens/FoodUpload.tsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaArrowRight } from "react-icons/fa";
+import { IoIosArrowForward } from "react-icons/io";
+import uploadIcon from "../assets/uploadPhotoButton.svg";
 
 interface MealData {
   id?: number; // Optional ID for editing
@@ -98,7 +99,7 @@ const FoodUpload: React.FC = () => {
         }}
         onClick={() => navigate(-1)}
       >
-        <FaArrowRight size={24} color="black" />
+        <IoIosArrowForward size={24} color="black" />
       </div>
 
       <form onSubmit={handlePreview} autoComplete="off">
@@ -268,7 +269,11 @@ const FoodUpload: React.FC = () => {
             type="file"
             accept="image/*"
             onChange={handleFileChange}
+            style={{ display: "none" }}
           />
+          <label htmlFor="foodImage" style={{ cursor: "pointer" }}>
+            <img src={uploadIcon} alt="Upload" />
+          </label>
         </div>
 
         <button id="approvedMeal" type="submit">
