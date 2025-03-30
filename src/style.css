@@ -748,3 +748,21 @@ align-items: center;
   align-items: center;
   justify-content: center;
 }
+
+
+/* taker map icons view */
+.approvalCard {
+  flex: 1;
+  text-align: center;
+}
+
+.approvalCard div {
+  width: 250px;
+  height: 150px;
+  background-color: aqua;
+}
+.approvalCard img {
+  width: 100%; 
+  max-width: 150px;
+  border-radius: 10px;
+}

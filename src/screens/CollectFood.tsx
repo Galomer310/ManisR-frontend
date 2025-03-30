@@ -14,6 +14,7 @@ import alertsIcon from "../assets/1 notification alert icon.svg";
 
 interface Meal {
   id: number;
+  user_id: number;
   item_description: string;
   pickup_address: string;
   box_option: "need" | "noNeed";
@@ -22,8 +23,11 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-  avatar_url: string;
-  user_id: number; // giver's id
+
+  // The meal's actual image from the DB:
+  meal_avatar?: string;
+  // The user’s avatar (if you actually want it):
+  user_avatar?: string;
 }
 
 const CollectFood: React.FC = () => {
@@ -261,37 +265,18 @@ const CollectFood: React.FC = () => {
         >
           <div style={{ display: "flex", flexDirection: "row" }}>
             {/* Image area */}
-            <div style={{ flex: "1", textAlign: "center" }}>
-              {selectedMeal.avatar_url ? (
+            <div className="approvalCard">
+              {selectedMeal.meal_avatar ? (
                 (() => {
-                  // Build an absolute URL using your backend’s base URL + the avatar_url path
                   const fullImageUrl = new URL(
-                    selectedMeal.avatar_url,
+                    selectedMeal.meal_avatar,
                     API_BASE_URL
                   ).href;
-                  return (
-                    <img
-                      src={fullImageUrl}
-                      alt="Meal"
-                      style={{
-                        width: "100%",
-                        maxWidth: "150px",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  );
+                  return <img src={fullImageUrl} alt="Meal" />;
                 })()
               ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "150px",
-                    backgroundColor: "#eee",
-                  }}
-                >
-                  אין תמונה
-                </div>
-              )}{" "}
+                <div>אין תמונה</div>
+              )}
             </div>
             {/* Details area */}
             <div className="popupmealTaker" style={{ flex: "2" }}>
