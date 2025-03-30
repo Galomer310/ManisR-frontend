@@ -601,8 +601,7 @@ align-items: center;
 .foodSummeryCardApproval {
   display: flex;
   flex-direction: column;
-  align-items: end;
-  
+  align-items: center;
   padding: 1rem;
   margin: 1rem;
   width: 100vh;
@@ -610,10 +609,9 @@ align-items: center;
 
 .foodSummeryCardApproval img {
   height: auto;
-  width: 100%;
+  width: fit-content;
 }
 
-/* Buttons */
 .giverMealCardApproval {
   display: flex;
   flex-direction: column;
@@ -622,6 +620,18 @@ align-items: center;
   align-items: center;
   border: none;
 }
+
+.approvalMealMap {
+  width: 20rem;
+  height: 5rem;
+}
+
+
+
+
+
+/* Buttons */
+
 .greenBtn {
  background-color: rgb(71, 156, 71);
  color: white;

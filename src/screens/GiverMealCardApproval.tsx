@@ -145,10 +145,7 @@ const GiverMealCardApproval: React.FC = () => {
   };
 
   return (
-    <div
-      className="screen-container GiverApprovalCard"
-      style={{ textAlign: "right" }}
-    >
+    <div className="screen-container GiverApprovalCard">
       <div className="foodSummeryCardApproval">
         {imagePreviewUrl ? (
           <img src={imagePreviewUrl} alt="Meal Preview" />
@@ -179,7 +176,7 @@ const GiverMealCardApproval: React.FC = () => {
       {mapError ? (
         <p style={{ color: "red" }}>{mapError}</p>
       ) : lat && lng ? (
-        <div style={{ width: "20%", height: "300px", marginBottom: "1rem" }}>
+        <div className="approvalMealMap">
           <Map
             initialViewState={{
               latitude: lat,
