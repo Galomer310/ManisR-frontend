@@ -51,6 +51,7 @@ const CollectFood: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMeals(res.data.meals);
+        console.log(res.data.meals);
       } catch (err) {
         console.error("Server error fetching meals:", err);
       }
