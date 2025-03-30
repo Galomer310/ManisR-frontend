@@ -775,3 +775,37 @@ align-items: center;
 .review-section h3 {
   text-align: end;
 }
+
+/* Profile screen */
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-items {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  font-size: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  width: 30%;
+  
+}
+
+.profile-item {
+  padding-bottom: 0.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+.backArrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
