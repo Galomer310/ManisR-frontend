@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaArrowRight } from "react-icons/fa";
+import { IoIosArrowForward } from "react-icons/io";
 
 interface Message {
   id: number;
@@ -147,9 +147,8 @@ const Messages: React.FC = () => {
     await sendMessageHandler();
   };
 
-  // Basic UI
   return (
-    <div className="screen-container">
+    <div className="screen-container messages-container">
       {/* Clickable Back Icon at Top Right */}
       <div
         style={{
@@ -161,16 +160,15 @@ const Messages: React.FC = () => {
         }}
         onClick={() => navigate(-1)}
       >
-        <FaArrowRight size={24} color="black" />
+        <IoIosArrowForward size={24} color="black" />
       </div>
-
       {/* If no mealId, just error out */}
       {!mealId ? (
         <p style={{ color: "red" }}>No conversation found for this meal.</p>
       ) : (
         <>
           {/* Conversation */}
-          <div className="chat-messages" style={{ minHeight: "200px" }}>
+          <div className="chat-messages">
             {conversation.length === 0 ? (
               <p>No messages yet.</p>
             ) : (

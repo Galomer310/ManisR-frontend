@@ -302,6 +302,8 @@ align-items: center;
   align-items: end;
   font-size: 1.2rem;
   background-color: azure;
+  scroll-behavior: auto;
+  overflow: auto;
 }
 
 .messageText {
