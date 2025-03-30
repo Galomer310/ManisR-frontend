@@ -1,4 +1,3 @@
-// src/screens/GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +9,8 @@ import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
+
+// 1) IMPORT SOCKET.IO CLIENT
 import { io } from "socket.io-client";
 
 interface Meal {
@@ -32,16 +33,21 @@ const GiverMealScreen: React.FC = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
 
+  // 2) CREATE A SOCKET CONNECTED TO YOUR BACKEND
+  //    In real projects, you might do this at a higher level (e.g., App.tsx),
+  //    but here we do it inline for clarity.
   const socket = io(API_BASE_URL, {
-    transports: ["websocket"], // Force websocket for demonstration
-    autoConnect: false, // We'll manually connect in useEffect
+    transports: ["websocket"],
+    autoConnect: false,
   });
 
+  // Load available meals once
   useEffect(() => {
     const fetchMeals = async () => {
       try {
@@ -59,39 +65,38 @@ const GiverMealScreen: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
+  // 3) HOOK UP SOCKET LISTENERS
   useEffect(() => {
-    // 2) Connect the socket
-    socket.connect();
+    socket.connect(); // connect the socket
 
-    // 3) On connect
+    // On connect
     socket.on("connect", () => {
-      console.log("GiverMealScreen: connected to socket server", socket.id);
+      console.log("GiverMealScreen: connected to socket", socket.id);
     });
 
-    // 4) Listen for "mealReserved" events
-    socket.on("mealReserved", (data: any) => {
-      console.log("GiverMealScreen: received mealReserved event:", data);
-      // data = { mealId, giverId, takerId, reservedAt, expiresAt }
+    // Listen for "mealReserved" with the ENTIRE meal object
+    socket.on("mealReserved", (payload: any) => {
+      console.log("GiverMealScreen: received mealReserved event:", payload);
+      // payload: { meal: { ... }, reservedAt, expiresAt, etc. }
 
-      // Only navigate if this meal belongs to me (giverId === localUserId)
-      if (data.giverId === localUserId) {
-        // The Taker has reserved MY meal => move me to GiverTracker
+      // Check if this meal belongs to me by comparing meal.user_id to localUserId
+      if (payload.meal && payload.meal.user_id === localUserId) {
+        // Navigate to GiverTracker with the ENTIRE meal object
         navigate("/GiverTracker", {
           state: {
-            // or pass the entire meal if you want
-            mealId: data.mealId,
-            reservationStart: Date.now(), // or data.reservedAt
+            mealData: payload.meal, // Pass the full meal
+            reservationStart: Date.now(),
           },
         });
       }
     });
 
-    // 5) On disconnect
+    // On disconnect
     socket.on("disconnect", () => {
-      console.log("GiverMealScreen: disconnected from socket server");
+      console.log("GiverMealScreen: disconnected from socket");
     });
 
-    // 6) Cleanup when unmounting
+    // Cleanup listeners when unmounting
     return () => {
       socket.off("connect");
       socket.off("mealReserved");
@@ -100,13 +105,17 @@ const GiverMealScreen: React.FC = () => {
     };
   }, [socket, localUserId, navigate]);
 
+  // --- YOUR EXISTING CODE BELOW ---
+
   const handleConfirmCancel = async () => {
     if (!selectedMeal) return;
     try {
       const token = localStorage.getItem("token");
+      // Delete my meal
       await axios.delete(`${API_BASE_URL}/food/myMeal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Delete conversation if any
       try {
         await axios.delete(
           `${API_BASE_URL}/meal-conversation/${selectedMeal.id}`,
@@ -150,7 +159,7 @@ const GiverMealScreen: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         if (data.meal && data.meal.id) {
-          // Pass only mealId + role = "giver"
+          // Pass mealId + role = "giver"
           navigate("/messages", {
             state: { mealId: data.meal.id.toString(), role: "giver" },
           });
