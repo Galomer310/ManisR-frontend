@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import locationIcon from "../assets/location.png";
 import orangIcon from "../assets/orange tracker.svg";
+import axios from "axios";
 
 interface MealData {
   id?: number;
@@ -11,50 +12,105 @@ interface MealData {
   avatar_url?: string;
 }
 
+/**
+ * TakerTracker:
+ * - Shows a 30-minute countdown after the Taker reserves the meal.
+ * - Lets the Taker finalize collection ("אספתי את המנה") which calls the backend to:
+ *   1) Delete the meal,
+ *   2) Delete the conversation,
+ *   3) Emit "mealCollected" for the Giver.
+ */
 const TakerTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // Expect mealData to be passed in the location state
-  const { mealData } = location.state as { mealData: MealData };
 
-  // Timer state: 30 minutes in seconds (30 * 60 = 1800)
-  const [timeLeft, setTimeLeft] = useState(1800);
+  // We expect to receive `mealData` and `reservationStart` from location.state
+  const { mealData, reservationStart } = location.state as {
+    mealData: MealData;
+    reservationStart: number;
+  };
 
-  // Start a countdown timer that decrements every second.
+  // 30 minutes in seconds
+  const TOTAL_SECONDS = 30 * 60;
+  const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
+
+  // Base URL from your Vite environment or fallback
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+  /**
+   * Effect: calculates how many seconds have passed since `reservationStart`,
+   * subtracts from 30 min, and starts a 1-second interval to decrement.
+   */
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(interval);
+    // Calculate how much time is left right now
+    const now = Date.now();
+    const elapsedMs = now - reservationStart;
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+    const remain = TOTAL_SECONDS - elapsedSec;
+    setTimeLeft(remain > 0 ? remain : 0);
+
+    // Start a countdown timer
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
           return 0;
         }
-        return prevTime - 1;
+        return prev - 1;
       });
     }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
-  // Format seconds into mm:ss
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+    return () => clearInterval(timer);
+  }, [reservationStart]);
+
+  /**
+   * Helper to format mm:ss
+   */
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Handler when the taker confirms that he took the meal.
-  const handleMealTaken = () => {
-    // (Place any logic to notify the backend if needed.)
-    alert("Thank you for confirming that you took the meal.");
-    // Navigate back to a main page or dashboard.
-    navigate("/menu");
+  /**
+   * Handler: Taker confirms they picked up the meal.
+   * => calls `DELETE /food/collect/:mealId` to remove meal & conversation from DB,
+   *    then navigates Taker to Menu (or a rating screen).
+   */
+  const handleMealTaken = async () => {
+    if (!mealData?.id) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
+      navigate("/menu");
+    } catch (err) {
+      console.error("Error collecting meal:", err);
+    }
   };
 
-  // Handler to navigate to the chat view.
+  /**
+   * Handler: Taker wants to open the chat with the Giver.
+   * Optionally, pass Giver's ID as `otherPartyId` if you have it.
+   */
   const handleChat = () => {
+    if (!mealData?.id) return;
     navigate("/messages", {
-      state: { mealId: mealData.id?.toString(), role: "taker" },
+      state: {
+        mealId: mealData.id.toString(),
+        role: "taker",
+        // otherPartyId: ???  If you have the Giver's ID, pass it here
+      },
     });
   };
+
+  // If, for some reason, we didn't get a mealData
+  if (!mealData) {
+    return <div>אירעה שגיאה: לא נמצאו פרטי מנה.</div>;
+  }
 
   return (
     <div className="screen-container tracker-container">
