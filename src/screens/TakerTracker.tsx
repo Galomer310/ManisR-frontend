@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import locationIcon from "../assets/location.png";
 import orangIcon from "../assets/orange tracker.svg";
 import axios from "axios";
+import { IoIosArrowForward } from "react-icons/io";
 
 interface MealData {
   id?: number;
@@ -116,6 +117,19 @@ const TakerTracker: React.FC = () => {
 
   return (
     <div className="screen-container tracker-container">
+      {/* Clickable Back Icon at Top Right */}
+      <div
+        style={{
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
+        }}
+        onClick={() => navigate(-1)}
+      >
+        <IoIosArrowForward size={24} color="black" />
+      </div>
       <h2>את/ה בדרך לאסוף</h2>
       <div className="meal-details">
         <h3>{mealData.item_description}</h3>

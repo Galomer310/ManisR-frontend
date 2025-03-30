@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { IoIosArrowForward } from "react-icons/io";
 import orangIcon from "../assets/orange tracker.svg";
 import axios from "axios";
 
@@ -142,6 +143,19 @@ const GiverTracker: React.FC = () => {
 
   return (
     <div className="screen-container giver-tracker">
+      {/* Clickable Back Icon at Top Right */}
+      <div
+        style={{
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
+        }}
+        onClick={() => navigate(-1)}
+      >
+        <IoIosArrowForward size={24} color="black" />
+      </div>
       <h2>ממתינים לאיסוף</h2>
       <h4>{mealData.item_description}</h4>
       <p>{mealData.pickup_address}</p>
