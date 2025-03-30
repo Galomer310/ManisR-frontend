@@ -10,7 +10,7 @@ interface MealData {
   item_description: string;
   pickup_address: string;
   avatar_url?: string;
-  user_id?: number; // <--- Add this line
+  user_id?: number;
 }
 
 /**

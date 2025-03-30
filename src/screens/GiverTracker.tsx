@@ -9,6 +9,8 @@ interface MealData {
   item_description: string;
   pickup_address: string;
   avatar_url?: string;
+  user_id?: number;
+  taker_id?: number;
 }
 
 /**
@@ -32,13 +34,17 @@ const GiverTracker: React.FC = () => {
   // 30 min in seconds
   const TOTAL_SECONDS = 30 * 60;
   const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS);
-
   // If Taker collects meal, we'll set this to true to trigger UI changes
   const [collected, setCollected] = useState(false);
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const localUserId = Number(localStorage.getItem("userId"));
+
+  const socket = io(API_BASE_URL, {
+    transports: ["websocket"],
+    autoConnect: false,
+  });
 
   // 2) Start a countdown timer
   useEffect(() => {
@@ -48,6 +54,7 @@ const GiverTracker: React.FC = () => {
     const remain = TOTAL_SECONDS - elapsedSec;
     setTimeLeft(remain > 0 ? remain : 0);
 
+    // Start a countdown timer
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -68,11 +75,6 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // 4) Socket: watch for the Taker collecting the meal
-  const socket = io(API_BASE_URL, {
-    transports: ["websocket"],
-    autoConnect: false,
-  });
   useEffect(() => {
     socket.connect();
 
@@ -81,9 +83,6 @@ const GiverTracker: React.FC = () => {
     });
 
     socket.on("mealCollected", (payload: any) => {
-      console.log("GiverTracker: got mealCollected event:", payload);
-      // payload => { mealId, giverId, takerId }
-      // If it's MY meal => set 'collected' = true
       if (payload.giverId === localUserId && payload.mealId === mealData.id) {
         setCollected(true);
       }
@@ -129,13 +128,21 @@ const GiverTracker: React.FC = () => {
       await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // This triggers the 'collectMeal' logic:
-      // 1) Removes the meal row + conversation
-      // 2) Emits "mealCollected" to the Taker as well
+
+      // Optional: emit a message manually to taker if you want
+      if (mealData.taker_id) {
+        socket.emit("message", {
+          mealId: mealData.id,
+          senderId: localUserId,
+          receiverId: mealData.taker_id,
+          message: "המנה סומנה כאסופה על ידי המוסר. תודה!",
+        });
+      }
+
       navigate("/menu");
     } catch (err) {
-      console.error("Error collecting meal:", err);
-      alert("Error collecting meal; check console/logs for details.");
+      console.error("Error collecting meal (giver):", err);
+      alert("אירעה שגיאה בעת איסוף המנה.");
     }
   };
 
@@ -146,8 +153,6 @@ const GiverTracker: React.FC = () => {
   return (
     <div className="screen-container giver-tracker">
       <h2>ממתינים לאיסוף</h2>
-
-      {/* Example meal details */}
       <h4>{mealData.item_description}</h4>
       <p>{mealData.pickup_address}</p>
       <div>
