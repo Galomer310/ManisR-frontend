@@ -48,7 +48,7 @@ const Profile: React.FC = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
         const response = await axios.get(
-          `${process.env.VITE_API_BASE_URL}/users/profile`,
+          `${import.meta.env.VITE_API_BASE_URL}/users/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.put(
-          `${process.env.VITE_API_BASE_URL}/users/avatar`,
+          `${import.meta.env.VITE_API_BASE_URL}/users/avatar`,
           formData,
           {
             headers: {
