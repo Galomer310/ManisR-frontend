@@ -309,12 +309,13 @@ const GiverMealScreen: React.FC = () => {
                   width: "100%",
                   height: "150px",
                   backgroundColor: "#eee",
+                  textAlign: "center",
                 }}
               >
-                אין תמונה
+                אין תמונה למנה
               </div>
-            )}{" "}
-            <div className="popupmeal" style={{ flex: "2" }}>
+            )}
+            <div className="popupmeal">
               <h3>{selectedMeal.item_description}</h3>
               <span>
                 {selectedMeal.pickup_address}
