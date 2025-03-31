@@ -71,13 +71,17 @@ const UsageHistory: React.FC = () => {
         history.map((entry) => {
           const roleLabel =
             localUserId === entry.giver_id ? "Given Meal" : "Collected Meal";
+
+          // Construct the image URL: if relative, prepend the API_BASE_URL
+          const imageUrl =
+            entry.meal_image && entry.meal_image.startsWith("/uploads/")
+              ? `${API_BASE_URL}${entry.meal_image}`
+              : entry.meal_image || "https://via.placeholder.com/100";
+
           return (
             <div className="mealCardHistory" key={entry.id}>
               <div className="mainCardHistoryMeal">
-                <img
-                  src={entry.meal_image || "https://via.placeholder.com/100"}
-                  alt="Meal"
-                />
+                <img src={imageUrl} alt="Meal" />
                 <div className="mealDetailsHistory">
                   <h3>{entry.item_description}</h3>
                   <p>{entry.pickup_address}</p>

@@ -25,6 +25,8 @@ interface MealData {
 const TakerTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [initiator, setInitiator] = useState(false);
+  const [navigated, setNavigated] = useState(false);
 
   // We expect to receive `mealData` and `reservationStart` from location.state
   const { mealData, reservationStart } = location.state as {
@@ -82,21 +84,64 @@ const TakerTracker: React.FC = () => {
     if (!mealData?.id) return;
     try {
       const token = localStorage.getItem("token");
-      // Call the archive endpoint to save meal details into meal_history
-      // and delete the meal from food_items.
+      // Mark the current user as initiator
+      setInitiator(true);
+      // Call the archive endpoint to move the meal into history and delete it from food_items.
       await axios.post(
         `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
-        {}, // no additional data needed
+        {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // After archiving, navigate to the review screen.
-      navigate("/rate-review", {
-        state: { mealData, reservationStart },
-      });
+      // Do not navigate here—wait for the poll.
     } catch (err) {
       console.error("Error archiving meal:", err);
     }
   };
+
+  useEffect(() => {
+    if (!mealData?.id) return;
+
+    const checkMeal = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        // This endpoint should return the meal if it still exists.
+        await axios.get(`${API_BASE_URL}/food/${mealData.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // If the call succeeds, the meal still exists—do nothing.
+      } catch (err: any) {
+        if (err.response && err.response.status === 404 && !navigated) {
+          // The meal was archived (404 response)
+          if (initiator) {
+            // For the initiator, navigate immediately.
+            setNavigated(true);
+            navigate("/rate-review", { state: { mealData, reservationStart } });
+          } else {
+            // For the non-initiator, navigate after 60 seconds.
+            setTimeout(() => {
+              setNavigated(true);
+              navigate("/rate-review", {
+                state: { mealData, reservationStart },
+              });
+            }, 60000);
+          }
+        }
+      }
+    };
+
+    // Run the check immediately...
+    checkMeal();
+    // ...and then every 60 seconds.
+    const intervalId = setInterval(checkMeal, 60000);
+    return () => clearInterval(intervalId);
+  }, [
+    mealData?.id,
+    API_BASE_URL,
+    reservationStart,
+    initiator,
+    navigated,
+    navigate,
+  ]);
 
   /**
    * Handler: Taker wants to open the chat with the Giver.
