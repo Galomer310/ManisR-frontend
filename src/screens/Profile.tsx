@@ -123,11 +123,11 @@ const Profile: React.FC = () => {
   };
 
   const handleAccountDetails = () => {
-    navigate("/accountDetails");
+    navigate("/account-details");
   };
 
   const handleFruits = () => {
-    navigate("/myFruits");
+    navigate("/under-construction");
   };
 
   const handleUsageHistory = () => {

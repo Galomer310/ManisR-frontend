@@ -21,6 +21,8 @@ import TakerTracker from "./screens/TakerTracker";
 import GiverTracker from "./screens/GiverTracker";
 import UserRateReview from "./screens/UserRateReview";
 import UsageHistory from "./screens/UsageHistory";
+import AccountDetails from "./screens/AccountDetails";
+import UnderConstruction from "./screens/UnderConstruction";
 
 const App: React.FC = () => {
   return (
@@ -44,7 +46,6 @@ const App: React.FC = () => {
         />
         <Route path="/collect-food" element={<CollectFood />} />
         <Route path="/messages" element={<Messages />} />
-
         <Route path="/register-intro" element={<RegisterIntro />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/TalkToUS" element={<TalkToUs />} />
@@ -53,6 +54,8 @@ const App: React.FC = () => {
         <Route path="GiverTracker" element={<GiverTracker />} />
         <Route path="/rate-review" element={<UserRateReview />} />
         <Route path="/usageHistory" element={<UsageHistory />} />
+        <Route path="/account-details" element={<AccountDetails />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
       </Routes>
     </Router>
   );
