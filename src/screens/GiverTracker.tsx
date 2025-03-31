@@ -65,19 +65,17 @@ const GiverTracker: React.FC = () => {
             setNavigated(true);
             navigate("/rate-review", { state: { mealData, reservationStart } });
           } else {
-            setTimeout(() => {
-              setNavigated(true);
-              navigate("/rate-review", {
-                state: { mealData, reservationStart },
-              });
-            }, 5000);
+            setNavigated(true);
+            navigate("/rate-review", {
+              state: { mealData, reservationStart },
+            });
           }
         }
       }
     };
 
     checkMeal();
-    const intervalId = setInterval(checkMeal, 5000);
+    const intervalId = setInterval(checkMeal, 2000);
     return () => clearInterval(intervalId);
   }, [
     mealData?.id,
