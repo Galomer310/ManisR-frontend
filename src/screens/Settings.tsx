@@ -43,7 +43,10 @@ const Settings: React.FC = () => {
         }}
       >
         <span>תנאי שימוש ופרטיות</span>
-        <IoIosArrowForward size={20} />
+        <IoIosArrowForward
+          size={20}
+          onClick={() => navigate("/Terms-Privacy")}
+        />
       </div>
 
       <div

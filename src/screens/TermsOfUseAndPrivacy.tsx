@@ -12,12 +12,7 @@ const TermsOfUseAndPrivacy: React.FC = () => {
   return (
     <div>
       <div className="screen-container">
-        <h2>דבר איתנו</h2>
-        <p>
-          .אנחנו תמיד שמחים לעזור מלא/י את הטופס ונחזיר הודעה באמצעות הדוא"ל
-          בהקדם
-        </p>
-        <p>need to do !!!</p>
+        <h2>תנאי שימוש ופרטיות</h2>
       </div>
 
       {/* Clickable Back Icon at Top Right */}
