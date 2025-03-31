@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { IoIosArrowForward } from "react-icons/io";
 
 interface MealHistory {
   id: number;
@@ -49,11 +50,21 @@ const UsageHistory: React.FC = () => {
   };
 
   return (
-    <div
-      className="screen-container usage-history-container"
-      style={{ padding: "1rem" }}
-    >
-      <h2>Usage History</h2>
+    <div className="screen-container usage-history-container">
+      {/* Clickable Back Icon at Top Right */}
+      <div
+        style={{
+          position: "fixed",
+          top: "1rem",
+          right: "1rem",
+          cursor: "pointer",
+          zIndex: 1200,
+        }}
+        onClick={() => navigate(-1)}
+      >
+        <IoIosArrowForward size={24} color="black" />
+      </div>
+      <h2>היסטוריית שימוש</h2>
       {history.length === 0 ? (
         <p>No past meals found.</p>
       ) : (
@@ -61,28 +72,13 @@ const UsageHistory: React.FC = () => {
           const roleLabel =
             localUserId === entry.giver_id ? "Given Meal" : "Collected Meal";
           return (
-            <div
-              key={entry.id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="mealCardHistory" key={entry.id}>
+              <div className="mainCardHistoryMeal">
                 <img
                   src={entry.meal_image || "https://via.placeholder.com/100"}
                   alt="Meal"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                    marginRight: "1rem",
-                  }}
                 />
-                <div>
+                <div className="mealDetailsHistory">
                   <h3>{entry.item_description}</h3>
                   <p>{entry.pickup_address}</p>
                   <p>
