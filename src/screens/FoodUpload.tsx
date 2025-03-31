@@ -106,7 +106,7 @@ const FoodUpload: React.FC = () => {
         <label htmlFor="itemDescription">אני רוצה למסור </label>
         <input
           type="text"
-          placeholder="Enter meal name"
+          placeholder="פסטה ברוטב עגבניות"
           value={itemDescription}
           onChange={(e) => setItemDescription(e.target.value)}
           required
@@ -115,7 +115,7 @@ const FoodUpload: React.FC = () => {
         <label htmlFor="pickupAddress">כתובת לאיסוף</label>
         <input
           type="text"
-          placeholder="Enter pickup address"
+          placeholder="ביאליק 115 רמת גן, כניסה ב"
           value={pickupAddress}
           onChange={(e) => setPickupAddress(e.target.value)}
           required
@@ -256,8 +256,9 @@ const FoodUpload: React.FC = () => {
 
         <div className="special-notes">
           <p>הערות מיוחדות</p>
-          <textarea
+          <input
             value={specialNotes}
+            placeholder="יש במנה מעט צ'ילי חריף"
             onChange={(e) => setSpecialNotes(e.target.value)}
           />
         </div>
