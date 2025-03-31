@@ -23,6 +23,7 @@ import UserRateReview from "./screens/UserRateReview";
 import UsageHistory from "./screens/UsageHistory";
 import AccountDetails from "./screens/AccountDetails";
 import UnderConstruction from "./screens/UnderConstruction";
+import TermsOfUseAndPrivacy from "./screens/TermsOfUseAndPrivacy";
 
 const App: React.FC = () => {
   return (
@@ -56,6 +57,7 @@ const App: React.FC = () => {
         <Route path="/usageHistory" element={<UsageHistory />} />
         <Route path="/account-details" element={<AccountDetails />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
+        <Route path="/Terms-Privacy" element={<TermsOfUseAndPrivacy />} />
       </Routes>
     </Router>
   );
