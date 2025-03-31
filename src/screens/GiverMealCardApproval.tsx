@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Map, { Marker } from "react-map-gl";
-import locationIcon from "../assets/location.png";
+import locationIcon from "../assets/icons_ location.svg";
+import boxIcon from "../assets/icons_ box.svg";
+import alertIcon from "../assets/icons_ alert.svg";
 
 interface MealData {
   id?: number;
@@ -157,14 +159,19 @@ const GiverMealCardApproval: React.FC = () => {
         </p>
         <span>
           {mealData.pickup_address}
-          <img src={locationIcon} style={{ height: "1rem", width: "1rem" }} />
+          <img src={locationIcon} />
         </span>
-        <p>{mealData.ingredients}</p>
-        <p>{mealData.food_types}</p>
-        <p>
-          {mealData.box_option === "need" ? "כן" : "לא"}
+        <span>
+          <p>
+            מכיל {mealData.ingredients} <img src={alertIcon} />
+          </p>
+        </span>
 
-          <strong>: צריך להביא קופסא</strong>
+        <p>
+          {mealData.box_option === "need"
+            ? "צריך להביא קופסא"
+            : " לא צריך להביא קופסא"}
+          <img src={boxIcon} />
         </p>
 
         <p>

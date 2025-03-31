@@ -1,7 +1,7 @@
 // src/screens/TakerTracker.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import locationIcon from "../assets/location.png";
+import locationIcon from "../assets/icons_ location.svg";
 import orangIcon from "../assets/orange tracker.svg";
 import axios from "axios";
 import { IoIosArrowForward } from "react-icons/io";

@@ -3,7 +3,7 @@ import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
-import locationIcon from "../assets/location.png";
+import locationIcon from "../assets/icons_ location.svg";
 import manisrLogo from "../assets/manisr_logo.svg";
 
 // Dropdown overlay icons – ensure these paths match your project.

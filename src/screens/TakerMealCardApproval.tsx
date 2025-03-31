@@ -1,7 +1,7 @@
 // src/screens/TakerMealCardApproval.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import locationIcon from "../assets/location.png";
+import locationIcon from "../assets/icons_ location.svg";
 import { FaArrowRight } from "react-icons/fa";
 
 interface MealData {

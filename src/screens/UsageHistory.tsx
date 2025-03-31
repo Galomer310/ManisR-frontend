@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoIosArrowForward } from "react-icons/io";
+import locationIcon from "../assets/icons_ location.svg";
+import calendarIcon from "../assets/icons_ calendar.svg";
+import profileIcon from "../assets/icons_ profile.svg";
 
 interface MealHistory {
   id: number;
@@ -103,25 +106,35 @@ const UsageHistory: React.FC = () => {
             <div className="historyMealsCard" key={entry.id}>
               <div>
                 <h3 style={{ margin: 0 }}>{entry.item_description}</h3>
-                <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
-                {otherUserName && (
-                  <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
-                    {otherUserName}
-                  </p>
-                )}
-                <small style={{ color: "#666" }}>
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={locationIcon} />
+                  <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
+                </span>
+
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={calendarIcon} />
                   {new Date(entry.created_at).toLocaleDateString("he-IL")}
-                </small>
+                </span>
+
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={profileIcon} />
+                  {otherUserName && (
+                    <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
+                      {otherUserName}
+                    </p>
+                  )}
+                </span>
               </div>
               <img
                 src={imageUrl}
                 alt="Meal"
                 style={{
-                  width: "80px",
-                  height: "80px",
+                  width: "200px",
+                  height: "200px",
                   objectFit: "cover",
                   borderRadius: "8px",
                   marginLeft: "1rem",
+                  marginRight: "1rem",
                 }}
               />
             </div>
@@ -153,25 +166,36 @@ const UsageHistory: React.FC = () => {
             <div className="historyMealsCard" key={entry.id}>
               <div>
                 <h3 style={{ margin: 0 }}>{entry.item_description}</h3>
-                <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
-                {otherUserName && (
-                  <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
-                    {otherUserName}
-                  </p>
-                )}
-                <small style={{ color: "#666" }}>
+
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={locationIcon} />
+                  <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
+                </span>
+
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={calendarIcon} />
                   {new Date(entry.created_at).toLocaleDateString("he-IL")}
-                </small>
+                </span>
+
+                <span style={{ display: "flex", padding: "0.5rem" }}>
+                  <img src={profileIcon} />
+                  {otherUserName && (
+                    <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
+                      {otherUserName}
+                    </p>
+                  )}
+                </span>
               </div>
               <img
                 src={imageUrl}
                 alt="Meal"
                 style={{
-                  width: "80px",
-                  height: "80px",
+                  width: "200px",
+                  height: "200px",
                   objectFit: "cover",
                   borderRadius: "8px",
                   marginLeft: "1rem",
+                  marginRight: "1rem",
                 }}
               />
             </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import manisrLogo from "../assets/manisr_logo.svg";
-import locationIcon from "../assets/location.png";
+import locationIcon from "../assets/icons_ location.svg";
 import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
