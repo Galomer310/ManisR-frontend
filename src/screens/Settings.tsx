@@ -1,33 +1,60 @@
 // src/screens/Settings.tsx
-import React from "react";
+import React, { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Settings screen placeholder:
- * Displays user settings.
- */
 const Settings: React.FC = () => {
   const navigate = useNavigate();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  const handleToggleNotifications = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+  };
+
   return (
-    <div>
-      <div className="screen-container">
-        <h2>Settings</h2>
-        <p>Your settings options go here.</p>
+    <div className="screen-container settings-container">
+      {/* Header row with title and back arrow */}
+      <div className="settings-header">
+        <h2>הגדרות</h2>
+        <div className="back-icon" onClick={() => navigate(-1)}>
+          <IoIosArrowForward size={24} color="black" />
+        </div>
       </div>
 
-      {/* Clickable Back Icon at Top Right */}
+      {/* Toggle row */}
+      <div className="settings-item">
+        <span>קבלת התראות</span>
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={notificationsEnabled}
+            onChange={handleToggleNotifications}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+
+      {/* Menu items */}
       <div
-        style={{
-          position: "fixed",
-          top: "1rem",
-          right: "1rem",
-          cursor: "pointer",
-          zIndex: 1200,
+        className="settings-item"
+        onClick={() => {
+          // Navigate to Terms & Privacy screen if you have one
+          console.log("Go to Terms & Privacy");
         }}
-        onClick={() => navigate(-1)}
       >
-        <IoIosArrowForward size={24} color="black" />
+        <span>תנאי שימוש ופרטיות</span>
+        <IoIosArrowForward size={20} />
+      </div>
+
+      <div
+        className="settings-item"
+        onClick={() => {
+          // Navigate to Account Deletion screen if you have one
+          console.log("Go to Account Deletion");
+        }}
+      >
+        <span>מחיקת החשבון</span>
+        <IoIosArrowForward size={20} />
       </div>
     </div>
   );
