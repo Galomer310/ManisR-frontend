@@ -981,3 +981,96 @@ align-items: center;
   border: 1px solid #4CAF50;
 
 }
+
+
+
+/* Container & Header */
+.settings-container {
+  position: relative;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif; /* or your chosen font */
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: right; /* if you want the title aligned to the right */
+}
+
+.back-icon {
+  cursor: pointer;
+}
+
+/* Settings Items */
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.settings-item span {
+  color: #333;
+}
+
+/* Remove bottom border on the last item if desired */
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin-left: 0.5rem;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+
+.slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* When checked, move the slider and change color */
+input:checked + .slider {
+  background-color: #36b37e; /* or your preferred color */
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
