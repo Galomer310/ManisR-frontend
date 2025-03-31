@@ -120,19 +120,22 @@ const GiverTracker: React.FC = () => {
     });
   };
 
-  // 7) Let the Giver forcibly remove the meal if they also want to say "המנה נאספה"
-  //    (calls the same /food/collect/:mealId route, so the backend code must allow it)
   const handleMealTaken = async () => {
     if (!mealData?.id) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      // Archive the meal: store its details in meal_history and delete it from food_items.
+      await axios.post(
+        `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
+        {}, // no extra payload needed
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // After successful archiving, navigate to the review screen.
+      navigate("/rate-review", {
+        state: { mealData, reservationStart },
       });
-      // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
-      navigate("/rate-review");
     } catch (err) {
-      console.error("Error collecting meal (giver):", err);
+      console.error("Error archiving meal (giver):", err);
       alert("אירעה שגיאה בעת איסוף המנה.");
     }
   };

@@ -84,13 +84,19 @@ const TakerTracker: React.FC = () => {
     if (!mealData?.id) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/food/collect/${mealData.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      // Call the archive endpoint to save meal details into meal_history
+      // and delete the meal from food_items.
+      await axios.post(
+        `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
+        {}, // no additional data needed
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // After archiving, navigate to the review screen.
+      navigate("/rate-review", {
+        state: { mealData, reservationStart },
       });
-      // Once we successfully remove the meal, navigate Taker to Menu, or any other screen.
-      navigate("/rate-review");
     } catch (err) {
-      console.error("Error collecting meal:", err);
+      console.error("Error archiving meal:", err);
     }
   };
 
