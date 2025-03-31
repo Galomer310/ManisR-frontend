@@ -1,3 +1,4 @@
+// src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -16,6 +17,13 @@ interface LocationState {
   mealId?: string;
   role: string; // "taker" or "giver"
   otherPartyId?: number; // Taker: Giver’s ID, Giver: Taker’s ID
+}
+
+// Define a simple User interface for the profile info we want to show.
+interface User {
+  name: string;
+  username: string;
+  avatar_url?: string;
 }
 
 const Messages: React.FC = () => {
@@ -37,26 +45,21 @@ const Messages: React.FC = () => {
   const [newMessage, setNewMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Default messages
-  const defaultMessagesTaker = [
-    "אני בדרך לאסוף",
-    "אני צריך/ה עוד 5 ד'ק בבקשה",
-    "אני נאלץ/ת לבטל הגעה, מתנצל/ת",
-    "הגעתי",
-    "הגעתי ואני לא מוצא/ת את המנה",
-    "המנה אצלי, תודה רבה",
-  ];
-  const defaultMessagesGiver = [
-    "המנה ממתינה לך בכתובת שצוינה",
-    "המנה נמצאת מחוץ לדלת בכתובת שצוינה",
-    "לא לשכוח להביא קופסא לאיסוף בבקשה",
-    "שולח/ת צילום של המיקום בו מונחת המנה",
-    "👍 בסדר",
-    "אני ממהר/ת, אודה להגעה בהקדם",
-    "לצערי לא אוכל להתעכב ב5 דק' נוספות",
-  ];
-  const defaultMessages =
-    role === "taker" ? defaultMessagesTaker : defaultMessagesGiver;
+  // New state: store the logged-in user's profile (avatar, name, username)
+  const [userProfile, setUserProfile] = useState<User | null>(null);
+
+  // Load user profile from localStorage on mount.
+  useEffect(() => {
+    const userString = localStorage.getItem("user");
+    if (userString) {
+      try {
+        const userObj: User = JSON.parse(userString);
+        setUserProfile(userObj);
+      } catch (err) {
+        console.error("Error parsing user data", err);
+      }
+    }
+  }, []);
 
   // 1) Fetch conversation on mount & every 5 seconds
   useEffect(() => {
@@ -162,6 +165,30 @@ const Messages: React.FC = () => {
       >
         <IoIosArrowForward size={24} color="black" />
       </div>
+
+      {/* New Section: User profile info, message textarea and send button */}
+      <div className="message-input-section">
+        <div className="ChatProfileImg">
+          <div className="ChatTextProfileImgSection">
+            <p>{userProfile?.name || "User Name"}</p>
+            <p>מחובר/ת</p>
+          </div>
+          <img
+            src={
+              userProfile?.avatar_url ||
+              "https://via.placeholder.com/40?text=Avatar"
+            }
+            alt="User Avatar"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
+          />
+        </div>
+      </div>
+
       {/* If no mealId, just error out */}
       {!mealId ? (
         <p style={{ color: "red" }}>No conversation found for this meal.</p>
@@ -183,14 +210,38 @@ const Messages: React.FC = () => {
           {/* Default message buttons */}
           <div className="messageBtn">
             <p>בחר/י את ההודעות שברצונך לשלוח</p>
-            {defaultMessages.map((msg, index) => (
-              <button
-                key={index}
-                onClick={() => handleDefaultMessageClick(msg)}
-              >
-                {msg}
-              </button>
-            ))}
+            {role === "taker"
+              ? [
+                  "אני בדרך לאסוף",
+                  "אני צריך/ה עוד 5 ד'ק בבקשה",
+                  "אני נאלץ/ת לבטל הגעה, מתנצל/ת",
+                  "הגעתי",
+                  "הגעתי ואני לא מוצא/ת את המנה",
+                  "המנה אצלי, תודה רבה",
+                ].map((msg, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDefaultMessageClick(msg)}
+                  >
+                    {msg}
+                  </button>
+                ))
+              : [
+                  "המנה ממתינה לך בכתובת שצוינה",
+                  "המנה נמצאת מחוץ לדלת בכתובת שצוינה",
+                  "לא לשכוח להביא קופסא לאיסוף בבקשה",
+                  "שולח/ת צילום של המיקום בו מונחת המנה",
+                  "👍 בסדר",
+                  "אני ממהר/ת, אודה להגעה בהקדם",
+                  "לצערי לא אוכל להתעכב ב5 דק' נוספות",
+                ].map((msg, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDefaultMessageClick(msg)}
+                  >
+                    {msg}
+                  </button>
+                ))}
           </div>
         </>
       )}

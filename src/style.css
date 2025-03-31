@@ -291,18 +291,41 @@ align-items: center;
 /* ---------------------------------- */
 /* Messaging                         */
 /* ---------------------------------- */
+.message-input-section {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+.ChatTextProfileImgSection {
+  display: flex;
+  flex-direction: column;
+}
+.message-input-section p {
+  font-size: 1rem;
+  display:inline-flex;
+  align-items: center;
+  margin: 0%;
+  padding: 0 0.5rem 0 0;
+}
+
+.ChatProfileImg {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .chat-messages {
   border-top: 1px solid rgb(71, 156, 71);
   border-bottom: 1px solid rgb(71, 156, 71);
   padding: 8px;
-  height: 400px;
+  height: 500px;
   overflow: scroll;
-  margin-top: 10rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   align-items: end;
-  font-size: 1.2rem;
-  background-color: azure;
+  font-size: 1rem;
+  background-color: rgba(0, 138, 138, 0.04);
   scroll-behavior: auto;
   overflow: auto;
 }
@@ -657,7 +680,7 @@ align-items: center;
 }
 
 .foodSummeryCardApproval img {
-  max-height: 250px;
+  max-height: 350px;
   width: fit-content;
 }
 
