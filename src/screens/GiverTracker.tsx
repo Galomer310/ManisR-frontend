@@ -50,7 +50,7 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Polling effect: check every 20 seconds if the meal still exists.
+  // Polling effect: check every 10 seconds if the meal still exists.
   useEffect(() => {
     if (!mealData?.id) return;
     const checkMeal = async () => {
@@ -70,14 +70,14 @@ const GiverTracker: React.FC = () => {
               navigate("/rate-review", {
                 state: { mealData, reservationStart },
               });
-            }, 20000);
+            }, 10000);
           }
         }
       }
     };
 
     checkMeal();
-    const intervalId = setInterval(checkMeal, 20000);
+    const intervalId = setInterval(checkMeal, 10000);
     return () => clearInterval(intervalId);
   }, [
     mealData?.id,
