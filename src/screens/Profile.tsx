@@ -1,16 +1,12 @@
 // src/screens/Profile.tsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  IoIosArrowBack,
-  IoIosArrowForward,
-  IoIosCreate,
-  IoIosPerson,
-  IoIosLeaf,
-  IoIosTime,
-  IoMdPower,
-} from "react-icons/io";
+import { IoIosArrowBack, IoIosArrowForward, IoIosCreate } from "react-icons/io";
 import orangeIcon from "../assets/orange tracker.svg";
+import profileIcon from "../assets/icons_ profile.svg";
+import bagIcon from "../assets/icons_ bag.svg";
+import calendarIcon from "../assets/icons_ calendar.svg";
+import onOffIcon from "../assets/icons_ on-off.svg";
 import axios from "axios";
 
 // Define the User interface
@@ -213,58 +209,40 @@ const Profile: React.FC = () => {
 
       {/* Navigation List */}
       <div className="profile-items">
-        <div
-          className="profile-item"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            borderBottom: "1px solid gray",
-          }}
-          onClick={handleAccountDetails}
-        >
-          <IoIosArrowBack size={20} />
-          <span>פרטי חשבון</span>
-          <IoIosPerson size={20} style={{ marginLeft: "0.5rem" }} />
+        <div className="profile-item" onClick={handleAccountDetails}>
+          <div className="profile-item-left">
+            <IoIosArrowBack size={20} />
+          </div>
+          <div className="profile-item-right">
+            <span>פרטי חשבון</span>
+            <img src={profileIcon} />
+          </div>
         </div>
 
-        <div
-          className="profile-item"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            borderBottom: "1px solid gray",
-          }}
-          onClick={handleFruits}
-        >
-          <IoIosArrowBack size={20} />
-          <span>פירות שצברתי ושוברים</span>
-          <IoIosLeaf size={20} style={{ marginLeft: "0.5rem" }} />
+        <div className="profile-item" onClick={handleFruits}>
+          <div className="profile-item-left">
+            <IoIosArrowBack size={20} />
+          </div>
+          <div className="profile-item-right">
+            <span>פירות שצברתי ושוברים</span>
+            <img src={bagIcon} />
+          </div>
         </div>
 
-        <div
-          className="profile-item"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            borderBottom: "1px solid gray",
-          }}
-          onClick={handleUsageHistory}
-        >
-          <IoIosArrowBack size={20} />
-          <span>היסטוריית שימוש</span>
-          <IoIosTime size={20} style={{ marginLeft: "0.5rem" }} />
+        <div className="profile-item" onClick={handleUsageHistory}>
+          <div className="profile-item-left">
+            <IoIosArrowBack size={20} />
+          </div>
+          <div className="profile-item-right">
+            <span>היסטוריית שימוש</span>
+            <img src={calendarIcon} alt="Calendar Icon" />
+          </div>
         </div>
 
-        <div
-          className="profile-item"
-          style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-          onClick={handleLogout}
-        >
-          <span>התנתק/י</span>
-          <IoMdPower size={20} style={{ marginLeft: "0.5rem" }} />
+        <div className="profile-item-out" onClick={handleLogout}>
+          <span style={{ display: "flex" }}>
+            התנתק/י <img style={{ marginLeft: "0.5rem" }} src={onOffIcon} />
+          </span>
         </div>
       </div>
     </div>

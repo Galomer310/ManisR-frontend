@@ -814,16 +814,30 @@ align-items: center;
   gap: 1rem;
   margin-top: 1.5rem;
   cursor: pointer;
-  width: 30%;
+  width: 100%;
   
 }
 
 .profile-item {
+  display: flex;
+  /* align-items: end; */
+  justify-content: space-between; /* Distribute left and right sections */
+  cursor: pointer;
   padding-bottom: 0.5rem;
   width: 100%;
-  display: flex;
-  justify-content: end;
+  border-bottom: 1px solid gray;
 }
+
+
+
+.profile-item-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* Optional: add spacing between text and icon */
+  gap: 0.5rem;
+}
+
 
 .backArrow {
   display: flex;
