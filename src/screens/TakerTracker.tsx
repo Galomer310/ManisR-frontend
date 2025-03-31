@@ -77,8 +77,6 @@ const TakerTracker: React.FC = () => {
 
   /**
    * Handler: Taker confirms they picked up the meal.
-   * => calls `DELETE /food/collect/:mealId` to remove meal & conversation from DB,
-   *    then navigates Taker to Menu (or a rating screen).
    */
   const handleMealTaken = async () => {
     if (!mealData?.id) return;

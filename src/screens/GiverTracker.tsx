@@ -101,7 +101,7 @@ const GiverTracker: React.FC = () => {
     };
   }, [socket, localUserId, mealData.id]);
 
-  // 5) If meal is collected => show a message or navigate
+  // If meal is collected => show a message or navigate
   useEffect(() => {
     if (collected) {
       alert("המנה נאספה בהצלחה על ידי האוסף. תודה!");
@@ -109,7 +109,7 @@ const GiverTracker: React.FC = () => {
     }
   }, [collected, navigate]);
 
-  // 6) Giver can open chat if desired
+  //  Giver can open chat
   const handleChat = () => {
     if (!mealData?.id) return;
     navigate("/messages", {

@@ -39,8 +39,7 @@ const GiverMealScreen: React.FC = () => {
   const localUserId = Number(localStorage.getItem("userId"));
 
   // 2) CREATE A SOCKET CONNECTED TO YOUR BACKEND
-  //    In real projects, you might do this at a higher level (e.g., App.tsx),
-  //    but here we do it inline for clarity.
+
   const socket = io(API_BASE_URL, {
     transports: ["websocket"],
     autoConnect: false,
@@ -64,7 +63,7 @@ const GiverMealScreen: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // 3) HOOK UP SOCKET LISTENERS
+  // HOOK UP SOCKET LISTENERS
   useEffect(() => {
     socket.connect();
     socket.on("connect", () => {
