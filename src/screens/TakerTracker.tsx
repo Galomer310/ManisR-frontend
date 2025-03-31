@@ -117,13 +117,13 @@ const TakerTracker: React.FC = () => {
             setNavigated(true);
             navigate("/rate-review", { state: { mealData, reservationStart } });
           } else {
-            // For the non-initiator, navigate after 20 seconds.
+            // For the non-initiator, navigate after 5 seconds.
             setTimeout(() => {
               setNavigated(true);
               navigate("/rate-review", {
                 state: { mealData, reservationStart },
               });
-            }, 20000);
+            }, 5000);
           }
         }
       }
@@ -131,8 +131,8 @@ const TakerTracker: React.FC = () => {
 
     // Run the check immediately...
     checkMeal();
-    // ...and then every 20 seconds.
-    const intervalId = setInterval(checkMeal, 20000);
+    // ...and then every 5 seconds.
+    const intervalId = setInterval(checkMeal, 5000);
     return () => clearInterval(intervalId);
   }, [
     mealData?.id,
