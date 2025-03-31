@@ -835,29 +835,18 @@ align-items: center;
 
 /* History */
 /* Container for the meal card */
-.mealCardHistory {
+.historyMealsCard {
   display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  align-items: center;
   margin-bottom: 1rem;
-  overflow: hidden;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem;
+}
+.historyMealsCard p {
+  padding-left: 2rem;
 }
 
-/* Flex container for image and details */
-.mainCardHistoryMeal {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  min-height: 100px; /* Ensure a minimum height for the container */
-}
 
-/* Style for the image section: occupies 33% */
-.mainCardHistoryMeal img {
-  width: 50%;
-  height: auto;      /* Make the image fill the container's height */
-  object-fit: fill;
-}
 
 /* Style for the details section: occupies 67% */
 .screen-container.account-details-container {

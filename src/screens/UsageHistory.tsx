@@ -13,12 +13,16 @@ interface MealHistory {
   pickup_address: string;
   meal_image?: string;
   created_at: string;
+  // New fields for the user names
+  giver_name?: string;
+  taker_name?: string;
 }
 
 const UsageHistory: React.FC = () => {
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const localUserId = Number(localStorage.getItem("userId"));
   const [history, setHistory] = useState<MealHistory[]>([]);
 
@@ -37,92 +41,143 @@ const UsageHistory: React.FC = () => {
     fetchHistory();
   }, [API_BASE_URL]);
 
-  const handleDelete = async (historyId: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/meal-history/${historyId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setHistory((prev) => prev.filter((entry) => entry.id !== historyId));
-    } catch (error) {
-      console.error("Error deleting history entry:", error);
-    }
-  };
+  // Separate history into "collected" and "given"
+  const collectedMeals = history.filter(
+    (entry) => entry.taker_id === localUserId
+  );
+  const givenMeals = history.filter((entry) => entry.giver_id === localUserId);
 
   return (
-    <div className="screen-container usage-history-container">
-      {/* Clickable Back Icon at Top Right */}
+    <div className="usage-history" dir="rtl" style={{ padding: "1rem" }}>
+      {/* Header row with Back Arrow */}
       <div
         style={{
-          position: "fixed",
-          top: "1rem",
-          right: "1rem",
-          cursor: "pointer",
-          zIndex: 1200,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "1rem",
         }}
-        onClick={() => navigate(-1)}
       >
-        <IoIosArrowForward size={24} color="black" />
+        <div style={{ cursor: "pointer" }} onClick={() => navigate(-1)}>
+          <IoIosArrowForward size={24} color="black" />
+        </div>
       </div>
-      <h2>היסטוריית שימוש</h2>
-      {history.length === 0 ? (
-        <p>No past meals found.</p>
-      ) : (
-        history.map((entry) => {
-          const roleLabel =
-            localUserId === entry.giver_id ? "Given Meal" : "Collected Meal";
+      {/* "לכל המנות" button */}
+      <button
+        onClick={() => navigate("/menu")}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          color: "#007bff",
+          fontSize: "1rem",
+        }}
+      >
+        לכל המנות
+      </button>
 
-          // Construct the image URL: if relative, prepend the API_BASE_URL
+      {/* Title */}
+      <h1 style={{ margin: 0 }}>היסטוריית שימוש</h1>
+
+      {/* "מנות שאספתי" Section */}
+      <h2 style={{ fontSize: "1.2rem", margin: "1rem 0 0.5rem" }}>
+        מנות שאספתי
+      </h2>
+      {collectedMeals.length === 0 ? (
+        <p>לא נמצאו מנות שאספתי.</p>
+      ) : (
+        collectedMeals.map((entry) => {
           const imageUrl =
             entry.meal_image && entry.meal_image.startsWith("/uploads/")
               ? `${API_BASE_URL}${entry.meal_image}`
-              : entry.meal_image || "https://via.placeholder.com/100";
+              : entry.meal_image || "https://via.placeholder.com/80";
+
+          // Determine the other user's name.
+          // If the local user is the taker, the other user is the giver.
+          const otherUserName =
+            localUserId === entry.taker_id
+              ? entry.giver_name
+              : entry.taker_name;
 
           return (
-            <div className="mealCardHistory" key={entry.id}>
-              <div className="mainCardHistoryMeal">
-                <img src={imageUrl} alt="Meal" />
-                <div className="mealDetailsHistory">
-                  <h3>{entry.item_description}</h3>
-                  <p>{entry.pickup_address}</p>
-                  <p>
-                    <strong>{roleLabel}</strong>
+            <div className="historyMealsCard" key={entry.id}>
+              <div>
+                <h3 style={{ margin: 0 }}>{entry.item_description}</h3>
+                <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
+                {otherUserName && (
+                  <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
+                    {otherUserName}
                   </p>
-                  <small>{new Date(entry.created_at).toLocaleString()}</small>
-                </div>
+                )}
+                <small style={{ color: "#666" }}>
+                  {new Date(entry.created_at).toLocaleDateString("he-IL")}
+                </small>
               </div>
-              <button
-                onClick={() => handleDelete(entry.id)}
+              <img
+                src={imageUrl}
+                alt="Meal"
                 style={{
-                  marginTop: "0.5rem",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#dc3545",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
+                  width: "80px",
+                  height: "80px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginLeft: "1rem",
                 }}
-              >
-                Delete
-              </button>
+              />
             </div>
           );
         })
       )}
-      <button
-        onClick={() => navigate("/menu")}
-        style={{
-          marginTop: "1rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-      >
-        Back to Menu
-      </button>
+
+      {/* "מנות שמסרת" Section */}
+      <h2 style={{ fontSize: "1.2rem", margin: "1rem 0 0.5rem" }}>
+        מנות שמסרת
+      </h2>
+      {givenMeals.length === 0 ? (
+        <p>לא נמצאו מנות שמסרתי.</p>
+      ) : (
+        givenMeals.map((entry) => {
+          const imageUrl =
+            entry.meal_image && entry.meal_image.startsWith("/uploads/")
+              ? `${API_BASE_URL}${entry.meal_image}`
+              : entry.meal_image || "https://via.placeholder.com/80";
+
+          // Determine the other user's name.
+          // If the local user is the giver, the other user is the taker.
+          const otherUserName =
+            localUserId === entry.giver_id
+              ? entry.taker_name
+              : entry.giver_name;
+
+          return (
+            <div className="historyMealsCard" key={entry.id}>
+              <div>
+                <h3 style={{ margin: 0 }}>{entry.item_description}</h3>
+                <p style={{ margin: "0.2rem 0" }}>{entry.pickup_address}</p>
+                {otherUserName && (
+                  <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
+                    {otherUserName}
+                  </p>
+                )}
+                <small style={{ color: "#666" }}>
+                  {new Date(entry.created_at).toLocaleDateString("he-IL")}
+                </small>
+              </div>
+              <img
+                src={imageUrl}
+                alt="Meal"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginLeft: "1rem",
+                }}
+              />
+            </div>
+          );
+        })
+      )}
     </div>
   );
 };
