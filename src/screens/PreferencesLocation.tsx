@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Optional: If you have an icon at the top, import it here
-// import heartIcon from "../assets/heartIcon.png";
+// import logo from "../assets/manisr_logo.svg";
 
 const PreferencesLocation: React.FC = () => {
   const navigate = useNavigate();
   const [city, setCity] = useState("");
   const [radius, setRadius] = useState(5);
 
-  // Geolocation logic (unchanged)
+  // Geolocation logic
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -50,9 +48,8 @@ const PreferencesLocation: React.FC = () => {
 
   return (
     <div className="preferences-location-container" dir="rtl">
-      {/* If you have a top icon or logo, you can uncomment and use this */}
       {/* <div className="top-icon">
-        <img src={heartIcon} alt="Heart Icon" />
+        <img src={logo} alt="Heart Icon" />
       </div> */}
 
       <form className="preferences-location-form" onSubmit={handleSubmit}>

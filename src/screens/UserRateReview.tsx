@@ -1,4 +1,3 @@
-// src/screens/UserRateReview.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoMdClose } from "react-icons/io";

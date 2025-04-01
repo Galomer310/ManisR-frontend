@@ -1,4 +1,3 @@
-// src/screens/TalkToUs.tsx
 import React from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";

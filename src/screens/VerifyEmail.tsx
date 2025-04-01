@@ -1,4 +1,3 @@
-// src/screens/VerifyEmail.tsx
 import React, { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 

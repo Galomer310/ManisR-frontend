@@ -1,4 +1,3 @@
-// src/screens/TalkToUs.tsx
 import React, { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
@@ -6,20 +5,16 @@ import SubmissionSuccessModal from "../components/SubmissionSuccessModal";
 
 const TalkToUs: React.FC = () => {
   const navigate = useNavigate();
-
-  // Local state for form fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-
-  // State to control the success modal visibility
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: handle form submission logic (e.g. send to backend)
     console.log({ fullName, email, message });
-    // Instead of alerting, show the submission success modal
+
     setShowSuccessModal(true);
   };
 

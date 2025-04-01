@@ -11,7 +11,7 @@ const Register: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [gender, setGender] = useState(""); // NEW state for gender
+  const [gender, setGender] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -19,7 +19,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError("");
     try {
-      // Send all fields (including gender) to your backend
+      // Send all fields to your backend
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
         {

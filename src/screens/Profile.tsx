@@ -1,4 +1,3 @@
-// src/screens/Profile.tsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack, IoIosArrowForward, IoIosCreate } from "react-icons/io";
@@ -10,7 +9,6 @@ import onOffIcon from "../assets/icons_ on-off.svg";
 import axios from "axios";
 import LogoutConfirmationModal from "../components/LogoutConfirmationModal";
 
-// Define the User interface
 interface User {
   name: string;
   username: string;

@@ -1,4 +1,3 @@
-// src/screens/CollectFood.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,7 @@ interface Meal {
   lng: number;
   meal_avatar?: string;
   user_avatar?: string;
-  allergens?: string[]; // optional allergens array for filtering
+  allergens?: string[];
 }
 
 // Define a minimal interface for Preferences

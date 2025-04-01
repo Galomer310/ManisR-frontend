@@ -1,4 +1,3 @@
-// src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -44,8 +43,6 @@ const Messages: React.FC = () => {
   const [conversation, setConversation] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [error, setError] = useState("");
-
-  // New state: store the logged-in user's profile (avatar, name, username)
   const [userProfile, setUserProfile] = useState<User | null>(null);
 
   // Load user profile from localStorage on mount.
@@ -166,7 +163,6 @@ const Messages: React.FC = () => {
         <IoIosArrowForward size={24} color="black" />
       </div>
 
-      {/* New Section: User profile info, message textarea and send button */}
       <div className="message-input-section">
         <div className="ChatProfileImg">
           <div className="ChatTextProfileImgSection">

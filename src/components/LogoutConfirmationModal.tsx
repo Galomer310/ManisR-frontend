@@ -1,4 +1,3 @@
-// src/components/LogoutConfirmationModal.tsx
 import React from "react";
 
 interface LogoutConfirmationModalProps {

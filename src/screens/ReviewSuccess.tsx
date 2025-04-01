@@ -1,4 +1,3 @@
-// src/screens/ReviewSuccess.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import basketIcon from "../assets/basket.svg";

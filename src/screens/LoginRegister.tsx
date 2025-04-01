@@ -1,22 +1,14 @@
-// src/screens/LoginRegister.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/manisr_logo.svg";
 
-/**
- * LoginRegister is the landing screen that provides two clear options:
- * - Register (navigates to the new Register.tsx)
- * - Login (navigates to the new Login.tsx)
- */
 const LoginRegister: React.FC = () => {
   const navigate = useNavigate();
 
-  // Navigate to the registration screen
   const handleRegisterClick = () => {
     navigate("/register-intro");
   };
 
-  // Navigate to the login screen
   const handleLoginClick = () => {
     navigate("/login");
   };

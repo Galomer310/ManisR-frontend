@@ -1,4 +1,3 @@
-// src/components/GiverProgress.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import basketIcon from "../assets/basket.svg";
@@ -6,8 +5,8 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
 interface GiverProgressProps {
-  userId: number; // current user's ID
-  username?: string; // current user's name (optional)
+  userId: number;
+  username?: string;
 }
 
 const GiverProgress: React.FC<GiverProgressProps> = ({ userId, username }) => {

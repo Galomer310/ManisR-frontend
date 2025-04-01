@@ -1,4 +1,3 @@
-// src/utils/geocoding.ts
 
 /**
  * Reverse geocodes latitude and longitude into a human‑readable address.

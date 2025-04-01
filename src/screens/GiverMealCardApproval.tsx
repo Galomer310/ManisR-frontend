@@ -1,4 +1,3 @@
-// src/screens/GiverMealCardApproval.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Map, { Marker } from "react-map-gl";

@@ -1,4 +1,3 @@
-// src/screens/GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +23,6 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-  // Updated: use meal_avatar to match CollectFood.tsx
   meal_avatar?: string;
   user_id: number;
 }

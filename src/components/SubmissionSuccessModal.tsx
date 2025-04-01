@@ -1,4 +1,3 @@
-// src/components/SubmissionSuccessModal.tsx
 import React from "react";
 import { IoMdClose } from "react-icons/io";
 

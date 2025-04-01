@@ -1,4 +1,3 @@
-// src/screens/GiverProgressPage.tsx
 import React from "react";
 import GiverProgress from "../screens/GiverProgress";
 

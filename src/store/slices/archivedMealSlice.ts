@@ -1,4 +1,3 @@
-// src/store/slices/archivedMealSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ArchivedMealState {

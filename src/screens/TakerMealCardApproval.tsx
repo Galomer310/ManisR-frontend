@@ -1,4 +1,3 @@
-// src/screens/TakerMealCardApproval.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import locationIcon from "../assets/icons_ location.svg";

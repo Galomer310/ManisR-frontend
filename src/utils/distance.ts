@@ -1,4 +1,3 @@
-// src/utils/distance.ts
 
 /**
  * Calculates the great‑circle distance (in km) between two coordinates using the Haversine formula.

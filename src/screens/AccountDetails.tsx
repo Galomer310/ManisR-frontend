@@ -33,7 +33,7 @@ const AccountDetails: React.FC = () => {
 
     // Prepare the data to send, including the userId
     const userPreferences = {
-      userId, // Added userId
+      userId,
       phone: phoneNumber,
       city,
       radius,
@@ -49,7 +49,7 @@ const AccountDetails: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("User preferences saved:", response.data);
-      // Navigate after successful save (modify as needed)
+      // Navigate after successful save
       navigate("/menu");
     } catch (error) {
       console.error("Error saving user preferences:", error);

@@ -1,4 +1,3 @@
-// src/screens/UnderConstruction.tsx
 import React from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { Gi3dHammer } from "react-icons/gi";

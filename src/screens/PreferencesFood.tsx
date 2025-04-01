@@ -4,7 +4,6 @@ import axios from "axios";
 
 const PreferencesFood: React.FC = () => {
   const navigate = useNavigate();
-  // We assume city & radius are passed in from PreferencesLocation.
   const locationState = useLocation().state as { city: string; radius: number };
   const [foodPreference, setFoodPreference] = useState<string>("אין לי העדפות");
   const [allergies, setAllergies] = useState<string[]>([]);

@@ -1,4 +1,3 @@
-// src/components/ExitConfirmationModal.tsx
 import React from "react";
 
 interface ExitConfirmationModalProps {
