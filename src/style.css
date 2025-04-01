@@ -165,7 +165,7 @@ align-items: center;
 /* ---------------------------------- */
 /* Menu and Buttons                  */
 /* ---------------------------------- */
-.menu-container button{
+.menu-container button {
   display: flex;
   align-items: center;
   background-color: white;
@@ -183,6 +183,39 @@ align-items: center;
   transition: 100ms ease-in-out;
   transform: scale(1.01);
 }
+
+/* ---------------------------------- */
+/* Responsive Styles for Smaller Screens */
+/* ---------------------------------- */
+@media (max-width: 768px) {
+  .menu-container {
+    padding: 1rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .menu-container img {
+    max-width: 80%;
+    height: auto;
+    margin: 0 auto;
+  }
+  /* Override inline margin for action buttons */
+  .action-buttons {
+    margin: 2rem !important;
+  }
+  .pickActionBtn {
+    margin-bottom: 1rem;
+  }
+  /* Adjust overlay menu images and text */
+  .overLay-menu img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.5rem;
+  }
+  .overLay-menu p {
+    font-size: 0.9rem;
+  }
+}
+
 /* ---------------------------------- */
 /* Food Upload Form Styles           */
 /* ---------------------------------- */
