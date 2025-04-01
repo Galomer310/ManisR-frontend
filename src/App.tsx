@@ -27,6 +27,7 @@ import AccountDetails from "./screens/AccountDetails";
 import UnderConstruction from "./screens/UnderConstruction";
 import TermsOfUseAndPrivacy from "./screens/TermsOfUseAndPrivacy";
 import ReviewSuccess from "./screens/ReviewSuccess";
+import GiverProgressPage from "./components/GiverProgressPage";
 
 const App: React.FC = () => {
   return (
@@ -38,6 +39,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/menu" element={<Menu />} />
+
         <Route path="/food/upload" element={<FoodUpload />} />
         <Route path="/giver-meal-screen" element={<GiverMealScreen />} />
         <Route
@@ -64,6 +66,7 @@ const App: React.FC = () => {
         <Route path="/under-construction" element={<UnderConstruction />} />
         <Route path="/Terms-Privacy" element={<TermsOfUseAndPrivacy />} />
         <Route path="/review-success" element={<ReviewSuccess />} />
+        <Route path="/giver-prograss" element={<GiverProgressPage />} />
       </Routes>
     </Router>
   );

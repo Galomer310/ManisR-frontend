@@ -123,7 +123,7 @@ const Profile: React.FC = () => {
   };
 
   const handleFruits = () => {
-    navigate("/under-construction");
+    navigate("/giver-prograss");
   };
 
   const handleUsageHistory = () => {
