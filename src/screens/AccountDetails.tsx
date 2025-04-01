@@ -24,8 +24,16 @@ const AccountDetails: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Prepare the data to send
+    // Retrieve userId from local storage
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      console.error("No userId found in localStorage.");
+      return;
+    }
+
+    // Prepare the data to send, including the userId
     const userPreferences = {
+      userId, // Added userId
       phone: phoneNumber,
       city,
       radius,
@@ -35,17 +43,14 @@ const AccountDetails: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
-      // Send POST request to backend endpoint
       const response = await axios.post(
-        `${API_BASE_URL}/user_preferences`,
+        `${API_BASE_URL}/preferences`,
         userPreferences,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("User preferences saved:", response.data);
-      // Optionally navigate or show a success message
-      navigate("/menu"); // or any other page you want to go to after saving
+      // Navigate after successful save (modify as needed)
+      navigate("/menu");
     } catch (error) {
       console.error("Error saving user preferences:", error);
     }

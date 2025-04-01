@@ -12,6 +12,7 @@ import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
 
+// Extend the Meal interface with an optional allergens field.
 interface Meal {
   id: number;
   user_id: number;
@@ -23,20 +24,28 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-
-  // The meal's actual image from the DB:
   meal_avatar?: string;
-  // The user’s avatar (if you actually want it):
   user_avatar?: string;
+  allergens?: string[]; // used for allergy filtering
+}
+
+// Define an interface for user preferences.
+interface Preferences {
+  userId: number;
+  radius: number;
+  allergies: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 const CollectFood: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  // New state for the "take" confirmation modal and to track if the meal is taken
   const [confirmTakeModalOpen, setConfirmTakeModalOpen] = useState(false);
   const [mealTaken] = useState(false);
+  const [preferences, setPreferences] = useState<Preferences | null>(null);
+
   const navigate = useNavigate();
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -58,14 +67,80 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // Handler for when taker clicks on "מתאים לי" button.
+  // Fetch taker's preferences (e.g., radius and allergies) from the backend.
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${API_BASE_URL}/preferences/${localUserId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setPreferences(res.data.preferences);
+      } catch (err) {
+        console.error("Error fetching preferences:", err);
+      }
+    };
+    if (localUserId) {
+      fetchPreferences();
+    }
+  }, [API_BASE_URL, localUserId]);
+
+  // Helper function: calculate distance between two coordinates using the Haversine formula.
+  const getDistanceFromLatLonInKm = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Filter meals based on user's preferences.
+  const filteredMeals = preferences
+    ? meals.filter((meal) => {
+        // Use taker's saved latitude/longitude if available, otherwise default to a given location.
+        const userLat = preferences.latitude || 32.0853;
+        const userLon = preferences.longitude || 34.7818;
+        const distance = getDistanceFromLatLonInKm(
+          userLat,
+          userLon,
+          meal.lat,
+          meal.lng
+        );
+        const withinRadius = distance <= preferences.radius;
+
+        // Check if meal contains any allergens that conflict with user's allergies.
+        const hasAllergyConflict =
+          meal.allergens && meal.allergens.length > 0
+            ? preferences.allergies.some((allergy) =>
+                meal.allergens!.includes(allergy)
+              )
+            : false;
+
+        return withinRadius && !hasAllergyConflict;
+      })
+    : meals;
+
+  // Handlers for "take" button and confirmation modal.
   const handleTakeButtonClick = () => {
     if (!mealTaken) {
       setConfirmTakeModalOpen(true);
     }
   };
 
-  // Handler when taker confirms "Yes, I want to take".
   const handleConfirmTake = async () => {
     try {
       if (!selectedMeal) return;
@@ -76,8 +151,6 @@ const CollectFood: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // The backend now sets status='reserved', so the meal won't show
-      // for other Takers. Next, navigate to TakerTracker with the data:
       navigate("/TakerTracker", {
         state: {
           mealData: selectedMeal,
@@ -89,7 +162,6 @@ const CollectFood: React.FC = () => {
     }
   };
 
-  // Handler when taker chooses "Chat" instead of confirming.
   const handleChat = () => {
     setConfirmTakeModalOpen(false);
     if (selectedMeal) {
@@ -97,18 +169,17 @@ const CollectFood: React.FC = () => {
         state: {
           mealId: selectedMeal.id.toString(),
           role: "taker",
-          otherPartyId: selectedMeal.user_id, // Giver’s ID
+          otherPartyId: selectedMeal.user_id,
         },
       });
     }
   };
 
-  // Dropdown overlay toggle.
+  // Dropdown overlay toggle and navigation functions.
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
 
-  // Navigation functions for dropdown overlay.
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
@@ -160,6 +231,7 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={ProfileIcon}
+              alt="Profile"
               onClick={() => {
                 toggleMenu();
                 goToProfile();
@@ -170,6 +242,7 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={alertsIcon}
+              alt="Alerts"
               onClick={() => {
                 toggleMenu();
                 goToMessages();
@@ -180,6 +253,7 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={settingsIcon}
+              alt="Settings"
               onClick={() => {
                 toggleMenu();
                 goToSettings();
@@ -190,6 +264,7 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={talkToUsIcon}
+              alt="Talk To Us"
               onClick={() => {
                 toggleMenu();
                 goToTalkToUs();
@@ -202,7 +277,22 @@ const CollectFood: React.FC = () => {
 
       {/* Meal Summary Overlay for Taker */}
       {selectedMeal && selectedMeal.user_id !== localUserId && (
-        <div className="mealCardTaker">
+        <div
+          className="mealCardTaker"
+          style={{
+            position: "absolute",
+            top: "10%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "90%",
+            maxWidth: "500px",
+            backgroundColor: "rgba(255,255,255,0.95)",
+            padding: "1rem",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            zIndex: 1000,
+            borderRadius: "8px",
+          }}
+        >
           <div style={{ display: "flex", flexDirection: "row" }}>
             {/* Image area */}
             <div className="approvalCard">
@@ -294,7 +384,7 @@ const CollectFood: React.FC = () => {
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         >
-          {meals.map((meal) => (
+          {filteredMeals.map((meal) => (
             <Marker
               key={meal.id}
               latitude={meal.lat}
@@ -315,6 +405,35 @@ const CollectFood: React.FC = () => {
             </Marker>
           ))}
         </Map>
+      </div>
+
+      {/* Search Bar to Update Preferences */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "1rem",
+          width: "100%",
+          textAlign: "center",
+        }}
+      >
+        <button
+          onClick={() => {
+            // Navigate to PreferencesLocation page first
+            navigate("/preferences-location");
+          }}
+          style={{
+            padding: "1rem",
+            width: "90%",
+            maxWidth: "400px",
+            borderRadius: "25px",
+            border: "1px solid #ccc",
+            background: "#fff",
+            fontSize: "1rem",
+            cursor: "pointer",
+          }}
+        >
+          עדכן את ההעדפות שלי
+        </button>
       </div>
     </div>
   );

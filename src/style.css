@@ -194,7 +194,7 @@ align-items: center;
     text-align: center;
   }
   .menu-container img {
-    max-width: 90%;
+    max-width: 80%;
     height: auto;
     margin: 0 auto;
   }
@@ -1222,3 +1222,207 @@ input:checked + .slider:before {
 }
 
 
+/* PreferencesLocation.css */
+
+/* Container for the entire screen */
+.preferences-location-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fff;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Optional top icon/heart logo */
+.top-icon {
+  margin-bottom: 2rem;
+}
+.top-icon img {
+  width: 50px;
+  height: 50px;
+}
+
+/* Form container */
+.preferences-location-form {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Labels for city & radius */
+.label {
+  margin: 0.5rem 0 0.2rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: right; /* Keep text aligned to the right for Hebrew */
+}
+
+/* Text input for city */
+.input-field {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: right;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Range slider row: 0 km, slider, 10 km */
+.range-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+}
+
+/* Range labels (0 ק"מ and 10 ק"מ) */
+.range-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Actual range slider */
+.range-slider {
+  flex: 1;
+  margin: 0 1rem;
+}
+
+/* Current selected distance */
+.range-value {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Confirmation button (green) */
+.confirm-btn {
+  width: 100%;
+  background-color: #479c47;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.confirm-btn:hover {
+  background-color: #fff;
+  color: #479c47;
+  border: 1px solid #479c47;
+}
+
+
+/* PreferencesFood.css */
+
+/* Outer container */
+.preferences-food-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+/* The form that holds everything */
+.preferences-food-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Titles for each section */
+.title {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem 0;
+  text-align: right;
+  font-weight: bold;
+}
+
+/* Containers for the preference/allergy buttons */
+.food-btns-container,
+.allergy-btns-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Style for each button (food and allergy) */
+.food-btn,
+.allergy-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #4caf50;
+  background-color: #f8f8f8;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Highlight selected button */
+.food-btn.selected,
+.allergy-btn.selected {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+/* "אחר" text field */
+.other-allergy {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.other-allergy label {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  text-align: right;
+}
+.other-allergy input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+/* Disclaimer text */
+.disclaimer {
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 1rem;
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* "סיימתי" button */
+.finish-btn {
+  background-color: #479c47;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+.finish-btn:hover {
+  background-color: #fff;
+  color: #479c47;
+  border: 1px solid #479c47;
+}

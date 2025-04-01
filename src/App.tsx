@@ -7,6 +7,8 @@ import Register from "./screens/Register";
 import Login from "./screens/Login";
 import VerifyEmail from "./screens/VerifyEmail";
 import Menu from "./screens/Menu";
+import PreferencesLocation from "./screens/PreferencesLocation";
+import PreferencesFood from "./screens/PreferencesFood";
 import FoodUpload from "./screens/FoodUpload";
 import GiverMealScreen from "./screens/GiverMealScreen";
 import GiverMealCardApproval from "./screens/GiverMealCardApproval";
@@ -46,6 +48,8 @@ const App: React.FC = () => {
           element={<TakerMealCardApproval />}
         />
         <Route path="/collect-food" element={<CollectFood />} />
+        <Route path="/preferences-location" element={<PreferencesLocation />} />
+        <Route path="/preferences-food" element={<PreferencesFood />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/register-intro" element={<RegisterIntro />} />
         <Route path="/Settings" element={<Settings />} />
