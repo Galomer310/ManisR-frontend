@@ -6,7 +6,7 @@ import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import manisrLogo from "../assets/manisr_logo.svg";
 import locationIcon from "../assets/icons_ location.svg";
-import ProfileIcon from "../assets/icons_ profile.svg";
+import ProfileIcon from "../assets/icons_white_profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";

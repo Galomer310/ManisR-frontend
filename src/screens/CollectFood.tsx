@@ -8,7 +8,7 @@ import locationIcon from "../assets/icons_ location.svg";
 import manisrLogo from "../assets/manisr_logo.svg";
 import { IoClose } from "react-icons/io5";
 import { IoMenu } from "react-icons/io5";
-import ProfileIcon from "../assets/icons_ profile.svg";
+import ProfileIcon from "../assets/icons_white_profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
