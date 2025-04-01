@@ -1,4 +1,3 @@
-// src/screens/GiverTracker.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
@@ -14,7 +13,7 @@ interface MealData {
 const GiverTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // Retrieve mealData and reservationStart from navigation state.
+  // Expect mealData and reservationStart passed via navigation state.
   const { mealData, reservationStart } = location.state as {
     mealData: MealData;
     reservationStart: number;
@@ -25,7 +24,7 @@ const GiverTracker: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Update timer.
+  // Countdown timer.
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
@@ -39,93 +38,37 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Function to fetch the archived meal record using the meal id.
-  const fetchArchivedMeal = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await axios.get(
-        `${API_BASE_URL}/meal-history/by-meal/${mealData?.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.data.archivedMeal) {
-        return res.data.archivedMeal.id;
-      }
-    } catch (err) {
-      console.error("Error fetching archived meal record:", err);
-    }
-    return null;
-  };
-
-  // Poll active meal endpoint every 2 seconds.
-  useEffect(() => {
-    if (!mealData?.id) return;
-    const intervalId = setInterval(async () => {
-      try {
-        const token = localStorage.getItem("token");
-        await axios.get(`${API_BASE_URL}/food/${mealData.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } catch (error: any) {
-        if (error.response && error.response.status === 404) {
-          clearInterval(intervalId);
-          // Once the meal is not found in active table, check meal_history.
-          const archivedMealId = await fetchArchivedMeal();
-          if (archivedMealId) {
-            const userId = Number(localStorage.getItem("userId"));
-            navigate("/rate-review", {
-              state: {
-                mealHistoryId: archivedMealId,
-                mealId: mealData.id,
-                userId,
-              },
-            });
-          } else {
-            alert("Meal review record not found. Please try again.");
-            navigate("/menu");
-          }
-        }
-      }
-    }, 2000);
-    return () => clearInterval(intervalId);
-  }, [mealData?.id, API_BASE_URL, navigate]);
-
-  // Manual trigger button for immediate archiving.
-  const handleMealTaken = async () => {
+  // Update meal status to "collected" (without deleting it)
+  const updateStatusToCollected = async () => {
     if (!mealData?.id) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
-        {},
+      await axios.put(
+        `${API_BASE_URL}/food/status/${mealData.id}`,
+        { status: "collected" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // After archiving, fetch the archived meal record.
-      const archivedMealId = await fetchArchivedMeal();
-      if (archivedMealId) {
-        const userId = Number(localStorage.getItem("userId"));
-        navigate("/rate-review", {
-          state: { mealHistoryId: archivedMealId, mealId: mealData.id, userId },
-        });
-      } else {
-        alert("Meal review record not found. Please try again.");
-      }
     } catch (err) {
-      console.error("Error archiving meal:", err);
-      alert("אירעה שגיאה בעת איסוף המנה. אנא נסה שוב.");
+      console.error("Error updating meal status:", err);
     }
   };
 
-  // Chat button remains unchanged.
-  const handleChat = () => {
-    if (!mealData?.id) return;
-    navigate("/messages", {
-      state: { mealId: mealData.id?.toString(), role: "giver" },
+  // When user clicks "meal collected", update status and navigate to review page.
+  const handleMealCollected = async () => {
+    await updateStatusToCollected();
+    const userId = Number(localStorage.getItem("userId"));
+    navigate("/rate-review", {
+      state: { mealId: mealData?.id, userId, role: "giver" },
     });
   };
 
-  if (!mealData) {
-    return <div>שגיאה: אין פרטי מנה.</div>;
-  }
+  // Chat button.
+  const handleChat = () => {
+    if (!mealData?.id) return;
+    navigate("/messages", {
+      state: { mealId: mealData.id.toString(), role: "giver" },
+    });
+  };
 
   return (
     <div className="screen-container giver-tracker">
@@ -148,7 +91,7 @@ const GiverTracker: React.FC = () => {
         <img src={orangIcon} alt="Orange Tracker Icon" />
       </div>
       <h3>זמן שנותר: {formatTime(timeLeft)}</h3>
-      <button className="greenBtn" onClick={handleMealTaken}>
+      <button className="greenBtn" onClick={handleMealCollected}>
         המנה נאספה
       </button>
       <button className="whiteBtn" onClick={handleChat}>
