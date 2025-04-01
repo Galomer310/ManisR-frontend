@@ -1,3 +1,4 @@
+// src/screens/GiverMealScreen.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +23,8 @@ interface Meal {
   special_notes: string;
   lat: number;
   lng: number;
-  avatar_url: string;
+  // Updated: use meal_avatar to match CollectFood.tsx
+  meal_avatar?: string;
   user_id: number;
 }
 
@@ -39,7 +41,6 @@ const GiverMealScreen: React.FC = () => {
   const localUserId = Number(localStorage.getItem("userId"));
 
   // 2) CREATE A SOCKET CONNECTED TO YOUR BACKEND
-
   const socket = io(API_BASE_URL, {
     transports: ["websocket"],
     autoConnect: false,
@@ -244,6 +245,7 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToProfile();
               }}
+              alt="Profile"
             />
             <p>פרופיל אישי</p>
           </div>
@@ -254,6 +256,7 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToMessages();
               }}
+              alt="Alerts"
             />
             <p>התראות</p>
           </div>
@@ -264,6 +267,7 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToSettings();
               }}
+              alt="Settings"
             />
             <p>הגדרות</p>
           </div>
@@ -274,45 +278,31 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToTalkToUs();
               }}
+              alt="Talk To Us"
             />
             <p>דבר איתנו</p>
           </div>
         </div>
       )}
 
+      {/* Meal Summary Overlay for Giver */}
       {selectedMeal && selectedMeal.user_id === localUserId && (
         <div className="mealCardGiver">
           <div style={{ display: "flex", flexDirection: "row" }}>
-            {selectedMeal.avatar_url ? (
+            {selectedMeal.meal_avatar ? (
               (() => {
-                // Use the URL constructor to create an absolute URL.
                 const fullImageUrl = new URL(
-                  selectedMeal.avatar_url,
+                  selectedMeal.meal_avatar,
                   API_BASE_URL
                 ).href;
                 return (
-                  <img
-                    src={fullImageUrl}
-                    alt="Meal"
-                    style={{
-                      width: "100%",
-                      maxWidth: "150px",
-                      borderRadius: "8px",
-                    }}
-                  />
+                  <div className="giverImageContainer">
+                    <img src={fullImageUrl} alt="Meal" />
+                  </div>
                 );
               })()
             ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  backgroundColor: "#eee",
-                  textAlign: "center",
-                }}
-              >
-                אין תמונה למנה
-              </div>
+              <div className="giverImageContainer">אין תמונה למנה</div>
             )}
             <div className="popupmeal">
               <h3>{selectedMeal.item_description}</h3>
@@ -409,7 +399,11 @@ const GiverMealScreen: React.FC = () => {
               <img
                 src={manisrLogo}
                 alt="Meal Marker"
-                style={{ width: "30px", height: "30px", cursor: "pointer" }}
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  cursor: "pointer",
+                }}
                 onClick={() => setSelectedMeal(meal)}
               />
             </Marker>

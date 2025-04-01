@@ -228,22 +228,7 @@ const CollectFood: React.FC = () => {
 
       {/* Meal Summary Overlay for Taker */}
       {selectedMeal && selectedMeal.user_id !== localUserId && (
-        <div
-          className="mealCardTaker"
-          style={{
-            position: "absolute",
-            top: "10%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "90%",
-            maxWidth: "500px",
-            backgroundColor: "rgba(255,255,255,0.95)",
-            padding: "1rem",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
-            zIndex: 1000,
-            borderRadius: "8px",
-          }}
-        >
+        <div className="mealCardTaker">
           <div style={{ display: "flex", flexDirection: "row" }}>
             {/* Image area */}
             <div className="approvalCard">
