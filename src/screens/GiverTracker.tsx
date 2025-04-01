@@ -19,8 +19,10 @@ const GiverTracker: React.FC = () => {
   const navigate = useNavigate();
   const [, setInitiator] = useState(false);
   const [navigated, setNavigated] = useState(false);
+  // NEW: state to hold the archived meal's review record ID.
+  const [archivedMealId, setArchivedMealId] = useState<number | null>(null);
 
-  // 1) State from the navigation
+  // State passed from navigation.
   const { mealData, reservationStart } = location.state as {
     mealData: MealData;
     reservationStart: number;
@@ -31,7 +33,7 @@ const GiverTracker: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Countdown timer effect
+  // Countdown timer effect.
   useEffect(() => {
     const now = Date.now();
     const elapsedSec = Math.floor((now - reservationStart) / 1000);
@@ -50,7 +52,27 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Polling effect: check every 2 seconds if the meal still exists.
+  // When the giver clicks "המנה נאספה"
+  const handleMealTaken = async () => {
+    if (!mealData?.id) return;
+    try {
+      const token = localStorage.getItem("token");
+      setInitiator(true);
+      // Call archiving endpoint; assume it returns { archivedMeal: { id: <newId>, ... } }
+      const res = await axios.post(
+        `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Save the new meal review record id.
+      setArchivedMealId(res.data.archivedMeal.id);
+    } catch (err) {
+      console.error("Error archiving meal (giver):", err);
+      alert("אירעה שגיאה בעת איסוף המנה.");
+    }
+  };
+
+  // Polling: check every 2 seconds if the meal still exists.
   useEffect(() => {
     if (!mealData?.id) return;
     const checkMeal = async () => {
@@ -62,41 +84,41 @@ const GiverTracker: React.FC = () => {
       } catch (err: any) {
         if (err.response && err.response.status === 404 && !navigated) {
           setNavigated(true);
-          navigate("/rate-review", { state: { mealData, reservationStart } });
+          if (archivedMealId) {
+            navigate("/rate-review", {
+              state: {
+                mealHistoryId: archivedMealId,
+                mealData,
+                reservationStart,
+              },
+            });
+          } else {
+            alert("Meal review record not found. Please try again.");
+            navigate("/menu");
+          }
         }
       }
     };
 
-    // Run check immediately, then every 2 seconds.
+    // Run immediately and then every 2 seconds.
     checkMeal();
     const intervalId = setInterval(checkMeal, 2000);
     return () => clearInterval(intervalId);
-  }, [mealData?.id, API_BASE_URL, reservationStart, navigated, navigate]);
+  }, [
+    mealData?.id,
+    API_BASE_URL,
+    reservationStart,
+    navigated,
+    navigate,
+    archivedMealId,
+  ]);
 
-  // Giver chat button
+  // Giver chat button.
   const handleChat = () => {
     if (!mealData?.id) return;
     navigate("/messages", {
       state: { mealId: mealData.id?.toString(), role: "giver" },
     });
-  };
-
-  // When the giver clicks "המנה נאספה"
-  const handleMealTaken = async () => {
-    if (!mealData?.id) return;
-    try {
-      const token = localStorage.getItem("token");
-      setInitiator(true);
-      await axios.post(
-        `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      // Do not navigate immediately; polling will handle it.
-    } catch (err) {
-      console.error("Error archiving meal (giver):", err);
-      alert("אירעה שגיאה בעת איסוף המנה.");
-    }
   };
 
   if (!mealData) {

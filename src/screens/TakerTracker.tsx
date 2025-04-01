@@ -17,10 +17,10 @@ interface MealData {
 const TakerTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [, setInitiator] = useState(false);
   const [navigated, setNavigated] = useState(false);
+  // NEW: State to store archived meal review record id.
+  const [archivedMealId, setArchivedMealId] = useState<number | null>(null);
 
-  // Extract mealData and reservationStart from location.state.
   const { mealData, reservationStart } = location.state as {
     mealData: MealData;
     reservationStart: number;
@@ -60,15 +60,16 @@ const TakerTracker: React.FC = () => {
     if (!mealData?.id) return;
     try {
       const token = localStorage.getItem("token");
-      setInitiator(true);
-      await axios.post(
+      // Call the archive endpoint and set the archivedMealId state.
+      const res = await axios.post(
         `${API_BASE_URL}/meal-history/archive/${mealData.id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Wait for polling to detect 404 and then navigate.
+      setArchivedMealId(res.data.archivedMeal.id);
     } catch (err) {
-      console.error("Error archiving meal:", err);
+      console.error("Error archiving meal (taker):", err);
+      alert("אירעה שגיאה בעת איסוף המנה.");
     }
   };
 
@@ -84,7 +85,18 @@ const TakerTracker: React.FC = () => {
       } catch (err: any) {
         if (err.response && err.response.status === 404 && !navigated) {
           setNavigated(true);
-          navigate("/rate-review", { state: { mealData, reservationStart } });
+          if (archivedMealId) {
+            navigate("/rate-review", {
+              state: {
+                mealHistoryId: archivedMealId,
+                mealData,
+                reservationStart,
+              },
+            });
+          } else {
+            alert("Meal review record not found. Please try again.");
+            navigate("/menu");
+          }
         }
       }
     };
@@ -92,7 +104,14 @@ const TakerTracker: React.FC = () => {
     checkMeal();
     const intervalId = setInterval(checkMeal, 2000);
     return () => clearInterval(intervalId);
-  }, [mealData?.id, API_BASE_URL, reservationStart, navigated, navigate]);
+  }, [
+    mealData?.id,
+    API_BASE_URL,
+    reservationStart,
+    navigated,
+    navigate,
+    archivedMealId,
+  ]);
 
   const handleChat = () => {
     if (!mealData?.id) return;

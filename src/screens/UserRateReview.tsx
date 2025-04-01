@@ -32,28 +32,32 @@ const UserRateReview: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Called when user clicks the Approve button.
+  // Called when the user clicks the Approve button.
   const handleApprove = async () => {
     if (!mealHistoryId || !mealData) return;
     try {
       const token = localStorage.getItem("token");
-      // In the new logic, we POST a new row to meal_reviews.
-      // reviewer_id is the logged in user.
+      // The logged-in user's ID.
       const reviewer_id = Number(localStorage.getItem("userId"));
-      // Optionally, you can set reviewee_id to the other party's id (e.g., mealData.user_id)
+      // Determine reviewee_id: if the current user is the giver then reviewee is the taker.
+      // Adjust this logic as needed based on your user roles.
+      const reviewee_id = mealData.taker_id || null;
+
+      // Use mealHistoryId as the reference for the review (instead of the original meal id).
       const reviewPayload = {
-        meal_id: mealData.id,
+        meal_id: mealHistoryId,
         reviewer_id,
-        reviewee_id: mealData.user_id || null, // adjust as needed
-        role: "giver", // or "taker" – set based on which user is reviewing
+        reviewee_id,
+        role: "giver", // Or "taker" – adjust based on which user is reviewing.
         user_review: userExperience,
         general_experience: generalExperience,
         comments: reviewText,
       };
+
       await axios.post(`${API_BASE_URL}/meal_reviews`, reviewPayload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Navigate to a success page.
+      // Navigate to a success page upon successful review submission.
       navigate("/review-success");
     } catch (error) {
       console.error("Error saving review:", error);
@@ -103,7 +107,7 @@ const UserRateReview: React.FC = () => {
 
   return (
     <div className="screen-container rate-review-container">
-      {/* X icon at the top right */}
+      {/* X icon at the top right to close and return to menu */}
       <div
         style={{
           position: "absolute",
