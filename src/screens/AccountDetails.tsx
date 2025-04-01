@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
+import axios from "axios";
 
 const AccountDetails: React.FC = () => {
   const navigate = useNavigate();
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const [phoneNumber, setPhoneNumber] = useState("");
   const [city, setCity] = useState("");
   const [radius, setRadius] = useState(5);
@@ -18,10 +22,33 @@ const AccountDetails: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Save logic or navigate somewhere
-    console.log({ phoneNumber, city, radius, foodPreference, allergies });
+    // Prepare the data to send
+    const userPreferences = {
+      phone: phoneNumber,
+      city,
+      radius,
+      foodPreference,
+      allergies,
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      // Send POST request to backend endpoint
+      const response = await axios.post(
+        `${API_BASE_URL}/user_preferences`,
+        userPreferences,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log("User preferences saved:", response.data);
+      // Optionally navigate or show a success message
+      navigate("/menu"); // or any other page you want to go to after saving
+    } catch (error) {
+      console.error("Error saving user preferences:", error);
+    }
   };
 
   return (
@@ -62,7 +89,7 @@ const AccountDetails: React.FC = () => {
         >
           <option value="">בחר עיר</option>
           <option value="Tel Aviv-Yafo">תל אביב-יפו</option>
-          <option value="Ramat gan">רמת גן </option>
+          <option value="Ramat gan">רמת גן</option>
           <option value="Rishon LeZion">ראשון לציון</option>
           <option value="Streets">רחובות</option>
           <option value="Jerusalem">ירושלים</option>

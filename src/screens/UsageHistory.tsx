@@ -16,7 +16,6 @@ interface MealHistory {
   pickup_address: string;
   meal_image?: string;
   created_at: string;
-  // New fields for the user names
   giver_name?: string;
   taker_name?: string;
 }
@@ -178,7 +177,6 @@ const UsageHistory: React.FC = () => {
                 </span>
 
                 <span style={{ display: "flex", padding: "0.5rem" }}>
-                  <img src={profileIcon} />
                   {otherUserName && (
                     <p style={{ margin: "0.2rem 0", fontStyle: "italic" }}>
                       {otherUserName}
