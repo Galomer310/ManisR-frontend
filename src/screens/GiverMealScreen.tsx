@@ -12,6 +12,7 @@ import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
 import { io } from "socket.io-client";
 import { IoMenu } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 
 interface Meal {
   id: number;
@@ -187,6 +188,7 @@ const GiverMealScreen: React.FC = () => {
         />
       </div>
 
+      {/* Fullscreen dropdown menu when open */}
       {menuOpen && (
         <div
           style={{
@@ -200,10 +202,12 @@ const GiverMealScreen: React.FC = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 1100,
+            zIndex: 1200,
           }}
         >
-          <div
+          <IoClose
+            size={36}
+            color="black"
             style={{
               position: "absolute",
               top: "1rem",
@@ -211,32 +215,7 @@ const GiverMealScreen: React.FC = () => {
               cursor: "pointer",
             }}
             onClick={toggleMenu}
-          >
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-          </div>
+          />
 
           <div className="overLay-menu">
             <img
@@ -245,7 +224,6 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToProfile();
               }}
-              alt="Profile"
             />
             <p>פרופיל אישי</p>
           </div>
@@ -256,7 +234,6 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToMessages();
               }}
-              alt="Alerts"
             />
             <p>התראות</p>
           </div>
@@ -267,7 +244,6 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToSettings();
               }}
-              alt="Settings"
             />
             <p>הגדרות</p>
           </div>
@@ -278,7 +254,6 @@ const GiverMealScreen: React.FC = () => {
                 toggleMenu();
                 goToTalkToUs();
               }}
-              alt="Talk To Us"
             />
             <p>דבר איתנו</p>
           </div>

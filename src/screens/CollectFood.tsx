@@ -5,8 +5,7 @@ import axios from "axios";
 import "mapbox-gl/dist/mapbox-gl.css";
 import locationIcon from "../assets/icons_ location.svg";
 import manisrLogo from "../assets/manisr_logo.svg";
-
-// Dropdown overlay icons – ensure these paths match your project.
+import { IoClose } from "react-icons/io5";
 import { IoMenu } from "react-icons/io5";
 import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
@@ -113,6 +112,7 @@ const CollectFood: React.FC = () => {
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
+  const goToMessages = () => navigate("/Messages");
 
   return (
     <div className="screen-container" style={{ position: "relative" }}>
@@ -128,7 +128,7 @@ const CollectFood: React.FC = () => {
         />
       </div>
 
-      {/* Dropdown Menu Overlay */}
+      {/* Fullscreen dropdown menu when open */}
       {menuOpen && (
         <div
           style={{
@@ -137,15 +137,17 @@ const CollectFood: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(114,223,114,0.98)",
+            backgroundColor: "rgba(114, 223, 114, 0.98)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 1100,
+            zIndex: 1200,
           }}
         >
-          <div
+          <IoClose
+            size={36}
+            color="black"
             style={{
               position: "absolute",
               top: "1rem",
@@ -153,36 +155,11 @@ const CollectFood: React.FC = () => {
               cursor: "pointer",
             }}
             onClick={toggleMenu}
-          >
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-            <div
-              style={{
-                width: "25px",
-                height: "3px",
-                backgroundColor: "black",
-                margin: "4px 0",
-              }}
-            ></div>
-          </div>
+          />
+
           <div className="overLay-menu">
             <img
               src={ProfileIcon}
-              alt="Profile"
               onClick={() => {
                 toggleMenu();
                 goToProfile();
@@ -193,10 +170,9 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={alertsIcon}
-              alt="Alerts"
               onClick={() => {
                 toggleMenu();
-                goToTalkToUs();
+                goToMessages();
               }}
             />
             <p>התראות</p>
@@ -204,7 +180,6 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={settingsIcon}
-              alt="Settings"
               onClick={() => {
                 toggleMenu();
                 goToSettings();
@@ -215,7 +190,6 @@ const CollectFood: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={talkToUsIcon}
-              alt="Talk To Us"
               onClick={() => {
                 toggleMenu();
                 goToTalkToUs();
