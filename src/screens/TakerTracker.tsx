@@ -96,7 +96,7 @@ const TakerTracker: React.FC = () => {
   if (!mealData) return <div>שגיאה: אין פרטי מנה.</div>;
 
   return (
-    <div className="screen-container taker-tracker">
+    <div className="screen-container tracker-container">
       <div
         style={{
           position: "fixed",

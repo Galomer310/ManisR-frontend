@@ -5,6 +5,7 @@ import { IoMdClose } from "react-icons/io";
 import axios from "axios";
 import grayLemon from "../assets/gray-lemon.svg";
 import yellowLemon from "../assets/yellow-lemon.svg";
+import ExitConfirmationModal from "../components/ExitConfirmationModal";
 
 interface ReviewState {
   mealId?: number;
@@ -27,6 +28,7 @@ const UserRateReview: React.FC = () => {
   const [userReview, setUserReview] = useState<number>(0);
   const [generalExperience, setGeneralExperience] = useState<number>(0);
   const [comments, setComments] = useState("");
+  const [showExitModal, setShowExitModal] = useState<boolean>(false);
 
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -76,8 +78,24 @@ const UserRateReview: React.FC = () => {
     }
   };
 
+  // Instead of immediately navigating away on "X", show the exit confirmation modal.
+  const handleShowExitModal = () => {
+    setShowExitModal(true);
+  };
+
+  // If user cancels exit, close the modal.
+  const handleCloseExitModal = () => {
+    setShowExitModal(false);
+  };
+
+  // If user confirms exit, navigate to the menu.
+  const handleConfirmExit = () => {
+    navigate("/menu");
+  };
+
   return (
     <div className="screen-container rate-review-container">
+      {/* Close icon: now triggers exit confirmation modal */}
       <div
         style={{
           position: "absolute",
@@ -86,7 +104,7 @@ const UserRateReview: React.FC = () => {
           cursor: "pointer",
           zIndex: 1000,
         }}
-        onClick={() => navigate("/menu")}
+        onClick={handleShowExitModal}
       >
         <IoMdClose size={24} />
       </div>
@@ -156,6 +174,13 @@ const UserRateReview: React.FC = () => {
       <button className="greenBtn" onClick={handleApprove}>
         אישור
       </button>
+
+      {/* Exit Confirmation Modal */}
+      <ExitConfirmationModal
+        show={showExitModal}
+        onClose={handleCloseExitModal}
+        onConfirm={handleConfirmExit}
+      />
     </div>
   );
 };
