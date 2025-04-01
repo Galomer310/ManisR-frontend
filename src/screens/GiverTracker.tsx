@@ -17,7 +17,7 @@ interface MealData {
 const GiverTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [initiator, setInitiator] = useState(false);
+  const [, setInitiator] = useState(false);
   const [navigated, setNavigated] = useState(false);
 
   // 1) State from the navigation
@@ -50,7 +50,7 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Polling effect: check every 5 seconds if the meal still exists.
+  // Polling effect: check every 2 seconds if the meal still exists.
   useEffect(() => {
     if (!mealData?.id) return;
     const checkMeal = async () => {
@@ -61,36 +61,23 @@ const GiverTracker: React.FC = () => {
         });
       } catch (err: any) {
         if (err.response && err.response.status === 404 && !navigated) {
-          if (initiator) {
-            setNavigated(true);
-            navigate("/rate-review", { state: { mealData, reservationStart } });
-          } else {
-            setNavigated(true);
-            navigate("/rate-review", {
-              state: { mealData, reservationStart },
-            });
-          }
+          setNavigated(true);
+          navigate("/rate-review", { state: { mealData, reservationStart } });
         }
       }
     };
 
+    // Run check immediately, then every 2 seconds.
     checkMeal();
     const intervalId = setInterval(checkMeal, 2000);
     return () => clearInterval(intervalId);
-  }, [
-    mealData?.id,
-    API_BASE_URL,
-    reservationStart,
-    initiator,
-    navigated,
-    navigate,
-  ]);
+  }, [mealData?.id, API_BASE_URL, reservationStart, navigated, navigate]);
 
   // Giver chat button
   const handleChat = () => {
     if (!mealData?.id) return;
     navigate("/messages", {
-      state: { mealId: mealData.id.toString(), role: "giver" },
+      state: { mealId: mealData.id?.toString(), role: "giver" },
     });
   };
 
@@ -105,7 +92,7 @@ const GiverTracker: React.FC = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Do not navigate here; let polling take care of it.
+      // Do not navigate immediately; polling will handle it.
     } catch (err) {
       console.error("Error archiving meal (giver):", err);
       alert("אירעה שגיאה בעת איסוף המנה.");

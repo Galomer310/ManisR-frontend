@@ -1,26 +1,67 @@
 // src/screens/UserRateReview.tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { IoMdClose } from "react-icons/io";
+import axios from "axios";
 import grayLemon from "../assets/gray-lemon.svg";
 import yellowLemon from "../assets/yellow-lemon.svg";
 
 const UserRateReview: React.FC = () => {
   const navigate = useNavigate();
-  // State for the two ratings and free-text review.
+  // Expect mealHistoryId and mealData passed via location state
+  const locationState = useLocation().state as {
+    mealHistoryId?: number;
+    mealData: any;
+    reservationStart: number;
+  };
+  const { mealHistoryId, mealData } = locationState || {};
+
+  // If mealHistoryId is not available, handle accordingly.
+  useEffect(() => {
+    if (!mealHistoryId) {
+      alert("Meal review record not found. Please try again.");
+      navigate("/menu");
+    }
+  }, [mealHistoryId, navigate]);
+
+  // State for the two ratings (integers) and free-text review.
   const [userExperience, setUserExperience] = useState<number>(0);
   const [generalExperience, setGeneralExperience] = useState<number>(0);
   const [reviewText, setReviewText] = useState("");
 
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   // Called when user clicks the Approve button.
-  const handleApprove = () => {
-    // Optionally: send rating data to your backend API here.
-    // For now, just navigate to the menu.
-    navigate("/menu");
+  const handleApprove = async () => {
+    if (!mealHistoryId || !mealData) return;
+    try {
+      const token = localStorage.getItem("token");
+      // In the new logic, we POST a new row to meal_reviews.
+      // reviewer_id is the logged in user.
+      const reviewer_id = Number(localStorage.getItem("userId"));
+      // Optionally, you can set reviewee_id to the other party's id (e.g., mealData.user_id)
+      const reviewPayload = {
+        meal_id: mealData.id,
+        reviewer_id,
+        reviewee_id: mealData.user_id || null, // adjust as needed
+        role: "giver", // or "taker" – set based on which user is reviewing
+        user_review: userExperience,
+        general_experience: generalExperience,
+        comments: reviewText,
+      };
+      await axios.post(`${API_BASE_URL}/meal_reviews`, reviewPayload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Navigate to a success page.
+      navigate("/review-success");
+    } catch (error) {
+      console.error("Error saving review:", error);
+      alert("There was an error saving your review. Please try again.");
+    }
   };
 
   // Function to render lemon rating icons.
-  // Helper to render a set of lemon rating options with numbers.
   const renderRatingOptions = (
     selectedRating: number,
     setRating: (val: number) => void
@@ -32,7 +73,6 @@ const UserRateReview: React.FC = () => {
       >
         {[1, 2, 3, 4, 5].map((value) => (
           <label key={value} style={{ cursor: "pointer" }}>
-            {/* Hidden radio input for accessibility */}
             <input
               type="radio"
               name="rating"
