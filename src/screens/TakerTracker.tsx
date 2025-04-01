@@ -1,3 +1,4 @@
+// src/screens/TakerTracker.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
@@ -8,6 +9,7 @@ interface MealData {
   id?: number;
   item_description: string;
   pickup_address: string;
+  status?: string;
 }
 
 const TakerTracker: React.FC = () => {
@@ -36,7 +38,6 @@ const TakerTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Update status to "collected"
   const updateStatusToCollected = async () => {
     if (!mealData?.id) return;
     try {
@@ -51,13 +52,39 @@ const TakerTracker: React.FC = () => {
     }
   };
 
-  const handleMealCollected = async () => {
-    await updateStatusToCollected();
+  const navigateToReview = () => {
     const userId = Number(localStorage.getItem("userId"));
     navigate("/rate-review", {
       state: { mealId: mealData?.id, userId, role: "taker" },
     });
   };
+
+  const handleMealCollected = async () => {
+    await updateStatusToCollected();
+    navigateToReview();
+  };
+
+  useEffect(() => {
+    if (!mealData?.id) return;
+    const intervalId = setInterval(async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_BASE_URL}/food/${mealData.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data.status && res.data.status === "collected") {
+          clearInterval(intervalId);
+          navigateToReview();
+        }
+      } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          clearInterval(intervalId);
+          navigateToReview();
+        }
+      }
+    }, 10000);
+    return () => clearInterval(intervalId);
+  }, [mealData?.id, API_BASE_URL, navigate]);
 
   const handleChat = () => {
     if (!mealData?.id) return;
@@ -65,6 +92,8 @@ const TakerTracker: React.FC = () => {
       state: { mealId: mealData.id.toString(), role: "taker" },
     });
   };
+
+  if (!mealData) return <div>שגיאה: אין פרטי מנה.</div>;
 
   return (
     <div className="screen-container taker-tracker">

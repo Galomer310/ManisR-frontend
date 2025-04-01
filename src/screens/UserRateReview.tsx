@@ -1,3 +1,4 @@
+// src/screens/UserRateReview.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoMdClose } from "react-icons/io";
@@ -30,7 +31,7 @@ const UserRateReview: React.FC = () => {
   const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-  // Finalize meal: this will move the meal from food_items to meal_history.
+  // Finalize the meal (archive it). If the meal is already archived, ignore 404.
   const finalizeMeal = async () => {
     if (!mealId) return;
     try {
@@ -40,8 +41,13 @@ const UserRateReview: React.FC = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-    } catch (err) {
-      console.error("Error finalizing meal:", err);
+    } catch (err: any) {
+      if (err.response && err.response.status === 404) {
+        console.warn("Meal already archived.");
+      } else {
+        console.error("Error finalizing meal:", err);
+        throw err;
+      }
     }
   };
 
@@ -61,7 +67,7 @@ const UserRateReview: React.FC = () => {
       await axios.post(`${API_BASE_URL}/meal_reviews`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // After submitting the review, finalize (archive) the meal.
+      // After review submission, finalize the meal.
       await finalizeMeal();
       navigate("/review-success");
     } catch (error) {

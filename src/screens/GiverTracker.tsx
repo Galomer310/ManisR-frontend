@@ -1,3 +1,4 @@
+// src/screens/GiverTracker.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
@@ -8,12 +9,13 @@ interface MealData {
   id?: number;
   item_description: string;
   pickup_address: string;
+  status?: string; // e.g. "available" or "collected"
 }
 
 const GiverTracker: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // Expect mealData and reservationStart passed via navigation state.
+  // mealData and reservationStart are passed via navigation state.
   const { mealData, reservationStart } = location.state as {
     mealData: MealData;
     reservationStart: number;
@@ -38,7 +40,7 @@ const GiverTracker: React.FC = () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Update meal status to "collected" (without deleting it)
+  // Update meal status to "collected"
   const updateStatusToCollected = async () => {
     if (!mealData?.id) return;
     try {
@@ -53,14 +55,44 @@ const GiverTracker: React.FC = () => {
     }
   };
 
-  // When user clicks "meal collected", update status and navigate to review page.
-  const handleMealCollected = async () => {
-    await updateStatusToCollected();
+  // Navigate to review page.
+  const navigateToReview = () => {
     const userId = Number(localStorage.getItem("userId"));
     navigate("/rate-review", {
       state: { mealId: mealData?.id, userId, role: "giver" },
     });
   };
+
+  // When user clicks "meal collected", update status only (do not archive here)
+  const handleMealCollected = async () => {
+    await updateStatusToCollected();
+    navigateToReview();
+  };
+
+  // Poll every 10 sec to check if the meal's status is "collected" or if the meal is removed.
+  useEffect(() => {
+    if (!mealData?.id) return;
+    const intervalId = setInterval(async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_BASE_URL}/food/${mealData.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // If the meal data includes a status and it is "collected", navigate.
+        if (res.data.status && res.data.status === "collected") {
+          clearInterval(intervalId);
+          navigateToReview();
+        }
+      } catch (error: any) {
+        // If the meal is not found, assume it’s archived.
+        if (error.response && error.response.status === 404) {
+          clearInterval(intervalId);
+          navigateToReview();
+        }
+      }
+    }, 10000);
+    return () => clearInterval(intervalId);
+  }, [mealData?.id, API_BASE_URL, navigate]);
 
   // Chat button.
   const handleChat = () => {
@@ -69,6 +101,8 @@ const GiverTracker: React.FC = () => {
       state: { mealId: mealData.id.toString(), role: "giver" },
     });
   };
+
+  if (!mealData) return <div>שגיאה: אין פרטי מנה.</div>;
 
   return (
     <div className="screen-container giver-tracker">
