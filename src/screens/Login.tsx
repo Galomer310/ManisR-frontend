@@ -30,24 +30,26 @@ const Login: React.FC = () => {
         dispatch(setUser(data.user));
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.user.id.toString());
-        // Check if the user has a meal
+
+        // Check if the user has preferences.
         const token = data.token;
-        const resMyMeal = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/food/myMeal`,
+        const userId = data.user.id;
+        const resPreferences = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/preferences/${userId}`,
           {
-            method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (resMyMeal.ok) {
-          navigate("/giver-meal-screen");
-        } else if (resMyMeal.status === 404) {
-          navigate("/menu");
+        let prefData = null;
+        if (resPreferences.ok) {
+          const json = await resPreferences.json();
+          prefData = json.preferences;
+        }
+        if (!prefData) {
+          // No preferences found → navigate to AccountDetails to set preferences.
+          navigate("/account-details");
         } else {
-          console.error(
-            "Unexpected error fetching meal:",
-            await resMyMeal.text()
-          );
+          // Preferences exist → navigate to Menu.
           navigate("/menu");
         }
       }
@@ -60,7 +62,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="screen-container login-container">
-      <img src={logo} />
+      <img src={logo} alt="Logo" />
       <input
         type="email"
         placeholder="Email"

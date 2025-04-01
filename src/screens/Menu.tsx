@@ -1,10 +1,9 @@
 // src/screens/Menu.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/manisr_logo.svg";
 import giver from "../assets/Giver.svg";
 import taker from "../assets/Taker.svg";
-
 import { IoMenu, IoClose } from "react-icons/io5";
 import ProfileIcon from "../assets/icons_ profile.svg";
 import settingsIcon from "../assets/icosnd_ settings.svg";
@@ -13,22 +12,14 @@ import alertsIcon from "../assets/1 notification alert icon.svg";
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
-
-  const handleGiveMeal = () => {
-    navigate("/food/upload");
-  };
-
-  const handleTakeMeal = () => {
-    navigate("/collect-food");
-  };
-
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   const goToProfile = () => navigate("/Profile");
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
-
   const goToMessages = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -53,6 +44,45 @@ const Menu: React.FC = () => {
     } catch (err) {
       console.error("Error fetching meal:", err);
     }
+  };
+
+  // Updated handleTakeMeal: Check if user preferences exist before navigating.
+  const handleTakeMeal = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("User ID not found.");
+      return;
+    }
+    try {
+      const resPreferences = await fetch(
+        `${API_BASE_URL}/preferences/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      let prefData = null;
+      if (resPreferences.ok) {
+        const json = await resPreferences.json();
+        prefData = json.preferences;
+      }
+      if (!prefData) {
+        alert("לא שמרת העדפות! אנא עדכן את פרטי החשבון שלך.");
+        navigate("/accountDetails");
+        return;
+      }
+      // If preferences exist, navigate to CollectFood (for takers).
+      navigate("/collect-food");
+    } catch (error) {
+      console.error("Error checking preferences:", error);
+      // In case of error, navigate to AccountDetails for safety.
+      alert("Error checking preferences. Please update your account details.");
+      navigate("/accountDetails");
+    }
+  };
+
+  const handleGiveMeal = () => {
+    navigate("/food/upload");
   };
 
   return (
@@ -97,10 +127,10 @@ const Menu: React.FC = () => {
             }}
             onClick={toggleMenu}
           />
-
           <div className="overLay-menu">
             <img
               src={ProfileIcon}
+              alt="Profile"
               onClick={() => {
                 toggleMenu();
                 goToProfile();
@@ -111,6 +141,7 @@ const Menu: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={alertsIcon}
+              alt="Alerts"
               onClick={() => {
                 toggleMenu();
                 goToMessages();
@@ -121,6 +152,7 @@ const Menu: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={settingsIcon}
+              alt="Settings"
               onClick={() => {
                 toggleMenu();
                 goToSettings();
@@ -131,6 +163,7 @@ const Menu: React.FC = () => {
           <div className="overLay-menu">
             <img
               src={talkToUsIcon}
+              alt="Talk To Us"
               onClick={() => {
                 toggleMenu();
                 goToTalkToUs();

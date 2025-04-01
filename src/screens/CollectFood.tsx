@@ -1,3 +1,4 @@
+// src/screens/CollectFood.tsx
 import React, { useEffect, useState } from "react";
 import Map, { Marker } from "react-map-gl";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +13,6 @@ import settingsIcon from "../assets/icosnd_ settings.svg";
 import talkToUsIcon from "../assets/icons_ messages.svg";
 import alertsIcon from "../assets/1 notification alert icon.svg";
 
-// Extend the Meal interface with an optional allergens field.
 interface Meal {
   id: number;
   user_id: number;
@@ -26,16 +26,13 @@ interface Meal {
   lng: number;
   meal_avatar?: string;
   user_avatar?: string;
-  allergens?: string[]; // used for allergy filtering
+  allergens?: string[]; // optional allergens array for filtering
 }
 
-// Define an interface for user preferences.
+// Define a minimal interface for Preferences
 interface Preferences {
-  userId: number;
   radius: number;
   allergies: string[];
-  latitude?: number;
-  longitude?: number;
 }
 
 const CollectFood: React.FC = () => {
@@ -44,7 +41,16 @@ const CollectFood: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmTakeModalOpen, setConfirmTakeModalOpen] = useState(false);
   const [mealTaken] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
+
+  // The viewState for the map, initially centered at a default location.
+  const [viewState, setViewState] = useState({
+    latitude: 32.0853,
+    longitude: 34.7818,
+    zoom: 12,
+  });
 
   const navigate = useNavigate();
   const API_BASE_URL =
@@ -67,20 +73,34 @@ const CollectFood: React.FC = () => {
     fetchMeals();
   }, [API_BASE_URL]);
 
-  // Fetch taker's preferences (e.g., radius and allergies) from the backend.
+  // Fetch taker's preferences from the backend.
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${API_BASE_URL}/preferences/${localUserId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_BASE_URL}/preferences/${localUserId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Assume data.preferences contains a radius and an allergies string.
+          if (data.preferences) {
+            const prefs: Preferences = {
+              radius: Number(data.preferences.radius),
+              // Convert allergies string (if stored as comma-separated) to an array.
+              allergies: data.preferences.allergies
+                ? data.preferences.allergies
+                    .split(",")
+                    .map((s: string) => s.trim())
+                : [],
+            };
+            setPreferences(prefs);
           }
-        );
-        setPreferences(res.data.preferences);
-      } catch (err) {
-        console.error("Error fetching preferences:", err);
+        } else {
+          console.error("Failed to fetch preferences");
+        }
+      } catch (error) {
+        console.error("Error fetching preferences", error);
       }
     };
     if (localUserId) {
@@ -88,7 +108,7 @@ const CollectFood: React.FC = () => {
     }
   }, [API_BASE_URL, localUserId]);
 
-  // Helper function: calculate distance between two coordinates using the Haversine formula.
+  // Helper function: calculate distance using the Haversine formula.
   const getDistanceFromLatLonInKm = (
     lat1: number,
     lon1: number,
@@ -108,39 +128,35 @@ const CollectFood: React.FC = () => {
     return R * c;
   };
 
-  // Filter meals based on user's preferences.
-  const filteredMeals = preferences
-    ? meals.filter((meal) => {
-        // Use taker's saved latitude/longitude if available, otherwise default to a given location.
-        const userLat = preferences.latitude || 32.0853;
-        const userLon = preferences.longitude || 34.7818;
-        const distance = getDistanceFromLatLonInKm(
-          userLat,
-          userLon,
-          meal.lat,
-          meal.lng
-        );
-        const withinRadius = distance <= preferences.radius;
+  // When a location search has been submitted, filter meals by distance and allergies.
+  const filteredMeals =
+    hasSearched && preferences
+      ? meals.filter((meal) => {
+          // Calculate distance from the searched location (viewState) to the meal.
+          const distance = getDistanceFromLatLonInKm(
+            viewState.latitude,
+            viewState.longitude,
+            meal.lat,
+            meal.lng
+          );
+          const withinRadius = distance <= preferences.radius;
+          // Check for allergy conflicts.
+          const mealAllergens: string[] = meal.allergens || [];
+          const allergyConflict = preferences.allergies.some((allergy) =>
+            mealAllergens.includes(allergy)
+          );
+          return withinRadius && !allergyConflict;
+        })
+      : meals;
 
-        // Check if meal contains any allergens that conflict with user's allergies.
-        const hasAllergyConflict =
-          meal.allergens && meal.allergens.length > 0
-            ? preferences.allergies.some((allergy) =>
-                meal.allergens!.includes(allergy)
-              )
-            : false;
-
-        return withinRadius && !hasAllergyConflict;
-      })
-    : meals;
-
-  // Handlers for "take" button and confirmation modal.
+  // Handler for "Take a Meal" button.
   const handleTakeButtonClick = () => {
     if (!mealTaken) {
       setConfirmTakeModalOpen(true);
     }
   };
 
+  // Handler for confirming "take" action.
   const handleConfirmTake = async () => {
     try {
       if (!selectedMeal) return;
@@ -150,7 +166,6 @@ const CollectFood: React.FC = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       navigate("/TakerTracker", {
         state: {
           mealData: selectedMeal,
@@ -184,6 +199,30 @@ const CollectFood: React.FC = () => {
   const goToSettings = () => navigate("/Settings");
   const goToTalkToUs = () => navigate("/TalkToUs");
   const goToMessages = () => navigate("/Messages");
+
+  // Handle location search submission.
+  const handleSearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          searchQuery
+        )}&format=json`
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const firstResult = data[0];
+        setViewState({
+          latitude: parseFloat(firstResult.lat),
+          longitude: parseFloat(firstResult.lon),
+          zoom: 12,
+        });
+        setHasSearched(true);
+      }
+    } catch (error) {
+      console.error("Location search error:", error);
+    }
+  };
 
   return (
     <div className="screen-container" style={{ position: "relative" }}>
@@ -227,7 +266,6 @@ const CollectFood: React.FC = () => {
             }}
             onClick={toggleMenu}
           />
-
           <div className="overLay-menu">
             <img
               src={ProfileIcon}
@@ -379,7 +417,8 @@ const CollectFood: React.FC = () => {
       {/* Map Container */}
       <div className="map-container" style={{ height: "100vh" }}>
         <Map
-          initialViewState={{ latitude: 32.0853, longitude: 34.7818, zoom: 12 }}
+          {...viewState}
+          onMove={(evt) => setViewState(evt.viewState)}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
@@ -407,7 +446,7 @@ const CollectFood: React.FC = () => {
         </Map>
       </div>
 
-      {/* Search Bar to Update Preferences */}
+      {/* Search Bar for Location Search */}
       <div
         style={{
           position: "absolute",
@@ -416,24 +455,42 @@ const CollectFood: React.FC = () => {
           textAlign: "center",
         }}
       >
-        <button
-          onClick={() => {
-            // Navigate to PreferencesLocation page first
-            navigate("/preferences-location");
-          }}
+        <form
+          onSubmit={handleSearchSubmit}
           style={{
-            padding: "1rem",
+            display: "inline-block",
             width: "90%",
             maxWidth: "400px",
-            borderRadius: "25px",
-            border: "1px solid #ccc",
-            background: "#fff",
-            fontSize: "1rem",
-            cursor: "pointer",
           }}
         >
-          עדכן את ההעדפות שלי
-        </button>
+          <input
+            type="text"
+            placeholder="חפש מיקום..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: "0.5rem",
+              width: "80%",
+              borderRadius: "25px",
+              border: "1px solid #ccc",
+              textAlign: "right",
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "25px",
+              marginLeft: "0.5rem",
+              border: "none",
+              backgroundColor: "#479c47",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            חפש
+          </button>
+        </form>
       </div>
     </div>
   );
