@@ -1426,3 +1426,63 @@ input:checked + .slider:before {
   color: #479c47;
   border: 1px solid #479c47;
 }
+
+/* Responsive styles for CollectFood.tsx for screens up to 768px wide */
+@media (max-width: 768px) {
+  /* Reduce overall padding on the main container */
+  .screen-container {
+    padding: 0.5rem;
+  }
+
+  /* Adjust map container height so that the search bar and modals have room */
+  .map-container {
+    height: 70vh;
+  }
+
+  /* Adjust the fixed elements (burger menu, etc.) if necessary */
+  .overLay-menu p {
+    font-size: 1rem;
+  }
+
+  /* Adjust the Meal Card for Taker */
+  .mealCardTaker {
+    width: 95%;
+    max-width: 350px;
+    padding: 0.5rem;
+    top: 8%;
+  }
+
+  .mealCardTaker h3 {
+    font-size: 1rem;
+  }
+
+  .mealCardTaker span {
+    font-size: 0.9rem;
+  }
+
+  /* For the confirmation modal content */
+  .confirmation-modal .modal-content {
+    width: 90%;
+    max-width: 300px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Search Bar adjustments */
+  .map-container form {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .map-container form input[type="text"] {
+    width: 70%;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .map-container form button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
