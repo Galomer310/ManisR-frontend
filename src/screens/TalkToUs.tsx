@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import SubmissionSuccessModal from "../components/SubmissionSuccessModal";
 
 const TalkToUs: React.FC = () => {
   const navigate = useNavigate();
@@ -11,12 +12,21 @@ const TalkToUs: React.FC = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
+  // State to control the success modal visibility
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: handle form submission logic (e.g. send to backend)
     console.log({ fullName, email, message });
-    alert("תודה! קיבלנו את ההודעה ונחזור אליך בהקדם.");
-    navigate(-1); // or navigate("/menu"), etc.
+    // Instead of alerting, show the submission success modal
+    setShowSuccessModal(true);
+  };
+
+  // When the modal is closed, navigate back (or to a desired route)
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate(-1);
   };
 
   return (
@@ -70,6 +80,12 @@ const TalkToUs: React.FC = () => {
           אישור
         </button>
       </form>
+
+      {/* Submission Success Modal */}
+      <SubmissionSuccessModal
+        show={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+      />
     </div>
   );
 };
