@@ -212,9 +212,9 @@ align-items: center;
 }
 
 .upload-food form {
-    padding: 2rem 0px;
-    display: flex;
-    flex-direction: column;
+  padding: 2rem 0px;
+  display: flex;
+  flex-direction: column;
 }
 
 .upload-food button {
@@ -222,7 +222,7 @@ align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 25px;
   background-color: rgb(255, 255, 255);
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
   box-shadow: 1px 1px 5px 1px #fffefe;
@@ -250,6 +250,31 @@ align-items: center;
   align-items: center;
   margin-bottom: 1rem;
 }
+
+/* ---------------------------------- */
+/* Responsive Styles for Smaller Screens */
+/* ---------------------------------- */
+@media (max-width: 768px) {
+  .upload-food {
+    margin: 2rem 1rem 0 1rem;
+    height: auto;
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+  .upload-food form {
+    padding: 1rem 0;
+  }
+  .upload-food input {
+    margin: 0.3rem;
+    padding: 0.4rem;
+    font-size: 0.8rem;
+  }
+  .upload-food button {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
 /* ---------------------------------- */
 /* Map and Meal Cards                */
 /* ---------------------------------- */
