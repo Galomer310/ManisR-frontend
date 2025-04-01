@@ -8,6 +8,7 @@ import bagIcon from "../assets/icons_ bag.svg";
 import calendarIcon from "../assets/icons_ calendar.svg";
 import onOffIcon from "../assets/icons_ on-off.svg";
 import axios from "axios";
+import LogoutConfirmationModal from "../components/LogoutConfirmationModal";
 
 // Define the User interface
 interface User {
@@ -21,6 +22,7 @@ const Profile: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>(orangeIcon);
   const [user, setUser] = useState<User | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 
   // Load user data from localStorage first, then refresh from the backend.
   useEffect(() => {
@@ -130,7 +132,18 @@ const Profile: React.FC = () => {
     navigate("/usageHistory");
   };
 
-  const handleLogout = () => {
+  // Show the logout confirmation modal
+  const handleShowLogoutModal = () => {
+    setShowLogoutModal(true);
+  };
+
+  // Hide the modal if user cancels
+  const handleCloseLogoutModal = () => {
+    setShowLogoutModal(false);
+  };
+
+  // If user confirms logout
+  const handleConfirmLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
@@ -215,7 +228,7 @@ const Profile: React.FC = () => {
           </div>
           <div className="profile-item-right">
             <span>פרטי חשבון</span>
-            <img src={profileIcon} />
+            <img src={profileIcon} alt="Profile Icon" />
           </div>
         </div>
 
@@ -225,7 +238,7 @@ const Profile: React.FC = () => {
           </div>
           <div className="profile-item-right">
             <span>פירות שצברתי ושוברים</span>
-            <img src={bagIcon} />
+            <img src={bagIcon} alt="Bag Icon" />
           </div>
         </div>
 
@@ -239,12 +252,25 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="profile-item-out" onClick={handleLogout}>
+        {/* Logout button triggers the pop-up */}
+        <div className="profile-item-out" onClick={handleShowLogoutModal}>
           <span style={{ display: "flex" }}>
-            התנתק/י <img style={{ marginLeft: "0.5rem" }} src={onOffIcon} />
+            התנתק/י{" "}
+            <img
+              style={{ marginLeft: "0.5rem" }}
+              src={onOffIcon}
+              alt="OnOff Icon"
+            />
           </span>
         </div>
       </div>
+
+      {/* LogoutConfirmationModal */}
+      <LogoutConfirmationModal
+        show={showLogoutModal}
+        onClose={handleCloseLogoutModal}
+        onConfirm={handleConfirmLogout}
+      />
     </div>
   );
 };
