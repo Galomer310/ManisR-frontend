@@ -1,3 +1,4 @@
+// src/screens/Messages.tsx
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -41,7 +42,7 @@ const Messages: React.FC = () => {
   );
 
   const [conversation, setConversation] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [, setNewMessage] = useState("");
   const [error, setError] = useState("");
   const [userProfile, setUserProfile] = useState<User | null>(null);
 
@@ -58,7 +59,7 @@ const Messages: React.FC = () => {
     }
   }, []);
 
-  // 1) Fetch conversation on mount & every 5 seconds
+  // Fetch conversation on mount & every 5 seconds.
   useEffect(() => {
     if (!mealId) {
       console.error("No mealId provided in location state.");
@@ -77,10 +78,9 @@ const Messages: React.FC = () => {
         const convData = res.data.conversation as Message[];
         setConversation(convData);
 
-        // 2) If we are the "giver" and we do NOT yet have a known otherPartyId,
-        //    try to find the Taker's ID from the conversation
+        // If we are the "giver" and we do NOT yet have a known otherPartyId,
+        // try to find the Taker's ID from the conversation.
         if (role === "giver" && !actualOtherPartyId && convData.length > 0) {
-          // Find a message from a user that isn't me
           const messageFromSomeoneElse = convData.find(
             (msg) => msg.sender_id !== localUserId
           );
@@ -98,13 +98,14 @@ const Messages: React.FC = () => {
     return () => clearInterval(interval);
   }, [mealId, API_BASE_URL, role, actualOtherPartyId, localUserId]);
 
-  // 3) Send message
-  const sendMessageHandler = async () => {
+  // Refactored send message handler that accepts a message as parameter.
+  const sendMessageHandler = async (msg: string) => {
     if (!mealId) {
       alert("Conversation not found. Please try again later.");
       return;
     }
-    if (newMessage.trim() === "") {
+    if (msg.trim() === "") {
+      // For manual sending, you may still want to alert.
       alert("Please enter a message.");
       return;
     }
@@ -121,7 +122,7 @@ const Messages: React.FC = () => {
           mealId: Number(mealId),
           senderId: localUserId,
           receiverId: actualOtherPartyId,
-          message: newMessage,
+          message: msg,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -141,10 +142,9 @@ const Messages: React.FC = () => {
     }
   };
 
-  // Let them click a default message quickly
+  // For preset/default messages.
   const handleDefaultMessageClick = async (msg: string) => {
-    setNewMessage(msg);
-    await sendMessageHandler();
+    await sendMessageHandler(msg);
   };
 
   return (
@@ -185,7 +185,6 @@ const Messages: React.FC = () => {
         </div>
       </div>
 
-      {/* If no mealId, just error out */}
       {!mealId ? (
         <p style={{ color: "red" }}>No conversation found for this meal.</p>
       ) : (
