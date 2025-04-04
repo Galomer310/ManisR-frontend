@@ -1098,7 +1098,7 @@ align-items: center;
 .settings-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  text-align: right; /* if you want the title aligned to the right */
+  text-align: right; 
 }
 
 .back-icon {
@@ -1120,7 +1120,7 @@ align-items: center;
   color: #333;
 }
 
-/* Remove bottom border on the last item if desired */
+/* Remove bottom border on the last item */
 .settings-item:last-child {
   border-bottom: none;
 }
