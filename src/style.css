@@ -275,6 +275,11 @@ align-items: center;
   background-color: rgb(71, 156, 71);
   color: white;
 }
+.upload-food button.selected {
+  background-color: rgb(71, 156, 71);
+  color: white;
+  border: none;
+}
 
 .special-notes {
   display: flex;
