@@ -176,11 +176,7 @@ const Menu: React.FC = () => {
       <img src={logo} alt="Manisr Logo" />
 
       <div style={{ margin: "5rem" }}>
-        <button
-          className="pickActionBtn"
-          onClick={handleGiveMeal}
-          style={{ marginRight: "1rem" }}
-        >
+        <button className="pickActionBtn" onClick={handleGiveMeal}>
           <img src={giver} alt="Give a Meal" />
         </button>
         <button className="pickActionBtn" onClick={handleTakeMeal}>
